@@ -1,0 +1,24 @@
+Package: MatrixFactorizationR
+Type: Package
+Title: Matrix Factorization Algorithm
+Version: 0.0
+Date: 2017-06-14
+Author: Kevin Caye
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: GPL-3 + file LICENSE
+LazyData: LazyData: TRUE
+Encoding: UTF-8
+Depends:
+    R (>= 3.2.3)
+Suggests:
+    testthat
+Imports:
+    Rcpp (>= 0.12.3),
+    RcppEigen (>= 0.3.2.8.1)
+LinkingTo: Rcpp, RcppEigen
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1.9000
+Roxygen: list(markdown = TRUE)
+URL: 
+BugReports: https://github.com/cayek/MatrixFactorization/issues
