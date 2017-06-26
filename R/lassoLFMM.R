@@ -100,14 +100,14 @@ lassoLFMM_withNA<- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
   ## main loop
   for (lambda in m$params$lambda.range) {
     ## c++
-    res <- lassoLFMM_main_R(dat$Y, dat$X,
-                            m$params$gamma, lambda,
-                            relative.err.epsilon,
-                            it.max,
-                            m$U,
-                            m$V,
-                            m$B,
-                            missing.index)
+    res <- lassoLFMM_main(dat$Y, dat$X,
+                          m$params$gamma, lambda,
+                          relative.err.epsilon,
+                          it.max,
+                          m$U,
+                          m$V,
+                          m$B,
+                          missing.index)
 
     m[names(res)] <- res
 
@@ -146,7 +146,7 @@ compute_soft_SVD_R <- function(X, gamma) {
   m
 }
 
-lassoLFMM_main_R <- function(Y, X, gamma, lambda, relative_err_epsilon, it_max,
+lassoLFMM_main <- function(Y, X, gamma, lambda, relative_err_epsilon, it_max,
                              U0, V0, B0,
                              missing.index = NULL) {
 

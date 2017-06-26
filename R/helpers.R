@@ -10,9 +10,10 @@ impute_median <- function(Y) {
 compute_B_ridge <- function(A, X, lambda) {
   D <- diag(1, ncol(X), ncol(X))
   if (is.matrix(A)) {
-    solve((crossprod(X,X) + lambda * D), crossprod(X, A))
+    t(solve((crossprod(X,X) + lambda * D), crossprod(X, A)))
   } else if(is.function(A)) {
     D <- diag(1, ncol(dat$X), ncol(dat$X))
-    solve((crossprod(dat$X, dat$X) + lambda * D), A(X))
+    t(solve((crossprod(dat$X, dat$X) + lambda * D), A(X)))
   }
 }
+

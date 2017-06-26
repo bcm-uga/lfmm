@@ -16,14 +16,8 @@ ridgeLFMM_noNA<- function(m, dat) {
   ## compute of P
   P.list <- compute_P(X = dat$X, lambda = m$lambda)
 
-  ## c++ algorithm
-  res <- ridgeLFMM_main(Y = dat$Y,
-                        X = dat$X,
-                        lambda = m$lambda,
-                        K = m$K,
-                        sqrtP = P.list$sqrt.P,
-                        invSqrtP = P.list$sqrt.P.inv)
-  m[names(res)] <- res
+  ## main algorithm
+  m <- ridgeLFMM_main(m, dat, P.list)
   m
 }
 
@@ -34,21 +28,22 @@ ridgeLFMM_main <- function(m, dat, P.list) {
   p <- ncol(dat$Y)
 
   ## UV
-  Af <- function(x, args) {
-    args$P %*% args$dat$productY(x)
-  }
-  Atransf <- function(x, args) {
-    args$P %*% args$dat$productYt(x)
-  }
-  res.rspectra <- RSpectra::svds(A = dat$productY,
-                                 Atrans = dat$productYt,
-                                 k = m$K,
-                                 nu = m$K, nv = m$K,
-                                 opts = list(tol = 10e-10),
-                                 dim = c(n, p),
-                                 args = list(P = P.list$sqrt.P, dat = dat))
-  m$U <- res.rspectra$u %*% diag(res.rspectra)
-  m$U <- p.list$sqrt.P.inv %*% m$U
+  ## Af <- function(x, args) {
+  ##   args$P %*% args$dat$productY(x)
+  ## }
+  ## Atransf <- function(x, args) {
+  ##   args$dat$productYt(t(args$P) %*% x)
+  ## }
+  ## res.rspectra <- RSpectra::svds(A = Af,
+  ##                                Atrans = Atransf,
+  ##                                k = m$K,
+  ##                                nu = m$K, nv = m$K,
+  ##                                opts = list(tol = 10e-10),
+  ##                                dim = c(n, p),
+  ##                                args = list(P = P.list$sqrt.P, dat = dat))
+  res.rspectra <- svd(P.list$sqrt.P %*% dat$Y, nu = m$K, nv = m$K)
+  m$U <- res.rspectra$u %*% diag(res.rspectra$d[1:m$K])
+  m$U <- P.list$sqrt.P.inv %*% m$U
   m$V <- res.rspectra$v
 
   ## B
@@ -63,7 +58,8 @@ ridgeLFMM_withNA<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
 
   ## NA and input by median
   missing.index <- which(is.na(dat$Y))
-  dat$Y <- impute_median(dat$Y)
+  ## dat$Y <- impute_median(dat$Y)
+  dat$Y[missing.index] <- sample(dat$Y[-missing.index], length(missing.index)) # maybe we can impute at random column wise ?
 
   ## compute of P
   P.list <- compute_P(X = dat$X, lambda = m$lambda)
@@ -72,17 +68,12 @@ ridgeLFMM_withNA<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
   err2 <- .Machine$double.xmax
   it <- 1
   repeat{
-    ## c++ algorithm
-    res <- ridgeLFMM_main_R(Y = dat$Y,
-                            X = dat$X,
-                            lambda = m$lambda,
-                            K = m$K,
-                            sqrtP = P.list$sqrt.P,
-                            invSqrtP = P.list$sqrt.P.inv)
+    ## main algorithm
+    m <- ridgeLFMM_main(m, dat, P.list)
 
     dat$Y[missing.index] <- NA
-    dat <- MatrixFactorizationR_impute.ridgeLFMM(res, dat)
-    err2.new <- MatrixFactorizationR_residual_error2.ridgeLFMM(res, dat)
+    dat <- MatrixFactorizationR_impute.ridgeLFMM(m, dat)
+    err2.new <- MatrixFactorizationR_residual_error2.ridgeLFMM(m, dat)
 
     if(it > it.max || (abs(err2 - err2.new) / err2) < relative.err.min) {
       break
@@ -91,7 +82,6 @@ ridgeLFMM_withNA<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
     message("It = ", it, "/", it.max, ", err2 = ", err2)
     it <- it + 1
   }
-  m[names(res)] <- res
   m
 }
 
@@ -131,7 +121,7 @@ MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, kfold.row, kfold.col, lamb
      kfold.row = kfold.row,
      kfold.col = kfold.col,
      params = params)
- }
+}
 
 ##' @export
 MatrixFactorizationR_residual_error2.ridgeLFMM <- function(m, dat) {

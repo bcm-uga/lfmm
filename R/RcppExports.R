@@ -5,11 +5,3 @@ compute_P <- function(X, lambda) {
     .Call('MatrixFactorizationR_compute_P', PACKAGE = 'MatrixFactorizationR', X, lambda)
 }
 
-compute_soft_SVD <- function(Y, gamma, U, V) {
-    invisible(.Call('MatrixFactorizationR_compute_soft_SVD', PACKAGE = 'MatrixFactorizationR', Y, gamma, U, V))
-}
-
-lassoLFMM_main <- function(Y, X, gamma, lambda, relative_err_epsilon, it_max, U0, V0, B0) {
-    .Call('MatrixFactorizationR_lassoLFMM_main', PACKAGE = 'MatrixFactorizationR', Y, X, gamma, lambda, relative_err_epsilon, it_max, U0, V0, B0)
-}
-

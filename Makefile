@@ -16,3 +16,7 @@ MatrixFactorizationR_document:
 
 MatrixFactorizationR_check:
 	R -e 'devtools::check(pkg = ".")'
+
+MatrixFactorizationR_clean:
+	rm -f R/RcppExports.R src/RcppExports.cpp src/*.o src/*.so
+

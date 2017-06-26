@@ -38,14 +38,15 @@ test_that("Dat and Rspectra", {
                       V.sd = 1.0)
 
   Af <- function(x, args) {
-    args$productY(x)
+    args$dat$productY(x)
   }
   Atransf <- function(x, args) {
-    args$productYt(x)
+    args$dat$productYt(x)
   }
   res.rspectra <- RSpectra::svds(A = Af,
                                  k, nu = k, nv = k,
-                                 Atrans = Atransf, dim = c(n, m), opts = list(tol = 1e-10))
+                                 Atrans = Atransf, dim = c(n, m), opts = list(tol = 1e-10),
+                                 args = list(dat = dat))
   res.svd <- svd(dat$Y, k, k)
 
   expect_lt(mean(abs(res.rspectra$u - res.svd$u)), 1)
