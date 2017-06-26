@@ -47,10 +47,11 @@ ridgeLFMM_main <- function(m, dat, P.list) {
   m$V <- res.rspectra$v
 
   ## B
-  Af <- function(x) {
-    t(dat$productYt(x)) - tcrossprod(crossprod(x, m$U), m$V)
-  }
-  m$B <- compute_B_ridge(Af, dat$X, lambda)
+  ## Af <- function(x) {
+  ##   t(dat$productYt(x)) - tcrossprod(crossprod(x, m$U), m$V)
+  ## }
+  ## m$B <- compute_B_ridge(Af, dat$X, m$lambda)
+  m$B <- compute_B_ridge(dat$Y - tcrossprod(m$U, m$V), dat$X, m$lambda)
   m
 }
 
@@ -67,7 +68,7 @@ ridgeLFMM_withNA<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
   ## main loop
   err2 <- .Machine$double.xmax
   it <- 1
-  repeat{
+  repeat {
     ## main algorithm
     m <- ridgeLFMM_main(m, dat, P.list)
 

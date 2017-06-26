@@ -51,7 +51,7 @@ test_that("comp with lfmmR", {
   lfmmR$center <- FALSE
   lfmmR <- fit(lfmmR, dat.list)
 
-  ## lfmm implemented with c++
+  ## lfmm implemented with rsvd
   lfmm <- ridgeLFMM(K = K,
                     lambda = lambda)
   lfmm <- MatrixFactorizationR_fit(lfmm, dat)
@@ -65,7 +65,7 @@ test_that("comp with lfmmR", {
   W.lfmmR <- tcrossprod(lfmmR$U, lfmmR$V)
   expect_lte(mean(abs(W.lfmmR - W.lfmm)), 1e-9)
   expect_lte(mean(abs(lfmm$B - t(lfmmR$B))), 1e-9)
-
+  
 })
 
 test_that("ridgeLFMM of ThesisRpackage with NA", {
@@ -130,6 +130,7 @@ test_that("ridgeLFMM with NA", {
                       B.sd = 1.0,
                       U.sd = 1.0,
                       V.sd = 1.0)
+  dat <- as.list(dat)
 
   ## no NA
   lfmm.noNA <- ridgeLFMM(K = 3, lambda = 1e-5)
