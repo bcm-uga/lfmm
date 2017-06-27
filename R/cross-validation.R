@@ -14,7 +14,7 @@ left.out.kfold <- function(kfold, J) {
   folds
 }
 
-CV <- function(m, dat, kfold.row, kfold.col, params) {
+CV <- function(m, dat, n.fold.row, n.fold.col, params) {
 
   n <- nrow(dat$Y)
   p <- ncol(dat$Y)
@@ -38,7 +38,7 @@ CV <- function(m, dat, kfold.row, kfold.col, params) {
       dat.predicted <- new(class(dat))
 
       ## row folds
-      row.folds <- left.out.kfold(kfold.row, n)
+      row.folds <- left.out.kfold(n.fold.row, n)
       for (row.fold in row.folds) {
 
         ## train/test
@@ -54,7 +54,7 @@ CV <- function(m, dat, kfold.row, kfold.col, params) {
         m.train <- MatrixFactorizationR_fit(m.train, dat.train)
 
         ## compute err
-        col.folds <- left.out.kfold(kfold.col, p)
+        col.folds <- left.out.kfold(n.fold.col, p)
         err <- data.frame()
         for (col.fold in col.folds) {
           m.train <- MatrixFactorizationR_fit_knowing_loadings(m = m.train,

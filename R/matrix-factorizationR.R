@@ -5,6 +5,7 @@
 #'
 #' @name MatrixFactorizationR
 #' @importFrom Rcpp evalCpp
+#' @importFrom foreach foreach %:% %do% %dopar%
 #' @useDynLib MatrixFactorizationR
 #' @import RcppEigen
 NULL

@@ -182,8 +182,8 @@ test_that("ridgeLFMM CV", {
 
   cv.err <- MatrixFactorizationR_CV(m = lfmm,
                                     dat = dat,
-                                    kfold.row = 2,
-                                    kfold.col = 5,
+                                    n.fold.row = 2,
+                                    n.fold.col = 5,
                                     lambdas = c(1e-10, 1 , 1e20),
                                     Ks = c(1, 2,3,4,5,6))
   expect_equal(dim(cv.err), c(6 * 3 * 2 * 5, 3))
