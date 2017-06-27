@@ -12,7 +12,7 @@ MatrixFactorizationR_test:
 	R -e 'devtools::test(pkg = ".")'
 
 MatrixFactorizationR_document:
-	R -e 'devtools::document(pkg = ."")'
+	R -e 'devtools::document(pkg = ".")'
 
 MatrixFactorizationR_check:
 	R -e 'devtools::check(pkg = ".")'
