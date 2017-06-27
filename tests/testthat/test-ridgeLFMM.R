@@ -26,7 +26,7 @@ test_that("RidgeLFMM_main", {
   ## are quite the same.
   ## svd.res$d
 
-}
+})
 
 
 test_that("comp with lfmmR", {
@@ -40,8 +40,7 @@ test_that("comp with lfmmR", {
                       B.sd = 1.0,
                       U.sd = 1.0,
                       V.sd = 1.0)
-  dat.list <- as.list(dat)
-  dat.list$G <- dat.list$Y
+  dat.list <- list(G = dat$Y, X = dat$X)
 
   K <- 3
   lambda <- 1e-5
@@ -69,7 +68,8 @@ test_that("comp with lfmmR", {
 })
 
 test_that("ridgeLFMM of ThesisRpackage with NA", {
-  
+
+  skip("a test only to debug")
   skip_if_not_installed("ThesisRpackage")
   futile.logger::flog.threshold(futile.logger::TRACE, name = "ThesisRpackage")
   require("ThesisRpackage")
@@ -188,6 +188,7 @@ test_that("ridgeLFMM CV", {
                                     Ks = c(1, 2,3,4,5,6))
   expect_equal(dim(cv.err), c(6 * 3 * 2 * 5, 3))
 
+  skip("plots")
   ggplot(cv.err, aes(y = err, x = as.factor(K))) +
     geom_boxplot() +
     facet_grid(lambda ~ ., scale = "free")
@@ -196,4 +197,4 @@ test_that("ridgeLFMM CV", {
     geom_boxplot() +
     facet_grid(K ~ ., scales = "free")
 
-}
+})

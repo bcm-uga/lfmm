@@ -1,5 +1,16 @@
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @param X input
+##' @return output
+##' @author cayek
+##' @export
 read_input <- function(X) {
   if (is.matrix(X)) {
+    return(X)
+  }
+
+  if (is.data.frame(X)) {
     return(X)
   }
 

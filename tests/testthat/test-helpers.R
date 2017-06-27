@@ -4,6 +4,7 @@ context("Helpers")
 
 test_that("compute_P", {
 
+  set.seed(135435)
   dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
                       outlier.prop = 0.1,
                       cs = c(0.8),
@@ -31,7 +32,7 @@ test_that("compute_B_ridge", {
                       V.sd = 1.0)
 
   X <- cbind(matrix(1,100,1), dat$X)
-  B <- compute_B_ridge(Y = dat$Y,
+  B <- compute_B_ridge(A = dat$Y,
                        X = X,
                        lambda = 1e-3)
   expect_equal(dim(B), c(1000, 2))
@@ -41,6 +42,7 @@ test_that("compute_B_ridge", {
 
 test_that("compute_B_lasso", {
 
+  skip("deprecated")
   dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
                       outlier.prop = 0.1,
                       cs = c(0.8),

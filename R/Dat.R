@@ -1,4 +1,4 @@
-Dat.builder <- setRefClass("Dat", fields = c("Y"),
+Dat.builder <- setRefClass("Dat", fields = c("Y", "meta"),
                            methods = list(
                              getY = function() {
                                return(Y)

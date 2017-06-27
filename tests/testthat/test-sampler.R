@@ -17,7 +17,6 @@ test_that("lfmm_sampler", {
   expect_equal(dim(dat$B), c(1000, 1))
   expect_equal(dim(dat$U), c(100, 3))
   expect_equal(dim(dat$V), c(1000, 3))
-  expect_equal(dim(dat$Epsilon), c(100, 1000))
 
 })
 
