@@ -28,30 +28,30 @@ ridgeLFMM_main <- function(m, dat, P.list) {
   p <- ncol(dat$Y)
 
   ## UV
-  ## Af <- function(x, args) {
-  ##   args$P %*% args$dat$productY(x)
-  ## }
-  ## Atransf <- function(x, args) {
-  ##   args$dat$productYt(t(args$P) %*% x)
-  ## }
-  ## res.rspectra <- RSpectra::svds(A = Af,
-  ##                                Atrans = Atransf,
-  ##                                k = m$K,
-  ##                                nu = m$K, nv = m$K,
-  ##                                opts = list(tol = 10e-10),
-  ##                                dim = c(n, p),
-  ##                                args = list(P = P.list$sqrt.P, dat = dat))
-  res.rspectra <- svd(P.list$sqrt.P %*% dat$Y, nu = m$K, nv = m$K)
-  m$U <- res.rspectra$u %*% diag(res.rspectra$d[1:m$K])
+  Af <- function(x, args) {
+    args$P %*% args$dat$productY(x)
+  }
+  Atransf <- function(x, args) {
+    args$dat$productYt(t(args$P) %*% x)
+  }
+  res.rspectra <- RSpectra::svds(A = Af,
+                                 Atrans = Atransf,
+                                 k = m$K,
+                                 nu = m$K, nv = m$K,
+                                 opts = list(tol = 10e-10),
+                                 dim = c(n, p),
+                                 args = list(P = P.list$sqrt.P, dat = dat))
+  ## res.rspectra <- svd(P.list$sqrt.P %*% dat$Y, nu = m$K, nv = m$K) ## debug
+  m$U <- res.rspectra$u %*% diag(res.rspectra$d[1:m$K], m$K, m$K)
   m$U <- P.list$sqrt.P.inv %*% m$U
   m$V <- res.rspectra$v
 
   ## B
-  ## Af <- function(x) {
-  ##   t(dat$productYt(x)) - tcrossprod(crossprod(x, m$U), m$V)
-  ## }
-  ## m$B <- compute_B_ridge(Af, dat$X, m$lambda)
-  m$B <- compute_B_ridge(dat$Y - tcrossprod(m$U, m$V), dat$X, m$lambda)
+  Af <- function(x) {
+    t(dat$productYt(x)) - tcrossprod(crossprod(x, m$U), m$V)
+  }
+  m$B <- compute_B_ridge(Af, dat$X, m$lambda)
+  ## m$B <- compute_B_ridge(dat$Y - tcrossprod(m$U, m$V), dat$X, m$lambda) ## debug
   m
 }
 
@@ -59,8 +59,7 @@ ridgeLFMM_withNA<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
 
   ## NA and input by median
   missing.index <- which(is.na(dat$Y))
-  ## dat$Y <- impute_median(dat$Y)
-  dat$Y[missing.index] <- sample(dat$Y[-missing.index], length(missing.index)) # maybe we can impute at random column wise ?
+  dat$Y <- impute_median(dat$Y)
 
   ## compute of P
   P.list <- compute_P(X = dat$X, lambda = m$lambda)
@@ -83,6 +82,10 @@ ridgeLFMM_withNA<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
     message("It = ", it, "/", it.max, ", err2 = ", err2)
     it <- it + 1
   }
+
+  ## to avoid side effect
+  dat$Y[missing.index] <- NA
+
   m
 }
 
@@ -122,6 +125,7 @@ MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, kfold.row, kfold.col, lamb
      kfold.row = kfold.row,
      kfold.col = kfold.col,
      params = params)
+
 }
 
 ##' @export

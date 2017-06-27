@@ -130,15 +130,15 @@ test_that("ridgeLFMM with NA", {
                       B.sd = 1.0,
                       U.sd = 1.0,
                       V.sd = 1.0)
-  dat <- as.list(dat)
 
   ## no NA
-  lfmm.noNA <- ridgeLFMM(K = 3, lambda = 1e-5)
-  lfmm.noNA <- MatrixFactorizationR_fit(lfmm.noNA, dat)
+  lfmm.noNA<- ridgeLFMM(K = 3, lambda = 1e-5)
+  lfmm.noNA<- MatrixFactorizationR_fit(lfmm.noNA, dat)
 
   ## add na
   na.ind <- sample.int(n * p, 0.1 * n * p)
   dat$Y[na.ind] <- NA
+  dat.list$Y[na.ind] <- NA
 
   ## lfmm with na
   lfmm.NA <- ridgeLFMM(K = 3, lambda = 1e-5)
@@ -155,11 +155,13 @@ test_that("ridgeLFMM with NA", {
   W.NA.impute <- tcrossprod(lfmm.NA.impute$U, lfmm.NA.impute$V)
   e1 <- sqrt(mean((W.NA - W.noNA) ^ 2))
   e2 <- sqrt(mean((W.NA.impute - W.noNA) ^ 2))
+  (e2 - e1) / e1
   expect_gt((e2 - e1) / e1, 1)
 
   ## comparison B
   e1 <- sqrt(mean((lfmm.noNA$B - lfmm.NA$B) ^ 2))
   e2 <- sqrt(mean((lfmm.noNA$B - lfmm.NA.impute$B) ^ 2))
+  (e2 - e1) / e1
   expect_gt((e2 - e1) / e1, 1)
 
 })
@@ -170,7 +172,7 @@ test_that("ridgeLFMM CV", {
   p <- 1000
   dat <- lfmm_sampler(n = n, p = p, K = 3,
                       outlier.prop = 0.1,
-                      cs = c(0.8, 0.1),
+                      cs = c(0.6),
                       sigma = 0.2,
                       B.sd = 1.0,
                       U.sd = 1.0,
@@ -183,7 +185,7 @@ test_that("ridgeLFMM CV", {
                                     kfold.row = 2,
                                     kfold.col = 5,
                                     lambdas = c(1e-10, 1 , 1e20),
-                                    Ks = c(1,2,3,4,5,6))
+                                    Ks = c(1, 2,3,4,5,6))
   expect_equal(dim(cv.err), c(6 * 3 * 2 * 5, 3))
 
   ggplot(cv.err, aes(y = err, x = as.factor(K))) +
@@ -193,4 +195,5 @@ test_that("ridgeLFMM CV", {
   ggplot(cv.err, aes(y = err, x = as.factor(lambda))) +
     geom_boxplot() +
     facet_grid(K ~ ., scales = "free")
+
 }

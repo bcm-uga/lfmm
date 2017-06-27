@@ -32,17 +32,20 @@ CV <- function(m, dat, kfold.row, kfold.col, params) {
 
       m.train <- m
 
+      ## copy dat object
+      dat.train <- new(class(dat))
+      dat.test <- new(class(dat))
+      dat.predicted <- new(class(dat))
+
       ## row folds
       row.folds <- left.out.kfold(kfold.row, n)
       for (row.fold in row.folds) {
 
         ## train/test
-        dat.train <- dat
-        dat.train$Y <- dat.train$Y[-row.fold,,drop = FALSE]
-        dat.train$X <- dat.train$X[-row.fold,,drop = FALSE]
-        dat.test <- dat
-        dat.test$Y <- dat.test$Y[row.fold,,drop = FALSE]
-        dat.test$X <- dat.test$X[row.fold,,drop = FALSE]
+        dat.train$Y <- dat$Y[-row.fold,,drop = FALSE]
+        dat.train$X <- dat$X[-row.fold,,drop = FALSE]
+        dat.test$Y <- dat$Y[row.fold,,drop = FALSE]
+        dat.test$X <- dat$X[row.fold,,drop = FALSE]
 
         ## method
         m.train[param.names] <- param
@@ -56,7 +59,8 @@ CV <- function(m, dat, kfold.row, kfold.col, params) {
         for (col.fold in col.folds) {
           m.train <- MatrixFactorizationR_fit_knowing_loadings(m = m.train,
                                                                dat = dat.test)
-          dat.predicted <- dat.test
+          dat.predicted$Y <- dat.test$Y
+          dat.predicted$X <- dat.test$X
           dat.predicted$Y[,col.fold] <- NA
           dat.predicted <- MatrixFactorizationR_impute(m.train, dat.predicted)
           err <- rbind(err,
