@@ -117,6 +117,7 @@ MatrixFactorizationR_impute.ridgeLFMM <- function(m, dat) {
   dat
 }
 
+##' @export
 MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, kfold.row, kfold.col, lambdas , Ks) {
 
   params <- base::expand.grid(list(lambda = lambdas, K = Ks))
