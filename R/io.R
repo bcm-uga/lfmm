@@ -14,6 +14,19 @@ read_input <- function(X) {
     return(X)
   }
 
+  if (is.numeric(X)) {
+    return(X)
+  }
+
+  if (is.logical(X)) {
+    return(X)
+  }
+
+  if (is.integer(X)) {
+    return(X)
+  }
+
+
   if (is.character(X)) {
     if (tools::file_ext(X) == "lfmm") {
       return(as.matrix(readr::read_delim(X, delim = " ",
