@@ -55,7 +55,7 @@ ridgeLFMM_main <- function(m, dat, P.list) {
   m
 }
 
-ridgeLFMM_withNA<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
+ridgeLFMM_withNA <- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
 
   ## NA and input by median
   missing.index <- which(is.na(dat$Y))
