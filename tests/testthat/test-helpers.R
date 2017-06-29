@@ -42,7 +42,6 @@ test_that("compute_B_ridge", {
 
 test_that("compute_B_lasso", {
 
-  skip("deprecated")
   dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
                       outlier.prop = 0.1,
                       cs = c(0.8),
@@ -60,11 +59,11 @@ test_that("compute_B_lasso", {
 
   X <- cbind(matrix(1,100,1), dat$X)
   X <- svd(X)$u ## to have othogonal value
-  B.cpp <- compute_B_lasso(Y = dat$Y,
-                       X = X,
-                       lambda = lambda)
+  B.pkg <- compute_B_lasso(A = dat$Y,
+                           X = X,
+                           lambda = lambda)
 
-  expect_equal(dim(B.cpp), c(1000, 2))
+  expect_equal(dim(B.pkg), c(1000, 2))
   ## hist(B[,2]) 
   ## mean(B[,2] == 0)
 
@@ -72,7 +71,6 @@ test_that("compute_B_lasso", {
   B.r <- B_lasso(dat$Y, X, lambda)
 
   ## comp
-  expect_lt(mean(abs(t(B.r) - B.cpp)), 1e-10)
-  expect_equal(mean(B.r != 0), mean(B.cpp != 0))
-  
+  expect_lt(mean(abs(t(B.r) - B.pkg)), 1e-15)
+  expect_equal(mean(B.r != 0), mean(B.pkg != 0))
 })

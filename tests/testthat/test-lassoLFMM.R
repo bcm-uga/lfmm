@@ -201,7 +201,7 @@ test_that("lassoLFMM", {
 
 })
 
-test_that("lassoLFMM", {
+test_that("lassoLFMM with missing value", {
 
   skip("todo")
   K <- 3

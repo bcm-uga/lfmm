@@ -18,6 +18,11 @@ compute_B_ridge <- function(A, X, lambda) {
   }
 }
 
+compute_B_lasso <- function(A, X, lambda) {
+  B_hat <- compute_B_ridge(A, X, 0.0)
+  sign(B_hat) * sapply((abs(B_hat) - lambda), function(x) max(0,x))
+}
+
 #' score are assume to follow student distibution with df degre of freedom
 compute_pvalue_from_tscore <- function(score, df) {
   apply(score, 1:2, function(z) 2 * pt(abs(z), df = df, lower.tail = FALSE))

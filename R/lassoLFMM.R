@@ -62,20 +62,17 @@ lassoLFMM_init <- function(m, dat) {
   m
 }
 
-lassoLFMM_noNA <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
+lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
 
   m <- lassoLFMM_init(m, dat)
 
   ## main loop
   for (lambda in m$params$lambda.range) {
-    ## c++
-    res <- lassoLFMM_main(dat$Y, dat$X,
-                          m$params$gamma, lambda,
-                          relative.err.epsilon,
-                          it.max,
-                          m$U,
-                          m$V,
-                          m$B)
+
+    m <- lassoLFMM_loop(m, dat,
+                        m$params$gamma, lambda,
+                        relative.err.epsilon,
+                        it.max)
 
     m[names(res)] <- res
 
@@ -87,50 +84,12 @@ lassoLFMM_noNA <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
   }
   m
 }
-
-lassoLFMM_withNA<- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
-
-  ## NA and input by median
-  missing.index <- which(is.na(dat$Y))
-  dat$Y <- impute_median(dat$Y)
-
-  ## lasso init
-  m <- lassoLFMM_init(m, dat)
-
-  ## main loop
-  for (lambda in m$params$lambda.range) {
-    ## c++
-    res <- lassoLFMM_main(dat$Y, dat$X,
-                          m$params$gamma, lambda,
-                          relative.err.epsilon,
-                          it.max,
-                          m$U,
-                          m$V,
-                          m$B,
-                          missing.index)
-
-    m[names(res)] <- res
-
-    nozero.prop <- mean(m$B > 0.0)
-    message("=== lambda = ", lambda, ", no zero B proportion = ", nozero.prop)
-    if( nozero.prop > m$nozero.prop) {
-      break
-    }
-  }
-
-  m
-}
-
 
 ##' @export
 MatrixFactorizationR_fit.lassoLFMM <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
 
-  ## test if there missing value in Y
-  if (anyNA(dat$Y)) {
-    res <- lassoLFMM_withNA(m, dat, it.max, relative.err.epsilon)
-  } else {
-    res <- lassoLFMM_noNA(m, dat, it.max, relative.err.epsilon)
-  }
+  res <- lassoLFMM_main(m, dat, it.max, relative.err.epsilon)
+  res
 }
 
 compute_soft_SVD_R <- function(X, gamma) {
@@ -146,9 +105,7 @@ compute_soft_SVD_R <- function(X, gamma) {
   m
 }
 
-lassoLFMM_main <- function(Y, X, gamma, lambda, relative_err_epsilon, it_max,
-                             U0, V0, B0,
-                             missing.index = NULL) {
+lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) {
 
   ## constants
   n = nrow(Y)
@@ -172,6 +129,9 @@ lassoLFMM_main <- function(Y, X, gamma, lambda, relative_err_epsilon, it_max,
     message("It = ", it , "/", it_max, ", err2 = " ,err)
 
     ## step B
+    Af <- function(x) {
+      t(dat$productYt(x)) - tcrossprod(crossprod(x, U), V)
+    }
     Yux = Y - tcrossprod(U, V)
     B = compute_B_lasso(Yux, X, lambda)
 
