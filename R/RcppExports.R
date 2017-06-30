@@ -5,3 +5,11 @@ compute_P <- function(X, lambda) {
     .Call('MatrixFactorizationR_compute_P', PACKAGE = 'MatrixFactorizationR', X, lambda)
 }
 
+impute_lfmm_cpp <- function(Y, X, U, V, B, missingId) {
+    invisible(.Call('MatrixFactorizationR_impute_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B, missingId))
+}
+
+err2_lfmm_cpp <- function(Y, X, U, V, B) {
+    .Call('MatrixFactorizationR_err2_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B)
+}
+

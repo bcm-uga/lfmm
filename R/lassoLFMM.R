@@ -114,7 +114,7 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
   ## variables
   U = U0
   V = V0
-  Yux = Y
+  Yux = Y ## j'ai plus besoin de ca !! On ne duplique plus les data :D
   B = B0
   err = 0.0
   Yux = Y - tcrossprod(U, V)
@@ -142,7 +142,7 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
     V <- res$V
 
     ## impute NA
-    Yux = tcrossprod(X, B) + tcrossprod(U, V)
+    Yux <- tcrossprod(X, B) + tcrossprod(U, V)
     if (!is.null(missing.index)) {
       Y[missing.index] <- Yux[missing.index]
     }

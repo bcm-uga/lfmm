@@ -58,3 +58,45 @@ test_that("Dat and Rspectra", {
   ## error because au PC get same variance
 
 })
+
+test_that("LfmmDat impute and err2", {
+
+
+  dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
+                      outlier.prop = 0.1,
+                      cs = c(0.8),
+                      sigma = 0.2,
+                      B.sd = 1.0,
+                      U.sd = 1.0,
+                      V.sd = 1.0)
+  dat$U <- NULL
+  dat$V <- NULL
+  dat$B <- NULL
+  ## run lfmm ridge
+  m <- ridgeLFMM(K = 3, 1e-5)
+  m <- MatrixFactorizationR_fit(m, dat)
+
+  ## NA
+  prop <- 0.01
+  n <- nrow(dat$Y)
+  p <- ncol(dat$Y)
+  dat$missing.ind <- sample(n * p, prop * n * p)
+  dat$Y[dat$missing.ind] <- NA
+
+  ## impute
+  Y <- dat$Y
+  Yux <- tcrossprod(dat$X, m$B) + tcrossprod(m$U, m$V)
+  Y[dat$missing.ind]  <- Yux[dat$missing.ind]
+  dat$impute_lfmm(m$U, m$V, m$B)
+  anyNA(dat$Y)
+  expect_lte(mean(abs(dat$Y - Y)), 1e-18)
+
+  ## err2
+  Yux <- tcrossprod(dat$X, m$B) + tcrossprod(m$U, m$V)
+  Yux <- Y - Yux
+  err2.R <- mean(Yux ^ 2)
+  err2.cpp <- dat$err2_lfmm(m$U, m$V, m$B)
+  expect_lte(mean(abs(err2.cpp - err2.R)), 1e-10)
+
+})
+

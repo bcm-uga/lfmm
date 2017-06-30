@@ -1,4 +1,4 @@
-Dat.builder <- setRefClass("Dat", fields = c("Y", "meta"),
+Dat.builder <- setRefClass("Dat", fields = c("Y", "meta", "missing.ind"),
                            methods = list(
                              getY = function() {
                                return(Y)
@@ -17,7 +17,11 @@ Dat.builder <- setRefClass("Dat", fields = c("Y", "meta"),
 #'
 #' @export
 Dat <- function(Y) {
-  Dat.builder(Y = read_input(Y),
-              meta = list())
+  dat <- Dat.builder(Y = read_input(Y),
+                     meta = list(),
+                     missing.ind = NULL)
+  dat$missing.ind <- which(is.na(dat$Y))
+  dat
+  dat
 }
 
