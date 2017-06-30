@@ -83,5 +83,6 @@ lfmm_sampler <- function(n, p, K,
                            outlier = outlier,
                            U = U,
                            V = V,
-                           B = B)
+                           B = B,
+                           meta = list())
 }

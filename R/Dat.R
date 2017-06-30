@@ -17,6 +17,7 @@ Dat.builder <- setRefClass("Dat", fields = c("Y", "meta"),
 #'
 #' @export
 Dat <- function(Y) {
-  Dat.builder(Y = read_input(Y))
+  Dat.builder(Y = read_input(Y),
+              meta = list())
 }
 

@@ -16,6 +16,7 @@ LfmmDat <- function(Y, X) {
 #' @export
 SimulatedLfmmDat <- function(Y, X, outlier, U, V, B) {
   SimulatedLfmmDat.builder(Y = read_input(Y),
+                           meta = list(),
                            X = read_input(X),
                            outlier = read_input(outlier),
                            U = read_input(U),
