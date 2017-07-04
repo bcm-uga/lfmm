@@ -100,3 +100,30 @@ test_that("LfmmDat impute and err2", {
 
 })
 
+test_that("Dat svd", {
+
+  n <- 100
+  m <- 1000
+  k <- 3
+  dat <- lfmm_sampler(n = 100, p = 1000, K = k,
+                      outlier.prop = 0.1,
+                      cs = c(0.8),
+                      sigma = 0.2,
+                      B.sd = 1.0,
+                      U.sd = 1.0,
+                      V.sd = 1.0)
+
+  res.rspectra <- dat$svd(k,k,k)
+  res.svd <- svd(dat$Y, k, k)
+
+  expect_lt(mean(abs(res.rspectra$u - res.svd$u)), 1)
+  expect_lt(mean(abs(res.rspectra$d - res.svd$d[1:k])), 1e-10)
+  expect_lt(mean(abs(res.rspectra$v - res.svd$v)), 1)
+  W.svd <- tcrossprod(res.svd$u %*% diag(res.svd$d[1:k]), res.svd$v)
+  W.rspectra <- tcrossprod(res.rspectra$u %*% diag(res.rspectra$d[1:k]), res.rspectra$v)
+  ## error because au PC get same variance
+
+  expect_lt(mean(abs(W.rspectra - W.svd)), 1e-10)
+
+})
+

@@ -58,7 +58,7 @@ ridgeLFMM_main <- function(m, dat, P.list) {
 ridgeLFMM_withNA <- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
 
   ## NA and input by median
-  missing.index <- which(is.na(dat$Y))
+  dat$missing.ind <- which(is.na(dat$Y))
   dat$Y <- impute_median(dat$Y)
 
   ## compute of P
@@ -71,10 +71,8 @@ ridgeLFMM_withNA <- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
     ## main algorithm
     m <- ridgeLFMM_main(m, dat, P.list)
 
-    dat$Y[missing.index] <- NA
-    dat <- MatrixFactorizationR_impute.ridgeLFMM(m, dat)
-    err2.new <- MatrixFactorizationR_residual_error2.ridgeLFMM(m, dat)
-
+    dat$impute_lfmm(m$U, m$V, m$B)
+    err2.new <- dat$err2_lfmm(m$U, m$V, m$B)
     if(it > it.max || (abs(err2 - err2.new) / err2) < relative.err.min) {
       break
     }
@@ -84,7 +82,7 @@ ridgeLFMM_withNA <- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
   }
 
   ## to avoid side effect
-  dat$Y[missing.index] <- NA
+  dat$Y[dat$missing.ind] <- NA
 
   m
 }
@@ -110,14 +108,6 @@ MatrixFactorizationR_fit_knowing_loadings.ridgeLFMM <- function(m, dat) {
 }
 
 ##' @export
-MatrixFactorizationR_impute.ridgeLFMM <- function(m, dat) {
-  missing.index <- which(is.na(dat$Y))
-  dat$Y[missing.index] <- tcrossprod(m$U, m$V)[missing.index]
-  dat$Y[missing.index] <- dat$Y[missing.index] + tcrossprod(dat$X, m$B)[missing.index]
-  dat
-}
-
-##' @export
 MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, n.fold.row, n.fold.col, lambdas , Ks) {
 
   params <- base::expand.grid(list(lambda = lambdas, K = Ks))
@@ -129,9 +119,3 @@ MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, n.fold.row, n.fold.col, la
 
 }
 
-##' @export
-MatrixFactorizationR_residual_error2.ridgeLFMM <- function(m, dat) {
-  E <- dat$Y - tcrossprod(m$U, m$V)
-  E <- E - tcrossprod(dat$X, m$B)
-  mean(E ^ 2)
-}

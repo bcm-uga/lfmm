@@ -2,10 +2,10 @@ LfmmDat.builder <- setRefClass("LfmmDat", contains = "Dat",
                                fields = c("X"),
                                methods = list(
                                  impute_lfmm = function(U, V, B) {
-                                   impute_lfmm_cpp(.self$Y, X, U, V, B, .self$missing.ind)
+                                   impute_lfmm_cpp(.self$Y, .self$X, U, V, B, .self$missing.ind)
                                  },
                                  err2_lfmm = function(U, V, B) {
-                                   err2_lfmm_cpp(Y, X, U, V, B)
+                                   err2_lfmm_cpp(.self$Y, .self$X, U, V, B)
                                  }
                                )
                                )

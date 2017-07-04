@@ -130,6 +130,7 @@ test_that("ridgeLFMM with NA", {
                       B.sd = 1.0,
                       U.sd = 1.0,
                       V.sd = 1.0)
+  dat.list <- list(G = dat$Y, X = dat$X)
 
   ## no NA
   lfmm.noNA<- ridgeLFMM(K = 3, lambda = 1e-5)

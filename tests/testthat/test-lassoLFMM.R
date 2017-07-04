@@ -3,7 +3,6 @@ context("lassoLFMM")
 
 test_that("lassoLFMM_heuristic_gamma and lassoLFMM_heuristic_lambda_range", {
 
-  skip("todo")
   K <- 3
   dat <- lfmm_sampler(n = 100, p = 1000, K = K,
                       outlier.prop = 0.1,
@@ -24,10 +23,6 @@ test_that("lassoLFMM_heuristic_gamma and lassoLFMM_heuristic_lambda_range", {
 
 test_that("compute_soft_svd", {
 
-  skip("To debug")
-  ## Eigen::Map<Eigen::MatrixXd> U,
-  ## Eigen::Map<Eigen::MatrixXd> V
-
 
   D_thau <- function(X, gamma) {
     m <- list()
@@ -37,6 +32,7 @@ test_that("compute_soft_svd", {
     m$K <- ncol(Sigma)
 
     svd.res <- svd(X, nu = m$K, nv = m$K)
+    m$d <- aux[aux > 0.0]
     m$U <- svd.res$u %*% Sigma
     m$V <- svd.res$v
     m
@@ -55,11 +51,10 @@ test_that("compute_soft_svd", {
   m <- lassoLFMM(K = 3)
   params <- lassoLFMM_heuristic_gamma_lambda_range(m, dat)
 
-  ## c++
-  U <- matrix(0, 100, 3)
-  V <- matrix(0, 1000, 3)
-  compute_soft_SVD(dat$Y,params$gamma,U,V)
-  W.cpp <- tcrossprod(U,V)
+  ## RSpectra
+  res.rspectra <- dat$svd_soft(params$gamma, K)
+  W.rspectra <- tcrossprod(res.rspectra$u %*% diag(res.rspectra$d),
+                           res.rspectra$v)
 
   ## R
   res <- D_thau(dat$Y, params$gamma)
@@ -67,7 +62,8 @@ test_that("compute_soft_svd", {
   W.r <- tcrossprod(res$U,res$V)
 
   ## comp
-  mean(abs(W.r - W.cpp))
+  expect_lt(mean(abs(W.r - W.rspectra)), 1e-10)
+  expect_lt(mean(abs(res$d - res.rspectra$d)), 1e-10)
 
 })
 
@@ -91,7 +87,7 @@ test_that("lassoLFMM_main", {
                  lambda.K = 20,
                  lambda.eps = 0.001)
   params <- lassoLFMM_heuristic_gamma_lambda_range(m, dat)
-  
+
   ## init B
   if (is.null(m$B)) {
     m$B <- matrix(0.0, ncol(dat$Y), ncol(dat$X))

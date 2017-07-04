@@ -20,15 +20,18 @@ lassoLFMM_heuristic_gamma_lambda_range<- function(m, dat) {
 
   K <- m$K
 
+  ## compute gamma
   res <- list()
-  svd.res <- svd(dat$Y, nu = K, nv = K) # compute only singular value
+  svd.res <- dat$svd(k = K + 1, K, K)# compute only singular value
   res$gamma <- (svd.res$d[K] + svd.res$d[K + 1]) / 2
+  U <-svd.res$u[,1:K] %*% diag(svd.res$d[1:K], K, K)
+  V <- svd.res$v[,1:K]
 
-
-  Y <- dat$Y - tcrossprod(svd.res$u[,1:K] %*% diag(svd.res$d[1:K], K, K),
-                          svd.res$v[,1:K])
-
-  B <- compute_B_ridge(Y, dat$X, 0.0)
+  ## compute B
+  Af <- function(x) {
+    t(dat$productYt(x)) - tcrossprod(crossprod(x, U), V)
+  }
+  B <- compute_B_ridge(Af, dat$X, 0.0)
 
   ## lambda max and min
   lambda.max <- max(B)
@@ -66,6 +69,10 @@ lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
 
   m <- lassoLFMM_init(m, dat)
 
+  ## NA and input by median
+  dat$missing.ind <- which(is.na(dat$Y))
+  dat$Y <- impute_median(dat$Y)
+
   ## main loop
   for (lambda in m$params$lambda.range) {
 
@@ -82,6 +89,10 @@ lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
       break
     }
   }
+
+  ## to avoid side effect
+  dat$Y[dat$missing.ind] <- NA
+
   m
 }
 
@@ -92,19 +103,6 @@ MatrixFactorizationR_fit.lassoLFMM <- function(m, dat, it.max = 100, relative.er
   res
 }
 
-compute_soft_SVD_R <- function(X, gamma) {
-  m <- list()
-  svd.res <- svd(X, nu = 0, nv = 0) # compute only singular value
-  aux <- svd.res$d - gamma
-  Sigma <- diag(aux[aux > 0.0])
-  m$K <- ncol(Sigma)
-
-  svd.res <- svd(X, nu = m$K, nv = m$K)
-  m$U <- svd.res$u %*% Sigma
-  m$V <- svd.res$v
-  m
-}
-
 lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) {
 
   ## constants
@@ -112,14 +110,8 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
   p = ncol(Y)
 
   ## variables
-  U = U0
-  V = V0
-  Yux = Y ## j'ai plus besoin de ca !! On ne duplique plus les data :D
-  B = B0
   err = 0.0
-  Yux = Y - tcrossprod(U, V)
-  Yux = Yux - tcrossprod(X, B)
-  err_new = mean(Yux ^ 2)
+  err_new = dat$err2_lfmm(m$U, m$V, m$B)
   relative_err = .Machine$double.xmax
   it = 1
 
@@ -130,14 +122,12 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
 
     ## step B
     Af <- function(x) {
-      t(dat$productYt(x)) - tcrossprod(crossprod(x, U), V)
+      t(dat$productYt(x)) - tcrossprod(crossprod(x, m$U), m$V)
     }
-    Yux = Y - tcrossprod(U, V)
-    B = compute_B_lasso(Yux, X, lambda)
+    m$B <- compute_B_lasso(Af, dat$X, lambda)
 
     ## compute W = UV^T
-    Yux = Y - tcrossprod(X, B)
-    res <- compute_soft_SVD_R(Yux, gamma)
+    res.svd <- compute_soft_SVD_R(Yux, gamma)
     U <- res$U
     V <- res$V
 
