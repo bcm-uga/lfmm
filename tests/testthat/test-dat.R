@@ -112,8 +112,13 @@ test_that("Dat svd", {
                       B.sd = 1.0,
                       U.sd = 1.0,
                       V.sd = 1.0)
-
-  res.rspectra <- dat$svd(k,k,k)
+  Af <- function(x, args) {
+    dat$productY(x)
+  }
+  Atransf <- function(x, args) {
+    dat$productYt(x)
+  }
+  res.rspectra <- compute_svd(Af, Atransf, k, k, k, dim = c(nrow(dat$Y), ncol(dat$Y)))
   res.svd <- svd(dat$Y, k, k)
 
   expect_lt(mean(abs(res.rspectra$u - res.svd$u)), 1)

@@ -62,7 +62,8 @@ CV <- function(m, dat, n.fold.row, n.fold.col, params) {
           dat.predicted$Y <- dat.test$Y
           dat.predicted$X <- dat.test$X
           dat.predicted$Y[,col.fold] <- NA
-          dat.predicted <- MatrixFactorizationR_impute(m.train, dat.predicted)
+          dat.predicted$missing.ind <- which(is.na(dat.predicted$Y))
+          dat.predicted$impute_lfmm(m.train$U, m.train$V, m.train$B)
           err <- rbind(err,
                        data.frame(err = mean((dat.predicted$Y[,col.fold] - dat.test$Y[,col.fold]) ^2),
                                   param))

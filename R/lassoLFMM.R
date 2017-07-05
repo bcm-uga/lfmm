@@ -22,7 +22,13 @@ lassoLFMM_heuristic_gamma_lambda_range<- function(m, dat) {
 
   ## compute gamma
   res <- list()
-  svd.res <- dat$svd(k = K + 1, K, K)# compute only singular value
+  Af <- function(x, args) {
+    dat$productY(x)
+  }
+  Atransf <- function(x, args) {
+    dat$productYt(x)
+  }
+  svd.res <- compute_svd(Af, Atransf, K + 1, K, K, dim = c(nrow(dat$Y), ncol(dat$Y)))
   res$gamma <- (svd.res$d[K] + svd.res$d[K + 1]) / 2
   U <-svd.res$u[,1:K] %*% diag(svd.res$d[1:K], K, K)
   V <- svd.res$v[,1:K]
@@ -81,8 +87,6 @@ lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
                         relative.err.epsilon,
                         it.max)
 
-    m[names(res)] <- res
-
     nozero.prop <- mean(m$B > 0.0)
     message("=== lambda = ", lambda, ", no zero B proportion = ", nozero.prop)
     if( nozero.prop > m$nozero.prop) {
@@ -106,8 +110,8 @@ MatrixFactorizationR_fit.lassoLFMM <- function(m, dat, it.max = 100, relative.er
 lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) {
 
   ## constants
-  n = nrow(Y)
-  p = ncol(Y)
+  n = nrow(dat$Y)
+  p = ncol(dat$Y)
 
   ## variables
   err = 0.0
@@ -127,24 +131,23 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
     m$B <- compute_B_lasso(Af, dat$X, lambda)
 
     ## compute W = UV^T
-    res.svd <- compute_soft_SVD_R(Yux, gamma)
-    U <- res$U
-    V <- res$V
+    Af <- function(x, args) {
+      dat$productY(x)- dat$X %*% crossprod(m$B, x)
+    }
+    Atransf <- function(x, args) {
+      dat$productYt(x) - m$B %*% crossprod(dat$X, x)
+    }
+    res.rspectra <- compute_svd_soft(Af, Atransf, gamma, m$K, dim = c(nrow(dat$Y), ncol(dat$Y)))
+    m$U <- res.rspectra$u %*% diag(res.rspectra$d, length(res.rspectra$d), length(res.rspectra$d))
+    m$V <- res.rspectra$v
 
     ## impute NA
-    Yux <- tcrossprod(X, B) + tcrossprod(U, V)
-    if (!is.null(missing.index)) {
-      Y[missing.index] <- Yux[missing.index]
-    }
+    dat$impute_lfmm(m$U, m$V, m$B)
 
     ## err
-    Yux = Y - Yux
-    err_new = mean(Yux ^ 2)
+    err_new = dat$err2_lfmm(m$U, m$V, m$B)
     relative_err = abs(err_new - err) / err
     it = it + 1
   }
-
-  list(U = U,
-       V = V,
-       B = B)
+  m
 }

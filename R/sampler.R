@@ -84,5 +84,6 @@ lfmm_sampler <- function(n, p, K,
                            U = U,
                            V = V,
                            B = B,
-                           meta = list())
+                           meta = list(),
+                           missing.ind = c())
 }

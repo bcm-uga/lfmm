@@ -32,3 +32,34 @@ compute_pvalue_from_tscore <- function(score, df) {
 compute_pvalue_from_zscore <- function(score, mean = 0, sd = 1) {
   apply(score, 1:2, function(z) 2 * pnorm(abs(z), mean = mean, sd = sd, lower.tail = FALSE))
 }
+
+compute_svd <- function(Af, Atransf,k, nu, nv, dim, opts = list(tol = 10e-10)) {
+  RSpectra::svds(A = Af,
+                 Atrans = Atransf,
+                 k = k,
+                 nu = nu, nv = nv,
+                 opts = opts,
+                 dim = dim)
+}
+
+compute_svd_soft <- function(Af, Atransf, gamma, k, dim, opts = list(tol = 10e-10)) {
+  svd.res <- RSpectra::svds(A = Af,
+                            Atrans = Atransf,
+                            k = k + 2, ## mouais...
+                            nu = k + 2, nv = k + 2,
+                            opts = opts,
+                            dim = dim)
+  svd.res$d <- svd.res$d - gamma
+  svd.res$d <- svd.res$d[svd.res$d > 0.0]
+  K <- length(svd.res$d)
+  if (K > k) {
+    warning("K is increasing, now K = ", K)
+  }
+  if (K > (k + 2) || K <= 0.0) {
+    stop("K too big or too small, OMG, call 911 !!")
+  }
+  svd.res$u <-svd.res$u[,1:K] 
+  svd.res$v <- svd.res$v[,1:K]
+  svd.res
+}
+
