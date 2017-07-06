@@ -6,15 +6,14 @@
 
 using namespace Rcpp;
 
-// compute_P
-Rcpp::List compute_P(const Eigen::Map<Eigen::MatrixXd>& X, const double lambda);
-RcppExport SEXP MatrixFactorizationR_compute_P(SEXP XSEXP, SEXP lambdaSEXP) {
+// compute_eigen_svd
+Rcpp::List compute_eigen_svd(const Eigen::Map<Eigen::MatrixXd>& X);
+RcppExport SEXP MatrixFactorizationR_compute_eigen_svd(SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const double >::type lambda(lambdaSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_P(X, lambda));
+    rcpp_result_gen = Rcpp::wrap(compute_eigen_svd(X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -50,7 +49,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"MatrixFactorizationR_compute_P", (DL_FUNC) &MatrixFactorizationR_compute_P, 2},
+    {"MatrixFactorizationR_compute_eigen_svd", (DL_FUNC) &MatrixFactorizationR_compute_eigen_svd, 1},
     {"MatrixFactorizationR_impute_lfmm_cpp", (DL_FUNC) &MatrixFactorizationR_impute_lfmm_cpp, 6},
     {"MatrixFactorizationR_err2_lfmm_cpp", (DL_FUNC) &MatrixFactorizationR_err2_lfmm_cpp, 5},
     {NULL, NULL, 0}

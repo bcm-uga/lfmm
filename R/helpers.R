@@ -63,3 +63,28 @@ compute_svd_soft <- function(Af, Atransf, gamma, k, dim, opts = list(tol = 10e-1
   svd.res
 }
 
+##' Compute the matrix used to reduce correlation with X
+##'
+##' see mon cahier 6/07/2017
+##' @author cayek
+compute_P <- function(X, lambda) {
+
+  ## param
+  d <- ncol(X)
+  n <- nrow(X)
+
+  res <- list()
+  svd.res <- compute_eigen_svd(X)
+
+  D1 <- diag(1, n, n)
+
+  diag(D1)[1:d] <- sqrt(lambda / (lambda + svd.res$sigma))
+
+  D1.inv <- D1
+  diag(D1.inv) <- 1 / diag(D1.inv)
+
+  res$sqrt.P <- tcrossprod(D1, svd.res$Q)
+  res$sqrt.P.inv <- svd.res$Q %*% D1.inv
+
+  res
+}

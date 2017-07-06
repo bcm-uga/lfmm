@@ -62,9 +62,10 @@ test_that("comp with lfmmR", {
   ## comparison
   W.lfmm <- tcrossprod(lfmm$U, lfmm$V)
   W.lfmmR <- tcrossprod(lfmmR$U, lfmmR$V)
-  expect_lte(mean(abs(W.lfmmR - W.lfmm)), 1e-9)
-  expect_lte(mean(abs(lfmm$B - t(lfmmR$B))), 1e-9)
-  
+  expect_lte(mean(abs(W.lfmmR - W.lfmm)), 1e-6)
+  expect_lte(mean(abs(lfmm$B - t(lfmmR$B))), 1e-6)
+  ## rmk: we do not use same P... but it is still close :D
+
 })
 
 test_that("ridgeLFMM of ThesisRpackage with NA", {
@@ -110,7 +111,7 @@ test_that("ridgeLFMM of ThesisRpackage with NA", {
   W.NA.impute <- tcrossprod(lfmm.NA.impute$U, lfmm.NA.impute$V)
   e1 <- sqrt(mean((W.NA - W.noNA) ^ 2))
   e2 <- sqrt(mean((W.NA.impute - W.noNA) ^ 2))
-  expect_gt((e2 - e1) / e1, 1)
+  expect_gt((e2 - e1) / e1, 5)
 
   ## comparison B
   e1 <- sqrt(mean((lfmm.noNA$B - lfmm.NA$B) ^ 2))
@@ -157,13 +158,13 @@ test_that("ridgeLFMM with NA", {
   e1 <- sqrt(mean((W.NA - W.noNA) ^ 2))
   e2 <- sqrt(mean((W.NA.impute - W.noNA) ^ 2))
   (e2 - e1) / e1
-  expect_gt((e2 - e1) / e1, 1)
+  expect_gt((e2 - e1) / e1, 5)
 
   ## comparison B
   e1 <- sqrt(mean((lfmm.noNA$B - lfmm.NA$B) ^ 2))
   e2 <- sqrt(mean((lfmm.noNA$B - lfmm.NA.impute$B) ^ 2))
   (e2 - e1) / e1
-  expect_gt((e2 - e1) / e1, 1)
+  expect_gt((e2 - e1) / e1, 2)
 
 })
 

@@ -11,25 +11,13 @@ using namespace Rcpp;
 using namespace Eigen;
 
 // [[Rcpp::export]]
-Rcpp::List compute_P(const Eigen::Map<Eigen::MatrixXd> & X,
-                          const double lambda) {
+Rcpp::List compute_eigen_svd(const Eigen::Map<Eigen::MatrixXd> & X) {
 
-  // constants
-  const int n = X.rows();
-  const int d = X.cols();
-
-  // compute oblique projection matrix
-  MatrixXd In =  MatrixXd::Identity(n,n);
-  MatrixXd D =  MatrixXd::Identity(d,d);
-  LDLT<MatrixXd> lltX = (X.transpose() * X + lambda * D).ldlt();
-  MatrixXd P = In - X * lltX.solve(X.transpose());
-
-  // compute of eigen decomposition
-  SelfAdjointEigenSolver<MatrixXd> es(P);
-
-  return Rcpp::List::create(Named("sqrt.P") = es.operatorSqrt(),
-                            Named("sqrt.P.inv") = es.operatorInverseSqrt()
-                            // Named("P") = P
+  // compute svd of X
+  JacobiSVD<MatrixXd> svd(X, ComputeFullU | ComputeFullV);
+  return Rcpp::List::create(Named("Q") = svd.matrixU(),
+                            Named("R") = svd.matrixV(),
+                            Named("sigma") = svd.singularValues()
                             );
 }
 

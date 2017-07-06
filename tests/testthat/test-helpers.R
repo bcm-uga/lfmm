@@ -18,7 +18,7 @@ test_that("compute_P", {
 
   expect_lte(mean(abs(diag(1, nrow(dat$X), nrow(dat$X))) - res$sqrt.P %*% res$sqrt.P.inv), 1e-16)
   ## mean(abs(res$P - res$sqrt.P %*% res$sqrt.P))
-  
+
 })
 
 test_that("compute_B_ridge", {
@@ -74,3 +74,31 @@ test_that("compute_B_lasso", {
   expect_lt(mean(abs(t(B.r) - B.pkg)), 1e-15)
   expect_equal(mean(B.r != 0), mean(B.pkg != 0))
 })
+
+test_that("X svd with and ridge estimator", {
+
+  dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
+                      outlier.prop = 0.1,
+                      cs = c(0.8),
+                      sigma = 0.2,
+                      B.sd = 1.0,
+                      U.sd = 1.0,
+                      V.sd = 1.0)
+  dat$X <- cbind(dat$X, rnorm(100))
+  lambda <- 1
+  n <- nrow(dat$X)
+  d <- ncol(dat$X)
+
+  res <- compute_eigen_svd(X = dat$X)
+
+  B <- compute_B_ridge(dat$Y, dat$X, lambda)
+
+  ## compute B as on my cahier 6/07/2017
+  D2 <- diag(res$sigma, d, n)
+  diag(D2) <- res$sigma / (res$sigma ^ 2 + lambda)
+  B.hat <- t(res$R %*% D2 %*% t(res$Q) %*% dat$Y)
+
+  expect_lt(mean(abs(B - B.hat)), 1e-15)
+
+})
+
