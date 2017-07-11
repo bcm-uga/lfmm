@@ -17,12 +17,12 @@ LfmmDat.builder <- setRefClass("LfmmDat", contains = "Dat",
 #'
 #'
 #' @export
-LfmmDat <- function(Y, X, missing.ind = TRUE) {
+LfmmDat <- function(Y, X, missing = TRUE) {
   dat <- LfmmDat.builder(Y = read_input(Y),
                          X = read_input(X),
                          missing.ind = NULL,
                          meta = list())
-  if (missing.ind) {
+  if (missing) {
     dat$missing.ind <- which(is.na(dat$Y))
   }
   dat

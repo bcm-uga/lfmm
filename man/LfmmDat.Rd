@@ -4,7 +4,7 @@
 \alias{LfmmDat}
 \title{Class which store data}
 \usage{
-LfmmDat(Y, X, missing.ind = TRUE)
+LfmmDat(Y, X, missing = TRUE)
 }
 \description{
 Class which store data
