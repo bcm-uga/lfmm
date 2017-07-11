@@ -22,6 +22,5 @@ Dat <- function(Y) {
                      missing.ind = NULL)
   dat$missing.ind <- which(is.na(dat$Y))
   dat
-  dat
 }
 
