@@ -98,6 +98,13 @@ test_that("LfmmDat impute and err2", {
   err2.cpp <- dat$err2_lfmm(m$U, m$V, m$B)
   expect_lte(mean(abs(err2.cpp - err2.R)), 1e-10)
 
+  ## sum2_lm
+  E <- dat$Y - tcrossprod(dat$X, m$B) 
+  effective.degree.freedom <- 99
+  epsilon.sigma2 <- apply(E, 2, function(x) sum(x ^ 2) / effective.degree.freedom)
+  s2.cpp <- dat$sigma2_lm(dat$X, m$B, effective.degree.freedom)
+  expect_lte(mean(abs(epsilon.sigma2 - s2.cpp)), 1e-10)
+  
 })
 
 test_that("Dat svd", {

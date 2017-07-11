@@ -19,8 +19,7 @@ hypothesis_testing_lm <- function(dat, X) {
   res$B <- compute_B_ridge(Af, X, 0.0)
 
   ## compute Var(E)
-  E <- dat$Y - tcrossprod(X, res$B) ## TODO too big matrix here
-  res$epsilon.sigma2 <- apply(E, 2, function(x) sum(x ^ 2) / effective.degree.freedom)
+  res$epsilon.sigma2 <- dat$sigma2_lm(X, res$B, effective.degree.freedom)
 
   ## compute Var(B)
   aux <- solve(crossprod(X))

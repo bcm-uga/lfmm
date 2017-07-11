@@ -13,3 +13,7 @@ err2_lfmm_cpp <- function(Y, X, U, V, B) {
     .Call('MatrixFactorizationR_err2_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B)
 }
 
+sum2_lm_cpp <- function(Y, X, B) {
+    .Call('MatrixFactorizationR_sum2_lm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, B)
+}
+

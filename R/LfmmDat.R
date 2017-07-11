@@ -6,6 +6,9 @@ LfmmDat.builder <- setRefClass("LfmmDat", contains = "Dat",
                                  },
                                  err2_lfmm = function(U, V, B) {
                                    err2_lfmm_cpp(.self$Y, .self$X, U, V, B)
+                                 },
+                                 sigma2_lm = function(X, B, nb.df) {
+                                   sum2_lm_cpp(.self$Y, X, B) / nb.df
                                  }
                                )
                                )
@@ -14,12 +17,12 @@ LfmmDat.builder <- setRefClass("LfmmDat", contains = "Dat",
 #'
 #'
 #' @export
-LfmmDat <- function(Y, X, missing.ind = NULL) {
+LfmmDat <- function(Y, X, missing.ind = TRUE) {
   dat <- LfmmDat.builder(Y = read_input(Y),
                          X = read_input(X),
-                         missing.ind = missing.ind,
+                         missing.ind = NULL,
                          meta = list())
-  if (is.null(dat$missing.ind)) {
+  if (missing.ind) {
     dat$missing.ind <- which(is.na(dat$Y))
   }
   dat

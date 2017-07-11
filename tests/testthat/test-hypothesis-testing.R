@@ -28,7 +28,7 @@ test_that("hypothesis_testing_lm", {
   ## score
   score <- sapply(seq_along(s), function(i) s[[i]]$coefficients[,3])
   dim(score)
-  expect_lt(mean(abs(t(score) - hp$score)), 1e-14)
+  expect_lt(mean(abs(t(score) - hp$score)), 1e-10)
 
   ## pvalue
   pvalue <- sapply(seq_along(s), function(i) s[[i]]$coefficients[,4])
