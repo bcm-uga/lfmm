@@ -61,7 +61,6 @@ test_that("Dat and Rspectra", {
 
 test_that("LfmmDat impute and err2", {
 
-
   dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
                       outlier.prop = 0.1,
                       cs = c(0.8),
@@ -104,7 +103,7 @@ test_that("LfmmDat impute and err2", {
   epsilon.sigma2 <- apply(E, 2, function(x) sum(x ^ 2) / effective.degree.freedom)
   s2.cpp <- dat$sigma2_lm(dat$X, m$B, effective.degree.freedom)
   expect_lte(mean(abs(epsilon.sigma2 - s2.cpp)), 1e-10)
-  
+
 })
 
 test_that("Dat svd", {

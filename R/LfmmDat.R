@@ -8,7 +8,19 @@ LfmmDat.builder <- setRefClass("LfmmDat", contains = "Dat",
                                    err2_lfmm_cpp(.self$Y, .self$X, U, V, B)
                                  },
                                  sigma2_lm = function(X, B, nb.df) {
-                                   sum2_lm_cpp(.self$Y, X, B) / nb.df
+                                   if (object.size(.self$Y) > 20e9) {
+                                     ## data too big !!
+                                     message("Such a big matrix ! ")
+                                     res <- foreach(j = 1:ncol(.self$Y), .combine = 'c') %dopar%
+                                       {
+                                         aux <- .self$Y[,j] - tcrossprod(X , B[j,])
+                                         sum(aux * aux)
+                                       }
+                                     res <- res / nb.df
+                                   } else {
+                                     res <- sum2_lm_cpp(.self$Y, X, B) / nb.df
+                                   }
+                                   res
                                  }
                                )
                                )
