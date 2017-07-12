@@ -42,5 +42,10 @@ read_input <- function(X) {
       stop("TODO")
     }
   }
+
+  if (is.null(X)) {
+    return(NULL)
+  }
+
   stop("X not handle")
 }
