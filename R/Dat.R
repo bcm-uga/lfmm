@@ -1,13 +1,13 @@
 Dat.builder <- setRefClass("Dat", fields = c("Y", "meta", "missing.ind"),
                            methods = list(
                              getY = function() {
-                               return(Y)
+                               return(.self$Y)
                              },
                              productY = function(x) {
-                               Y %*% x
+                               .self$Y %*% x
                              },
                              productYt = function(x) {
-                               crossprod(Y, x)
+                               crossprod(.self$Y, x)
                              }
                            )
                            )

@@ -11,9 +11,9 @@ LfmmDat.builder <- setRefClass("LfmmDat", contains = "Dat",
                                    if (is.matrix(.self$Y) && is.double(.self$Y)) {
                                      res <- sum2_lm_cpp(.self$Y, X, B) / nb.df
                                    } else {
-                                     res <- foreach(j = 1:ncol(.self$Y), .combine = 'c') %dopar%
+                                     res <- foreach(j = 1:ncol(Y), .combine = 'c') %dopar%
                                        {
-                                         aux <- .self$Y[,j] - tcrossprod(X , B[j,,drop = FALSE])
+                                         aux <- Y[,j] - tcrossprod(X , B[j,,drop = FALSE])
                                          sum(aux * aux)
                                        }
                                      res <- res / nb.df
