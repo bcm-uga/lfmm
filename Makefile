@@ -2,6 +2,7 @@
 
 ## install on krakenator
 krakenator_install_MatrixFactorizationR:
+	git status
 	ssh -t cayek@krakenator.imag.fr "cd ~/Projects/Thesis/MatrixFactorizationR/; git pull; make MatrixFactorizationR_install"
 
 ## Rpackage
