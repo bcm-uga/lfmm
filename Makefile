@@ -1,9 +1,13 @@
 .PHONY: MatrixFactorizationR_install MatrixFactorizationR_test MatrixFactorizationR_document MatrixFactorizationR_check
 
-## install on krakenator
-krakenator_install_MatrixFactorizationR:
+## krak
+krakenator_deploy:
 	git status
-	ssh -t cayek@krakenator.imag.fr "cd ~/Projects/Thesis/MatrixFactorizationR/; git pull; make MatrixFactorizationR_install"
+## git commit --allow-empty -am "deploy on krakenator"
+	git push krakenator master
+
+krakenator_push_hook:
+	scp ./hooks/post-receive.sh cayek@krakenator:/home/cayek/Gits/2017/MatrixFactorizationR.git/hooks/post-receive
 
 ## Rpackage
 MatrixFactorizationR_install:
