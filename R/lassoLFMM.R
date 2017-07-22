@@ -76,8 +76,8 @@ lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
   m <- lassoLFMM_init(m, dat)
 
   ## NA and input by median
-  dat$missing.ind <- which(is.na(dat$Y))
-  dat$Y <- impute_median(dat$Y)
+  ## dat$missing.ind <- which(is.na(dat$Y))
+  ## dat$Y <- impute_median(dat$Y)
 
   ## main loop
   for (lambda in m$params$lambda.range) {
@@ -95,15 +95,19 @@ lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
   }
 
   ## to avoid side effect
-  dat$Y[dat$missing.ind] <- NA
+  ## dat$Y[dat$missing.ind] <- NA
 
   m
 }
 
 ##' @export
 MatrixFactorizationR_fit.lassoLFMM <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
-
-  res <- lassoLFMM_main(m, dat, it.max, relative.err.epsilon)
+  
+  if (anyNA(dat$Y)) {
+    stop("TODO")
+  } else {
+    res <- lassoLFMM_main(m, dat, it.max, relative.err.epsilon)
+  }
   res
 }
 
@@ -142,7 +146,7 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
     m$V <- res.rspectra$v
 
     ## impute NA
-    dat$impute_lfmm(m$U, m$V, m$B)
+    ## dat$impute_lfmm(m$U, m$V, m$B)
 
     ## err
     err_new = dat$err2_lfmm(m$U, m$V, m$B)
