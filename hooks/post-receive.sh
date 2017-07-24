@@ -10,6 +10,7 @@ do
         echo "Master ref received.  Deploying master branch to production..."
         git --work-tree=$dest --git-dir=/home/cayek/Gits/2017/MatrixFactorizationR.git checkout -f
 	      cd $dest
+	      make MatrixFactorizationR_install
         source activate MaThese
 	      make MatrixFactorizationR_install
     else
