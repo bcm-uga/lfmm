@@ -67,6 +67,7 @@ compute_svd_soft <- function(Af, Atransf, gamma, k, dim, opts = list(tol = 10e-1
 ##'
 ##' see mon cahier 6/07/2017
 ##' @author cayek
+##' @export
 compute_P <- function(X, lambda) {
 
   ## param
