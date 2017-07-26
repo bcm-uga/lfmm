@@ -70,6 +70,30 @@ double err2_lfmm_cpp(const Eigen::Map<Eigen::MatrixXd> Y,
 }
 
 // [[Rcpp::export]]
+Eigen::VectorXd err2s_lfmm_cpp(const Eigen::Map<Eigen::MatrixXd> Y,
+                              const Eigen::Map<Eigen::MatrixXd> X,
+                              const Eigen::Map<Eigen::MatrixXd> U,
+                              const Eigen::Map<Eigen::MatrixXd> V,
+                              const Eigen::Map<Eigen::MatrixXd> B) {
+  // constants
+  const int n = Y.rows();
+  const int p = Y.cols();
+  Eigen::VectorXd err2s = VectorXd(p); 
+  double aux = 0.0;
+
+  for (int j = 0; j < p; j++) {
+    err2s(j) = 0.0;
+    for (int i = 0; i < n; i++) {
+      aux = Y(i, j) -
+        U.row(i).dot(V.row(j)) -
+        X.row(i).dot(B.row(j));
+      err2s(j) += aux * aux;
+    }
+  }
+  return(err2s);
+}
+
+// [[Rcpp::export]]
 Eigen::VectorXd sum2_lm_cpp(const Eigen::Map<Eigen::MatrixXd> Y,
                             const Eigen::Map<Eigen::MatrixXd> X,
                             const Eigen::Map<Eigen::MatrixXd> B) {

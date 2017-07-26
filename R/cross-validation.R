@@ -14,32 +14,34 @@ left.out.kfold <- function(kfold, J) {
   folds
 }
 
-CV <- function(m, dat, n.fold.row, n.fold.col, params) {
+CV <- function(m, dat, n.fold.row, n.fold.col, params, col.prop = 1.0, ...) {
 
   n <- nrow(dat$Y)
   p <- ncol(dat$Y)
 
   param.names <- names(params)
 
+  m.train <- m
   ## main loops
   res <- foreach(i = 1:nrow(params), .combine = 'rbind') %dopar%
     {
       errs <- tibble()
 
-      param <- params[i, ]
+            ## param
+      param <- params[i, , drop = FALSE]
       message("=== params")
       print.data.frame(param)
-
-      m.train <- m
 
       ## copy dat object
       dat.train <- new(class(dat))
       dat.test <- new(class(dat))
-      dat.predicted <- new(class(dat))
 
       ## row folds
       row.folds <- left.out.kfold(n.fold.row, n)
       for (row.fold in row.folds) {
+
+        ## init U
+        m.train$U <- NULL
 
         ## train/test
         dat.train$Y <- dat$Y[-row.fold,,drop = FALSE]
@@ -51,22 +53,29 @@ CV <- function(m, dat, n.fold.row, n.fold.col, params) {
         m.train[param.names] <- param
 
         ## fit method
-        m.train <- MatrixFactorizationR_fit(m.train, dat.train)
+        m.train <- MatrixFactorizationR_fit(m.train, dat.train, ...)
+
+        ## col with less error
+        lfmm.err2s <- dat.train$err2s_lfmm(m.train$U, m.train$V, m.train$B)
+        kept.col.ind <- order(lfmm.err2s)[1:(round(col.prop * p))]
 
         ## compute err
-        col.folds <- left.out.kfold(n.fold.col, p)
+        col.folds <- left.out.kfold(n.fold.col, length(kept.col.ind))
         err <- data.frame()
         for (col.fold in col.folds) {
-          m.train <- MatrixFactorizationR_fit_knowing_loadings(m = m.train,
-                                                               dat = dat.test)
-          dat.predicted$Y <- dat.test$Y
-          dat.predicted$X <- dat.test$X
-          dat.predicted$Y[,col.fold] <- NA
-          dat.predicted$missing.ind <- which(is.na(dat.predicted$Y))
-          dat.predicted$impute_lfmm(m.train$U, m.train$V, m.train$B)
+          out.col.id <- kept.col.ind[col.fold]
+
+          ## predict
+          predicted.Y <- dat.test$predict_lfmm_knowing_loadings(V = m.train$V,
+                                                                B = m.train$B,
+                                                                unknown.j = out.col.id)
+          ## compute error
           err <- rbind(err,
-                       data.frame(err = mean((dat.predicted$Y[,col.fold] - dat.test$Y[,col.fold]) ^2),
-                                  param))
+                       data.frame(err = mean((predicted.Y -
+                                              dat.test$Y[,out.col.id]) ^2),
+                                  param,
+                                  nozero.prop = mean(m.train$B != 0.0)
+                                  ))
         }
         errs <- rbind(errs, err)
       }

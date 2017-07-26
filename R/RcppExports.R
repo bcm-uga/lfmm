@@ -2,18 +2,22 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 compute_eigen_svd <- function(X) {
-    .Call('MatrixFactorizationR_compute_eigen_svd', PACKAGE = 'MatrixFactorizationR', X)
+    .Call('_MatrixFactorizationR_compute_eigen_svd', PACKAGE = 'MatrixFactorizationR', X)
 }
 
 impute_lfmm_cpp <- function(Y, X, U, V, B, missingId) {
-    invisible(.Call('MatrixFactorizationR_impute_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B, missingId))
+    invisible(.Call('_MatrixFactorizationR_impute_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B, missingId))
 }
 
 err2_lfmm_cpp <- function(Y, X, U, V, B) {
-    .Call('MatrixFactorizationR_err2_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B)
+    .Call('_MatrixFactorizationR_err2_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B)
+}
+
+err2s_lfmm_cpp <- function(Y, X, U, V, B) {
+    .Call('_MatrixFactorizationR_err2s_lfmm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, U, V, B)
 }
 
 sum2_lm_cpp <- function(Y, X, B) {
-    .Call('MatrixFactorizationR_sum2_lm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, B)
+    .Call('_MatrixFactorizationR_sum2_lm_cpp', PACKAGE = 'MatrixFactorizationR', Y, X, B)
 }
 

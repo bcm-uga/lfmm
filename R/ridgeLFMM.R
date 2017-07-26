@@ -108,14 +108,16 @@ MatrixFactorizationR_fit_knowing_loadings.ridgeLFMM <- function(m, dat) {
 }
 
 ##' @export
-MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, n.fold.row, n.fold.col, lambdas , Ks) {
+MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, n.fold.row, n.fold.col, lambdas , Ks,
+                                              col.prop = 1.0) {
 
   params <- base::expand.grid(list(lambda = lambdas, K = Ks))
   CV(m = m,
      dat = dat,
      n.fold.row = n.fold.row,
      n.fold.col = n.fold.col,
-     params = params)
+     params = params,
+     col.prop = col.prop)
 
 }
 

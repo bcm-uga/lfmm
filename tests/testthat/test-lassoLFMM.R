@@ -233,3 +233,27 @@ test_that("lassoLFMM with missing value", {
   expect_gt((e2 - e1) / e1, 0.1)
 
 })
+
+
+test_that("lassoLFMM with fixed lambda", {
+
+  K <- 3
+  dat <- lfmm_sampler(n = 100, p = 1000, K = K,
+                      outlier.prop = 0.1,
+                      cs = c(0.8),
+                      sigma = 0.2,
+                      B.sd = 1.0,
+                      U.sd = 1.0,
+                      V.sd = 1.0)
+  dat.list <- list(G = dat$Y, X = dat$X)
+
+  ## lassoLFMM
+  m <- lassoLFMM(K = 3,
+                 nozero.prop = NULL,
+                 lambda.K = 1,
+                 lambda.eps = 0.001,
+                 lambda = 0.5)
+  m <- MatrixFactorizationR_fit(m, dat,
+                                it.max = 100, relative.err.epsilon = 1e-4)
+
+})

@@ -4,7 +4,8 @@
 \alias{lassoLFMM}
 \title{Lasso LFMM}
 \usage{
-lassoLFMM(K, nozero.prop = 0.1, lambda.K = 100, lambda.eps = 0.001)
+lassoLFMM(K, nozero.prop = 0.1, lambda.K = 100, lambda.eps = 0.001,
+  lambda = NULL)
 }
 \description{
 .. content for \description{} (no empty lines) ..

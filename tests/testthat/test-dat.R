@@ -104,6 +104,11 @@ test_that("LfmmDat impute and err2", {
   s2.cpp <- dat$sigma2_lm(dat$X, m$B, effective.degree.freedom)
   expect_lte(mean(abs(epsilon.sigma2 - s2.cpp)), 1e-10)
 
+  ## err2s
+  err2s.cpp <- dat$err2s_lfmm(m$U, m$V, m$B)
+  expect_lte(mean(abs(err2.cpp - sum(err2s.cpp) / n / p)), 1e-10)
+
+
 })
 
 test_that("Dat svd", {
@@ -135,6 +140,32 @@ test_that("Dat svd", {
   ## error because au PC get same variance
 
   expect_lt(mean(abs(W.rspectra - W.svd)), 1e-10)
+
+})
+
+test_that("lfmmDat predict_lfmm_knowing_loadings", {
+
+  dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
+                      outlier.prop = 0.1,
+                      cs = c(0.8),
+                      sigma = 0.2,
+                      B.sd = 1.0,
+                      U.sd = 1.0,
+                      V.sd = 1.0)
+
+  ## run lfmm ridge
+  m <- ridgeLFMM(K = 3, 1e-5)
+  m <- MatrixFactorizationR_fit(m, dat)
+
+  ## Predict
+  unknown.j <- sample.int(1000, 500)
+  predicted.Y <- dat$predict_lfmm_knowing_loadings(V = m$V,
+                                                   B = m$B,
+                                                   unknown.j = unknown.j)
+
+  ## expect
+  expect_equal(dim(predicted.Y), c(100, 500))
+  expect_lte(sd(predicted.Y - dat$Y[,unknown.j]) / sd(dat$Y), 0.6) ## 60 % d'erreur
 
 })
 

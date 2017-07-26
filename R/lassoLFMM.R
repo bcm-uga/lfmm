@@ -6,11 +6,13 @@
 ##' @author cayek
 ##' @export
 lassoLFMM <- function(K, nozero.prop = 0.1,
-                      lambda.K = 100, lambda.eps = 0.001) {
+                      lambda.K = 100, lambda.eps = 0.001,
+                      lambda = NULL) {
   m <- list(K = K,
             nozero.prop = nozero.prop,
-            lambda.K = 100,
-            lambda.eps = 0.001)
+            lambda.K = lambda.K,
+            lambda.eps = lambda.eps,
+            lambda = lambda)
   class(m) <- "lassoLFMM"
   m
 }
@@ -41,7 +43,7 @@ lassoLFMM_heuristic_gamma_lambda_range<- function(m, dat) {
 
   ## lambda max and min
   lambda.max <- max(B)
-  # lambda.min = lambda.eps * lambda.max like in Friedman et al. 2010
+  ## lambda.min = lambda.eps * lambda.max like in Friedman et al. 2010
   lambda.min <- lambda.max * m$lambda.eps
 
   ## strategie presented in Friedman et al. 2010
@@ -54,7 +56,9 @@ lassoLFMM_heuristic_gamma_lambda_range<- function(m, dat) {
 lassoLFMM_init <- function(m, dat) {
 
   ## compute gamma
-  m$params <- lassoLFMM_heuristic_gamma_lambda_range(m, dat)
+  if (is.null(m$params)) {
+    m$params <- lassoLFMM_heuristic_gamma_lambda_range(m, dat)
+  }
 
   ## init B
   if (is.null(m$B)) {
@@ -79,24 +83,35 @@ lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
   ## dat$missing.ind <- which(is.na(dat$Y))
   ## dat$Y <- impute_median(dat$Y)
 
-  ## main loop
-  for (lambda in m$params$lambda.range) {
-
+  ## main loop if lambda alone
+  if (!is.null(m$lambda)) {
     m <- lassoLFMM_loop(m, dat,
-                        m$params$gamma, lambda,
+                        m$params$gamma, m$lambda,
                         relative.err.epsilon,
                         it.max)
+    nozero.prop <- mean(m$B != 0.0)
+    message("=== lambda = ", m$lambda, ", no zero B proportion = ", nozero.prop)
+  } else {
 
-    nozero.prop <- mean(m$B > 0.0)
-    message("=== lambda = ", lambda, ", no zero B proportion = ", nozero.prop)
-    if( nozero.prop > m$nozero.prop) {
-      break
+    ## main loop if lambda range
+    for (lambda in m$params$lambda.range) {
+
+      m <- lassoLFMM_loop(m, dat,
+                          m$params$gamma, lambda,
+                          relative.err.epsilon,
+                          it.max)
+
+      nozero.prop <- mean(m$B != 0.0)
+      message("=== lambda = ", lambda, ", no zero B proportion = ", nozero.prop)
+      if( nozero.prop > m$nozero.prop) {
+        break
+      }
     }
   }
 
   ## to avoid side effect
   ## dat$Y[dat$missing.ind] <- NA
-
+  
   m
 }
 
@@ -112,6 +127,7 @@ MatrixFactorizationR_fit.lassoLFMM <- function(m, dat, it.max = 100, relative.er
 }
 
 lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) {
+
 
   ## constants
   n = nrow(dat$Y)
@@ -155,3 +171,23 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
   }
   m
 }
+
+##' @export
+MatrixFactorizationR_CV.lassoLFMM <- function(m, dat, n.fold.row, n.fold.col,
+                                              col.prop = 1.0,
+                                              it.max = 100, relative.err.epsilon = 1e-6) {
+
+  m <- lassoLFMM_init(m, dat)
+
+  params <- base::expand.grid(list(lambda = m$params$lambda.range))
+  CV(m = m,
+     dat = dat,
+     n.fold.row = n.fold.row,
+     n.fold.col = n.fold.col,
+     params = params,
+     col.prop = col.prop,
+     it.max = it.max, relative.err.epsilon = relative.err.epsilon
+     )
+
+}
+

@@ -184,11 +184,12 @@ test_that("ridgeLFMM CV", {
 
   cv.err <- MatrixFactorizationR_CV(m = lfmm,
                                     dat = dat,
-                                    n.fold.row = 2,
+                                    n.fold.row = 5,
                                     n.fold.col = 5,
                                     lambdas = c(1e-10, 1 , 1e20),
-                                    Ks = c(1, 2,3,4,5,6))
-  expect_equal(dim(cv.err), c(6 * 3 * 2 * 5, 3))
+                                    Ks = c(1, 2,3,4,5,6),
+                                    col.prop = 1.0)
+  expect_equal(dim(cv.err), c(6 * 3 * 5 * 5, 4))
 
   skip("plots")
   ggplot(cv.err, aes(y = err, x = as.factor(K))) +
@@ -198,5 +199,42 @@ test_that("ridgeLFMM CV", {
   ggplot(cv.err, aes(y = err, x = as.factor(lambda))) +
     geom_boxplot() +
     facet_grid(K ~ ., scales = "free")
+
+})
+
+test_that("lassoLFMM CV", {
+
+
+  skip('cross validation ne marche pas ....')
+  
+  n <- 100
+  p <- 1000
+  dat <- lfmm_sampler(n = n, p = p, K = 3,
+                      outlier.prop = 0.1,
+                      cs = c(0.6),
+                      sigma = 0.2,
+                      B.sd = 1.0,
+                      U.sd = 1.0,
+                      V.sd = 1.0)
+
+  lfmm <- lassoLFMM(K = 3, nozero.prop = NULL, lambda.K = 10, lambda.eps = 0.001)
+
+  cv.err <- MatrixFactorizationR_CV(m = lfmm,
+                                    dat = dat,
+                                    n.fold.row = 5,
+                                    n.fold.col = 2,
+                                    col.prop = 1.0,
+                                    it.max = 100, relative.err.epsilon = 1e-4
+                                    )
+
+  expect_equal(dim(cv.err), c(6 * 3 * 2 * 5, 3))
+
+  skip("plots")
+
+  ggplot(cv.err, aes(y = err, x = as.factor(lambda))) +
+    geom_boxplot() 
+
+  ggplot(cv.err, aes(y = err, x = nozero.prop)) +
+    geom_smooth()
 
 })
