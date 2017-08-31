@@ -6,12 +6,12 @@
 ##' @author cayek
 ##' @export
 lassoLFMM <- function(K, nozero.prop = 0.1,
-                      lambda.K = 100, lambda.eps = 0.001,
+                      lambda.num = 100, lambda.min.ratio = 0.001,
                       lambda = NULL) {
   m <- list(K = K,
             nozero.prop = nozero.prop,
-            lambda.K = lambda.K,
-            lambda.eps = lambda.eps,
+            lambda.num = lambda.num,
+            lambda.min.ratio = lambda.min.ratio,
             lambda = lambda)
   class(m) <- "lassoLFMM"
   m
@@ -43,12 +43,12 @@ lassoLFMM_heuristic_gamma_lambda_range<- function(m, dat) {
 
   ## lambda max and min
   lambda.max <- max(B)
-  ## lambda.min = lambda.eps * lambda.max like in Friedman et al. 2010
-  lambda.min <- lambda.max * m$lambda.eps
+  ## lambda.min = lambda.min.ratio * lambda.max like in Friedman et al. 2010
+  lambda.min <- lambda.max * m$lambda.min.ratio
 
   ## strategie presented in Friedman et al. 2010
   ##   log scaled sequence
-  res$lambda.range <- exp(seq(log(lambda.max), log(lambda.min), length.out = m$lambda.K))
+  res$lambda.range <- exp(seq(log(lambda.max), log(lambda.min), length.out = m$lambda.num))
 
   res
 }
@@ -116,7 +116,7 @@ lassoLFMM_main <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
 }
 
 ##' @export
-MatrixFactorizationR_fit.lassoLFMM <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
+lfmm_fit.lassoLFMM <- function(m, dat, it.max = 100, relative.err.epsilon = 1e-6) {
   
   if (anyNA(dat$Y)) {
     stop("TODO")
@@ -173,7 +173,7 @@ lassoLFMM_loop <- function(m, dat, gamma, lambda, relative_err_epsilon, it_max) 
 }
 
 ##' @export
-MatrixFactorizationR_CV.lassoLFMM <- function(m, dat, n.fold.row, n.fold.col,
+lfmm_CV.lassoLFMM <- function(m, dat, n.fold.row, n.fold.col,
                                               col.prop = 1.0,
                                               it.max = 100, relative.err.epsilon = 1e-6) {
 

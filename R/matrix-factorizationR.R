@@ -3,44 +3,44 @@
 #'
 #' @docType package
 #'
-#' @name MatrixFactorizationR
+#' @name lfmm
 #' @importFrom Rcpp evalCpp
 #' @importFrom foreach foreach %:% %do% %dopar%
-#' @useDynLib MatrixFactorizationR
+#' @useDynLib lfmm
 #' @import RcppEigen
 NULL
 
 #' Fit the model
 #'
 #' @export
-MatrixFactorizationR_fit <- function(m, dat, ...) {
-  UseMethod("MatrixFactorizationR_fit")
+lfmm_fit <- function(m, dat, ...) {
+  UseMethod("lfmm_fit")
 }
 
 #' Fit the model when latent factor loadings are known
 #'
 #' @export
-MatrixFactorizationR_fit_knowing_loadings <- function(m, dat, ...) {
-  UseMethod("MatrixFactorizationR_fit_knowing_loadings")
+lfmm_fit_knowing_loadings <- function(m, dat, ...) {
+  UseMethod("lfmm_fit_knowing_loadings")
 }
 
 #' Cross validation
 #'
 #' @export
-MatrixFactorizationR_CV <- function(m, dat, n.fold.row, n.fold.col, ...) {
-  UseMethod("MatrixFactorizationR_CV")
+lfmm_CV <- function(m, dat, n.fold.row, n.fold.col, ...) {
+  UseMethod("lfmm_CV")
 }
 
 #' Impute Y with a fitted model.
 #'
 #' @export
-MatrixFactorizationR_impute <- function(m, dat, ...) {
-  UseMethod("MatrixFactorizationR_impute")
+lfmm_impute <- function(m, dat, ...) {
+  UseMethod("lfmm_impute")
 }
 
 #' Compute the residual error
 #'
 #' @export
-MatrixFactorizationR_residual_error2 <- function(m, dat, ...) {
-  UseMethod("MatrixFactorizationR_residual_error2")
+lfmm_residual_error2 <- function(m, dat, ...) {
+  UseMethod("lfmm_residual_error2")
 }

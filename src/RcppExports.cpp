@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // compute_eigen_svd
 Rcpp::List compute_eigen_svd(const Eigen::Map<Eigen::MatrixXd>& X);
-RcppExport SEXP _MatrixFactorizationR_compute_eigen_svd(SEXP XSEXP) {
+RcppExport SEXP _lfmm_compute_eigen_svd(SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ END_RCPP
 }
 // impute_lfmm_cpp
 void impute_lfmm_cpp(Eigen::Map<Eigen::MatrixXd> Y, const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> U, const Eigen::Map<Eigen::MatrixXd> V, const Eigen::Map<Eigen::MatrixXd> B, NumericVector missingId);
-RcppExport SEXP _MatrixFactorizationR_impute_lfmm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP USEXP, SEXP VSEXP, SEXP BSEXP, SEXP missingIdSEXP) {
+RcppExport SEXP _lfmm_impute_lfmm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP USEXP, SEXP VSEXP, SEXP BSEXP, SEXP missingIdSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type Y(YSEXP);
@@ -34,7 +34,7 @@ END_RCPP
 }
 // err2_lfmm_cpp
 double err2_lfmm_cpp(const Eigen::Map<Eigen::MatrixXd> Y, const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> U, const Eigen::Map<Eigen::MatrixXd> V, const Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _MatrixFactorizationR_err2_lfmm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP USEXP, SEXP VSEXP, SEXP BSEXP) {
+RcppExport SEXP _lfmm_err2_lfmm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP USEXP, SEXP VSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -49,7 +49,7 @@ END_RCPP
 }
 // err2s_lfmm_cpp
 Eigen::VectorXd err2s_lfmm_cpp(const Eigen::Map<Eigen::MatrixXd> Y, const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> U, const Eigen::Map<Eigen::MatrixXd> V, const Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _MatrixFactorizationR_err2s_lfmm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP USEXP, SEXP VSEXP, SEXP BSEXP) {
+RcppExport SEXP _lfmm_err2s_lfmm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP USEXP, SEXP VSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -64,7 +64,7 @@ END_RCPP
 }
 // sum2_lm_cpp
 Eigen::VectorXd sum2_lm_cpp(const Eigen::Map<Eigen::MatrixXd> Y, const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _MatrixFactorizationR_sum2_lm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP BSEXP) {
+RcppExport SEXP _lfmm_sum2_lm_cpp(SEXP YSEXP, SEXP XSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -77,15 +77,15 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_MatrixFactorizationR_compute_eigen_svd", (DL_FUNC) &_MatrixFactorizationR_compute_eigen_svd, 1},
-    {"_MatrixFactorizationR_impute_lfmm_cpp", (DL_FUNC) &_MatrixFactorizationR_impute_lfmm_cpp, 6},
-    {"_MatrixFactorizationR_err2_lfmm_cpp", (DL_FUNC) &_MatrixFactorizationR_err2_lfmm_cpp, 5},
-    {"_MatrixFactorizationR_err2s_lfmm_cpp", (DL_FUNC) &_MatrixFactorizationR_err2s_lfmm_cpp, 5},
-    {"_MatrixFactorizationR_sum2_lm_cpp", (DL_FUNC) &_MatrixFactorizationR_sum2_lm_cpp, 3},
+    {"_lfmm_compute_eigen_svd", (DL_FUNC) &_lfmm_compute_eigen_svd, 1},
+    {"_lfmm_impute_lfmm_cpp", (DL_FUNC) &_lfmm_impute_lfmm_cpp, 6},
+    {"_lfmm_err2_lfmm_cpp", (DL_FUNC) &_lfmm_err2_lfmm_cpp, 5},
+    {"_lfmm_err2s_lfmm_cpp", (DL_FUNC) &_lfmm_err2s_lfmm_cpp, 5},
+    {"_lfmm_sum2_lm_cpp", (DL_FUNC) &_lfmm_sum2_lm_cpp, 3},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_MatrixFactorizationR(DllInfo *dll) {
+RcppExport void R_init_lfmm(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

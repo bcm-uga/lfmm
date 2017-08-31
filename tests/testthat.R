@@ -1,4 +1,4 @@
 library(testthat)
-library(MatrixFactorizationR)
+library(lfmm)
 
-test_check("MatrixFactorizationR")
+test_check("lfmm")

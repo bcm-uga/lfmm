@@ -1,6 +1,6 @@
-Package: MatrixFactorizationR
+Package: lfmm
 Type: Package
-Title: Matrix Factorization Algorithm
+Title: Latent Factor Mixed Model
 Version: 0.0
 Date: 2017-06-14
 Author: Kevin Caye

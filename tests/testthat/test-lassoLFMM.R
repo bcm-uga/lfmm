@@ -90,8 +90,8 @@ test_that("lassoLFMM main loop", {
   ## compute gamma
   m <- lassoLFMM(K = 3,
                  nozero.prop = 0.1,
-                 lambda.K = 20,
-                 lambda.eps = 0.001)
+                 lambda.num = 20,
+                 lambda.min.ratio = 0.001)
   params <- lassoLFMM_heuristic_gamma_lambda_range(m, dat)
 
   ## init B
@@ -112,7 +112,7 @@ test_that("lassoLFMM main loop", {
   relative.err.epsilon = 1e-6
   it.max <- 100
 
-  ## MatrixFactorizationR
+  ## lfmm
   m <- lassoLFMM_loop(m, dat, params$gamma, lambda, relative.err.epsilon, it.max)
 
   ## why err decrease and then increase ??
@@ -164,16 +164,16 @@ test_that("lassoLFMM", {
   ## lassoLFMM
   m <- lassoLFMM(K = 3,
                  nozero.prop = 0.1,
-                 lambda.K = 20,
-                 lambda.eps = 0.001)
-  m <- MatrixFactorizationR_fit(m, dat,
+                 lambda.num = 20,
+                 lambda.min.ratio = 0.001)
+  m <- lfmm_fit(m, dat,
                                 it.max = 100, relative.err.epsilon = 1e-4)
 
   skip("do not give same result") ## I think this is because they do not stop with same lambda... todo
   skip_if_not_installed("ThesisRpackage")
   futile.logger::flog.threshold(futile.logger::TRACE, name = "ThesisRpackage")
   m.ThesisRpackage <- ThesisRpackage::finalLfmmLassoMethod(K = 3, sparse.prop = 0.1,
-                                                           lambda.K = 20, lambda.eps = 0.001)
+                                                           lambda.num = 20, lambda.min.ratio = 0.001)
   m.ThesisRpackage$center <- FALSE
   m.ThesisRpackage <- ThesisRpackage::fit(m.ThesisRpackage, dat.list)
 
@@ -204,7 +204,7 @@ test_that("lassoLFMM with missing value", {
 
   ## no NA
   lfmm.noNA <- lassoLFMM(K = 3, nozero.prop = 0.1)
-  lfmm.noNA <- MatrixFactorizationR_fit(lfmm.noNA, dat)
+  lfmm.noNA <- lfmm_fit(lfmm.noNA, dat)
 
   ## add na
   na.ind <- sample.int(n * p, 0.01 * n * p)
@@ -212,12 +212,12 @@ test_that("lassoLFMM with missing value", {
 
   ## lfmm with na
   lfmm.NA <- lassoLFMM(K = 3, nozero.prop = 0.1)
-  lfmm.NA <- MatrixFactorizationR_fit(lfmm.NA, dat)
+  lfmm.NA <- lfmm_fit(lfmm.NA, dat)
 
   ## impute by median first
   dat$Y <- impute_median(dat$Y)
   lfmm.NA.impute <- lassoLFMM(K = 3, nozero.prop = 0.1)
-  lfmm.NA.impute <- MatrixFactorizationR_fit(lfmm.NA.impute, dat)
+  lfmm.NA.impute <- lfmm_fit(lfmm.NA.impute, dat)
 
   ## comparison W
   W.NA <- tcrossprod(lfmm.NA$U, lfmm.NA$V)
@@ -250,10 +250,10 @@ test_that("lassoLFMM with fixed lambda", {
   ## lassoLFMM
   m <- lassoLFMM(K = 3,
                  nozero.prop = NULL,
-                 lambda.K = 1,
-                 lambda.eps = 0.001,
+                 lambda.num = 1,
+                 lambda.min.ratio = 0.001,
                  lambda = 0.5)
-  m <- MatrixFactorizationR_fit(m, dat,
+  m <- lfmm_fit(m, dat,
                                 it.max = 100, relative.err.epsilon = 1e-4)
 
 })

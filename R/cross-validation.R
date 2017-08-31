@@ -53,7 +53,7 @@ CV <- function(m, dat, n.fold.row, n.fold.col, params, col.prop = 1.0, ...) {
         m.train[param.names] <- param
 
         ## fit method
-        m.train <- MatrixFactorizationR_fit(m.train, dat.train, ...)
+        m.train <- lfmm_fit(m.train, dat.train, ...)
 
         ## col with less error
         lfmm.err2s <- dat.train$err2s_lfmm(m.train$U, m.train$V, m.train$B)

@@ -1,4 +1,4 @@
-.PHONY: MatrixFactorizationR_install MatrixFactorizationR_test MatrixFactorizationR_document MatrixFactorizationR_check
+.PHONY: lfmm_testonR_install lfmm_test lfmm_document lfmm_check
 
 ## krak
 krakenator_deploy:
@@ -7,21 +7,21 @@ krakenator_deploy:
 	git push krakenator master
 
 krakenator_push_hook:
-	scp ./hooks/post-receive.sh cayek@krakenator:/home/cayek/Gits/2017/MatrixFactorizationR.git/hooks/post-receive
+	scp ./hooks/post-receive.sh cayek@krakenator:/home/cayek/Gits/2017/lfmm.git/hooks/post-receive
 
 ## Rpackage
-MatrixFactorizationR_install:
+lfmm_install:
 	R -e 'devtools::install(pkg = ".")'
 
-MatrixFactorizationR_test:
+lfmm_test:
 	R -e 'devtools::test(pkg = ".")'
 
-MatrixFactorizationR_document:
+lfmm_document:
 	R -e 'devtools::document(pkg = ".")'
 
-MatrixFactorizationR_check:
+lfmm_check:
 	R -e 'devtools::check(pkg = ".")'
 
-MatrixFactorizationR_clean:
+lfmm_clean:
 	rm -f R/RcppExports.R src/RcppExports.cpp src/*.o src/*.so
 

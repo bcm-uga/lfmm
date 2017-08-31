@@ -88,7 +88,7 @@ ridgeLFMM_withNA <- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
 }
 
 ##' @export
-MatrixFactorizationR_fit.ridgeLFMM <- function(m, dat, it.max = 100, relative.err.min = 1e-6) {
+lfmm_fit.ridgeLFMM <- function(m, dat, it.max = 100, relative.err.min = 1e-6) {
   ## test if there missing value in Y
   if (anyNA(dat$Y)) {
     res <- ridgeLFMM_withNA(m, dat,
@@ -102,13 +102,13 @@ MatrixFactorizationR_fit.ridgeLFMM <- function(m, dat, it.max = 100, relative.er
 ##' Fit assuming V and B
 ##'
 ##' @export
-MatrixFactorizationR_fit_knowing_loadings.ridgeLFMM <- function(m, dat) {
+lfmm_fit_knowing_loadings.ridgeLFMM <- function(m, dat) {
   m$U <- (dat$Y -  tcrossprod(dat$X, m$B)) %*% m$V
   m
 }
 
 ##' @export
-MatrixFactorizationR_CV.ridgeLFMM <- function(m, dat, n.fold.row, n.fold.col, lambdas , Ks,
+lfmm_CV.ridgeLFMM <- function(m, dat, n.fold.row, n.fold.col, lambdas , Ks,
                                               col.prop = 1.0) {
 
   params <- base::expand.grid(list(lambda = lambdas, K = Ks))

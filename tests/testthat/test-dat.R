@@ -73,7 +73,7 @@ test_that("LfmmDat impute and err2", {
   dat$B <- NULL
   ## run lfmm ridge
   m <- ridgeLFMM(K = 3, 1e-5)
-  m <- MatrixFactorizationR_fit(m, dat)
+  m <- lfmm_fit(m, dat)
 
   ## NA
   prop <- 0.01
@@ -155,7 +155,7 @@ test_that("lfmmDat predict_lfmm_knowing_loadings", {
 
   ## run lfmm ridge
   m <- ridgeLFMM(K = 3, 1e-5)
-  m <- MatrixFactorizationR_fit(m, dat)
+  m <- lfmm_fit(m, dat)
 
   ## Predict
   unknown.j <- sample.int(1000, 500)

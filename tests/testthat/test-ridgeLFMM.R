@@ -53,7 +53,7 @@ test_that("comp with lfmmR", {
   ## lfmm implemented with rsvd
   lfmm <- ridgeLFMM(K = K,
                     lambda = lambda)
-  lfmm <- MatrixFactorizationR_fit(lfmm, dat)
+  lfmm <- lfmm_fit(lfmm, dat)
 
   expect_equal(dim(lfmm$B), c(1000, 1))
   expect_equal(dim(lfmm$U), c(100, K))
@@ -135,7 +135,7 @@ test_that("ridgeLFMM with NA", {
 
   ## no NA
   lfmm.noNA<- ridgeLFMM(K = 3, lambda = 1e-5)
-  lfmm.noNA<- MatrixFactorizationR_fit(lfmm.noNA, dat)
+  lfmm.noNA<- lfmm_fit(lfmm.noNA, dat)
 
   ## add na
   na.ind <- sample.int(n * p, 0.1 * n * p)
@@ -144,12 +144,12 @@ test_that("ridgeLFMM with NA", {
 
   ## lfmm with na
   lfmm.NA <- ridgeLFMM(K = 3, lambda = 1e-5)
-  lfmm.NA <- MatrixFactorizationR_fit(lfmm.NA, dat)
+  lfmm.NA <- lfmm_fit(lfmm.NA, dat)
 
   ## impute by median first
   dat$Y <- impute_median(dat$Y)
   lfmm.NA.impute <- ridgeLFMM(K = 3, lambda = 1e-5)
-  lfmm.NA.impute <- MatrixFactorizationR_fit(lfmm.NA.impute, dat)
+  lfmm.NA.impute <- lfmm_fit(lfmm.NA.impute, dat)
 
   ## comparison W
   W.NA <- tcrossprod(lfmm.NA$U, lfmm.NA$V)
@@ -182,7 +182,7 @@ test_that("ridgeLFMM CV", {
 
   lfmm <- ridgeLFMM(K = 3, lambda = 1e-5)
 
-  cv.err <- MatrixFactorizationR_CV(m = lfmm,
+  cv.err <- lfmm_CV(m = lfmm,
                                     dat = dat,
                                     n.fold.row = 5,
                                     n.fold.col = 5,
@@ -217,9 +217,9 @@ test_that("lassoLFMM CV", {
                       U.sd = 1.0,
                       V.sd = 1.0)
 
-  lfmm <- lassoLFMM(K = 3, nozero.prop = NULL, lambda.K = 10, lambda.eps = 0.001)
+  lfmm <- lassoLFMM(K = 3, nozero.prop = NULL, lambda.num = 10, lambda.min.ratio = 0.001)
 
-  cv.err <- MatrixFactorizationR_CV(m = lfmm,
+  cv.err <- lfmm_CV(m = lfmm,
                                     dat = dat,
                                     n.fold.row = 5,
                                     n.fold.col = 2,
