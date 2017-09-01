@@ -1,8 +1,3 @@
-##' Lasso LFMM
-##'
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @author cayek
 ##' @export
 lassoLFMM <- function(K, nozero.prop = 0.1,

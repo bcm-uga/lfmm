@@ -42,7 +42,7 @@ test_that("ridge_lasso", {
 })
 
 test_that("hypothesis_test_lfmm", {
-  
+
   K <- 3
   dat <- lfmm_sampler(n = 100, p = 1000, K = K,
                       outlier.prop = 0.1,

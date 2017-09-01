@@ -2,7 +2,7 @@
 % Please edit documentation in R/lfmm.R
 \name{lasso_lfmm}
 \alias{lasso_lfmm}
-\title{LFMM $L_1$ regularized estimator}
+\title{LFMM \eqn{L_1} regularized estimator}
 \usage{
 lasso_lfmm(Y, X, K, nozero.prop = 0.1, lambda.num = 100,
   lambda.min.ratio = 0.01, lambda = NULL, it.max = 100,
@@ -43,9 +43,9 @@ This function compute the $L_1$ regularized least squares estimator of LFMM.
 The algorithm optimize the loss function
 }
 \details{
-$$ Llasso(\U, \V, \B) =
-\frac{1}{2} \norm{Y - U V^{T} - X B^T}\emph{{F}^2 + \frac{\lambda}{2}
-\norm{B}^{2}}{2} $$.
+\deqn{ Llasso(U, V, B) =
+frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
+\norm{B}^{2}_{2} }.
 }
 \examples{
 library(lfmm)

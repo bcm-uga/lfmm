@@ -1,8 +1,3 @@
-##' ridge LFMM
-##'
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @author cayek
 ##' @export
 ridgeLFMM <- function(K, lambda) {

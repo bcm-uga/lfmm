@@ -1,8 +1,3 @@
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
-##' @param X input
-##' @return output
 ##' @author cayek
 ##' @export
 read_input <- function(X) {

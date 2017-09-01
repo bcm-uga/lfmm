@@ -2,7 +2,10 @@
 % Please edit documentation in R/lfmm.R
 \name{hypothesis_test_lfmm}
 \alias{hypothesis_test_lfmm}
-\title{Hypothesis testing of association of Y with X with correction by latent factor.}
+\title{Hypothesis testing of association of Y with X with correction by latent factor.
+This function compute the pvalue of the association test of each column of Y
+with X. The hypothesis testing take into account latent variables computed
+by lasso_lfmm or ridge_lfmm.}
 \usage{
 hypothesis_test_lfmm(Y, X, lfmm, calibrate = TRUE)
 }
@@ -20,9 +23,37 @@ zscore.}
 A list with pvalue, zscore and effect.
 }
 \description{
+Hypothesis testing of association of Y with X with correction by latent factor.
 This function compute the pvalue of the association test of each column of Y
 with X. The hypothesis testing take into account latent variables computed
 by lasso_lfmm or ridge_lfmm.
+}
+\examples{
+library(lfmm)
+
+K <- 3
+dat <- lfmm_sampler(n = 100, p = 1000, K = K,
+                    outlier.prop = 0.1,
+                    cs = c(0.8),
+                    sigma = 0.2,
+                    B.sd = 1.0,
+                    U.sd = 1.0,
+                    V.sd = 1.0)
+## lfmm
+lfmm.res <- ridge_lfmm(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
+
+## hp
+hp.res <- hypothesis_test_lfmm(Y = dat$Y, X = dat$X, lfmm = lfmm.res, calibrate = TRUE)
+
+## plot score
+id <- seq_along(hp.res$calibrated.score)
+cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
+plot(id, hp.res$calibrated.score, col = cols)
+
+## plot pvalue
+id <- seq_along(hp.res$calibrated.pvalue)
+cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
+plot(id, -log10(hp.res$calibrated.pvalue), col = cols)
 }
 \author{
 cayek

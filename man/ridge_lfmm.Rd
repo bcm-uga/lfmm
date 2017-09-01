@@ -2,7 +2,7 @@
 % Please edit documentation in R/lfmm.R
 \name{ridge_lfmm}
 \alias{ridge_lfmm}
-\title{LFMM $L_2$ regularized estimator}
+\title{LFMM \eqn{L_2} regularized estimator}
 \usage{
 ridge_lfmm(Y, X, K, lambda = 1e-05)
 }
@@ -25,12 +25,11 @@ A lfmm class object with following attribute:
 }
 \description{
 This function compute the $L_2$ regularized least squares estimator of LFMM.
-The algorithm optimize the loss function
 }
 \details{
-$$ Lridge(\U, \V, \B) =
-\frac{1}{2} \norm{Y - U V^{T} - X B^T}\emph{{F}^2 + \frac{\lambda}{2}
-\norm{B}^{2}}{2} $$.
+The algorithm optimize the loss function \deqn{ Lridge(U, V, B) =
+\frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
+norm{B}^{2}_{2}}.
 }
 \examples{
 library(lfmm)
