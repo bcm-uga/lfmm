@@ -1,10 +1,9 @@
 ##' LFMM \eqn{L_2} regularized estimator
 ##'
-##' This function compute the $L_2$ regularized least squares estimator of LFMM.
+##' This function compute the \eqnL{_2} regularized least squares estimator of LFMM.
 ##'
-##' The algorithm optimize the loss function \deqn{ Lridge(U, V, B) =
-##' \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
-##' norm{B}^{2}_{2}}.
+##' The algorithm optimize the loss function
+##' \deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2} norm{B}^{2}_{2}}.
 ##'
 ##' @param Y Explained variables matrix. Each column is a variable.
 ##' @param X Explaining variables matrix. Each column is a variable.
@@ -30,13 +29,13 @@
 ##'                     U.sd = 1.0,
 ##'                     V.sd = 1.0)
 ##' ## run lfmm
-##' lfmm.res <- ridge_lfmm(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
+##' lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 ##'
 ##' ## plot size effect matrix
 ##' id <- seq_along(lfmm.res$B)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, lfmm.res$B, col = cols)
-ridge_lfmm <- function(Y, X, K, lambda = 1e-5) {
+lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 
   ## init
   m <- ridgeLFMM(K = K, lambda = lambda)
@@ -92,13 +91,13 @@ ridge_lfmm <- function(Y, X, K, lambda = 1e-5) {
 ##'                     U.sd = 1.0,
 ##'                     V.sd = 1.0)
 ##' ## run lfmm
-##' lfmm.res <- lasso_lfmm(Y = dat$Y, X = dat$X, K = 3, nozero.prop= 0.2)
+##' lfmm.res <- lfmm_lasso(Y = dat$Y, X = dat$X, K = 3, nozero.prop= 0.2)
 ##'
 ##' ## plot size effect matrix
 ##' id <- seq_along(lfmm.res$B)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, lfmm.res$B, col = cols)
-lasso_lfmm <- function(Y, X, K,
+lfmm_lasso <- function(Y, X, K,
                        nozero.prop = 0.1,
                        lambda.num = 100,
                        lambda.min.ratio = 0.01,
@@ -122,12 +121,12 @@ lasso_lfmm <- function(Y, X, K,
 ##' Hypothesis testing of association of Y with X with correction by latent factor.
 ##' This function compute the pvalue of the association test of each column of Y
 ##' with X. The hypothesis testing take into account latent variables computed
-##' by lasso_lfmm or ridge_lfmm.
+##' by lfmm_lasso or lfmm_ridge.
 ##'
 ##'
 ##' @param Y Explained variables matrix. Each column is a variable.
 ##' @param X Explaining variables matrix. Each column is a variable.
-##' @param lfmm Object returned by lasso_lfmm or ridge_lfmm
+##' @param lfmm Object returned by lfmm_lasso or lfmm_ridge
 ##' @param calibrate If TRUE pvalue are calibrated by computing mean and MAD of
 ##'   zscore.
 ##' @return A list with pvalue, zscore and effect.
@@ -146,10 +145,10 @@ lasso_lfmm <- function(Y, X, K,
 ##'                     U.sd = 1.0,
 ##'                     V.sd = 1.0)
 ##' ## lfmm
-##' lfmm.res <- ridge_lfmm(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
+##' lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 ##'
 ##' ## hp
-##' hp.res <- hypothesis_test_lfmm(Y = dat$Y, X = dat$X, lfmm = lfmm.res, calibrate = TRUE)
+##' hp.res <- test_lfmm(Y = dat$Y, X = dat$X, lfmm = lfmm.res, calibrate = TRUE)
 ##'
 ##' ## plot score
 ##' id <- seq_along(hp.res$calibrated.score)
@@ -160,7 +159,7 @@ lasso_lfmm <- function(Y, X, K,
 ##' id <- seq_along(hp.res$calibrated.pvalue)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, -log10(hp.res$calibrated.pvalue), col = cols)
-hypothesis_test_lfmm <- function(Y, X, lfmm, calibrate = TRUE) {
+test_lfmm <- function(Y, X, lfmm, calibrate = TRUE) {
 
   ## init
   dat <- LfmmDat(Y = Y, X = X)

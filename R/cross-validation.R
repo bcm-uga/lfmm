@@ -25,7 +25,7 @@ CV <- function(m, dat, n.fold.row, n.fold.col, params, col.prop = 1.0, ...) {
   ## main loops
   res <- foreach(i = 1:nrow(params), .combine = 'rbind') %dopar%
     {
-      errs <- tibble()
+      errs <- data.frame()
 
             ## param
       param <- params[i, , drop = FALSE]

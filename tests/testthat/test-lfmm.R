@@ -1,7 +1,7 @@
 library(testthat)
 context("lfmm")
 
-test_that("ridge_lfmm", {
+test_that("lfmm_ridge", {
 
   K <- 3
   dat <- lfmm_sampler(n = 100, p = 1000, K = K,
@@ -12,7 +12,7 @@ test_that("ridge_lfmm", {
                       U.sd = 1.0,
                       V.sd = 1.0)
 
-  lfmm.res <- ridge_lfmm(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
+  lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 
   skip("plot")
   id <- seq_along(lfmm.res$B)
@@ -32,7 +32,7 @@ test_that("ridge_lasso", {
                       U.sd = 1.0,
                       V.sd = 1.0)
 
-  lfmm.res <- lasso_lfmm(Y = dat$Y, X = dat$X, K = 3, nozero.prop= 0.2)
+  lfmm.res <- lfmm_lasso(Y = dat$Y, X = dat$X, K = 3, nozero.prop= 0.2)
 
   skip("plot")
   id <- seq_along(lfmm.res$B)
@@ -41,7 +41,7 @@ test_that("ridge_lasso", {
 
 })
 
-test_that("hypothesis_test_lfmm", {
+test_that("test_lfmm", {
 
   K <- 3
   dat <- lfmm_sampler(n = 100, p = 1000, K = K,
@@ -53,10 +53,10 @@ test_that("hypothesis_test_lfmm", {
                       V.sd = 1.0)
 
   ## lfmm
-  lfmm.res <- ridge_lfmm(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
+  lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 
   ## hp
-  hp.res <- hypothesis_test_lfmm(Y = dat$Y, X = dat$X, lfmm = lfmm.res, calibrate = TRUE)
+  hp.res <- test_lfmm(Y = dat$Y, X = dat$X, lfmm = lfmm.res, calibrate = TRUE)
 
   skip("plot")
 
