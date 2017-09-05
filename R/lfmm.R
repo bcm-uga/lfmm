@@ -127,8 +127,10 @@ lfmm_lasso <- function(Y, X, K,
 ##' @param Y Explained variables matrix. Each column is a variable.
 ##' @param X Explaining variables matrix. Each column is a variable.
 ##' @param lfmm Object returned by lfmm_lasso or lfmm_ridge
-##' @param calibrate If TRUE pvalue are calibrated by computing mean and MAD of
-##'   zscore.
+##' @param calibrate If "gif", pvalue are calibrated by computing the genomic
+##'   inflation factor of the zscore. If "median+MAD", pvalue are calibrated by
+##'   computing the median and MAD of the zscore. If NULL, pvalue are not
+##'   calibrated.
 ##' @return A list with pvalue, zscore and effect.
 ##'
 ##' @export
@@ -148,18 +150,18 @@ lfmm_lasso <- function(Y, X, K,
 ##' lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 ##'
 ##' ## hp
-##' hp.res <- test_lfmm(Y = dat$Y, X = dat$X, lfmm = lfmm.res, calibrate = TRUE)
+##' hp.res <- lfmm_test(Y = dat$Y, X = dat$X, lfmm = lfmm.res)
 ##'
 ##' ## plot score
 ##' id <- seq_along(hp.res$calibrated.score)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
-##' plot(id, hp.res$calibrated.score, col = cols)
+##' plot(id, hp.res$calibrated.score2, col = cols)
 ##'
 ##' ## plot pvalue
 ##' id <- seq_along(hp.res$calibrated.pvalue)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, -log10(hp.res$calibrated.pvalue), col = cols)
-test_lfmm <- function(Y, X, lfmm, calibrate = TRUE) {
+lfmm_test <- function(Y, X, lfmm, calibrate = c("gif", "median+MAD")) {
 
   ## init
   dat <- LfmmDat(Y = Y, X = X)
@@ -173,11 +175,18 @@ test_lfmm <- function(Y, X, lfmm, calibrate = TRUE) {
   hp$B <- hp$B[,1:d, drop = FALSE]
 
   ## calibrate
-  if (calibrate) {
-    hp$mad <- mad(hp$score)
-    hp$median <- mad(hp$score)
-    hp$calibrated.score <- (hp$score - hp$median) / hp$mad
+  if (is.null(calibrate)) {
+    NULL ## nothing
+  } else if (calibrate == "median+MAD") {
+    hp$mad <- apply(hp$score, 2, mad)
+    hp$median <- apply(hp$score, 2, median)
+    hp$calibrated.score <- sweep(hp$score, 2, hp$median, FUN = "-")
+    hp$calibrated.score <- sweep(hp$score, 2, hp$mad, FUN = "/")
     hp$calibrated.pvalue <- compute_pvalue_from_zscore(hp$calibrated.score)
+  } else if (calibrate == "gif") {
+    hp$gif <- compute_gif(hp$score)
+    hp$calibrated.score2 <- sweep(hp$score ^ 2, 2, hp$gif, FUN = "/")
+    hp$calibrated.pvalue <- compute_pvalue_from_zscore2(hp$calibrated.score2, df = 1)
   }
 
   hp

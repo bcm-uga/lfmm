@@ -33,6 +33,15 @@ compute_pvalue_from_zscore <- function(score, mean = 0, sd = 1) {
   apply(score, 1:2, function(z) 2 * pnorm(abs(z), mean = mean, sd = sd, lower.tail = FALSE))
 }
 
+compute_pvalue_from_zscore2 <- function(score2, df = 1) {
+  apply(score2, 1:2, function(z) pchisq(z, lower.tail = FALSE, df = df))
+}
+
+compute_gif <- function(score) {
+  score2 <- score ^ 2
+  apply(score2, 2, median, na.rm = TRUE) / qchisq(0.5, df = 1)
+}
+
 compute_svd <- function(Af, Atransf,k, nu, nv, dim, opts = list(tol = 10e-10)) {
   RSpectra::svds(A = Af,
                  Atrans = Atransf,
