@@ -2,50 +2,59 @@
 % Please edit documentation in R/lfmm.R
 \name{lfmm_lasso}
 \alias{lfmm_lasso}
-\title{LFMM \eqn{L_1} regularized estimator}
+\title{LFMM least-squares estimates with lasso penalty}
 \usage{
 lfmm_lasso(Y, X, K, nozero.prop = 0.1, lambda.num = 100,
   lambda.min.ratio = 0.01, lambda = NULL, it.max = 100,
   relative.err.epsilon = 1e-06)
 }
 \arguments{
-\item{Y}{Explained variables matrix. Each column is a variable.}
+\item{Y}{a response variable matrix with n rows and p columns. Each column is a response variable.}
 
-\item{X}{Explaining variables matrix. Each column is a variable.}
+\item{X}{an explanatory variable matrix with n rows and d columns.
+Each column corresponds to an explanatory variable.}
 
-\item{K}{Number of latent factor.}
+\item{K}{an integer for the number of latent factors in the regression model.}
 
-\item{nozero.prop}{The proportion of line of B expected to be different from
-zero.}
+\item{nozero.prop}{a numeric value for the proportion of rows in B that
+are expected to be non-null.}
 
-\item{lambda.num}{The number of 'lambda' values.}
+\item{lambda.num}{a numeric value for the number of 'lambda' values (obscure).}
 
-\item{lambda.min.ratio}{Smallest value for \code{lambda}, as a fraction of
-\code{lambda.max}, the (data derived) entry value (i.e. the smallest value for
+\item{lambda.min.ratio}{(obscure parameter) a numeric value for the smallest \code{lambda} value,
+A fraction of \code{lambda.max}, the (data derived) entry value (i.e. the smallest value for
 which all coefficients are zero).}
 
-\item{lambda}{Smallest value for \code{lambda}, as a fraction of 'lambda.max',
+\item{lambda}{(obscure parameter) Smallest value of \code{lambda}. A fraction of 'lambda.max',
 the (data derived) entry value (i.e. the smallest value for which all
 coefficients are zero).}
 
-\item{it.max}{The number of iteration of the algorithm.}
+\item{it.max}{an integer value for the number of iterations of the algorithm.}
 
-\item{relative.err.epsilon}{The relative error used to determine if the
-algorithm converged.}
+\item{relative.err.epsilon}{a numeric value for a relative convergence error. Determine
+whether the algorithm converges or not.}
 }
 \value{
-A lfmm class object with following attribute: - U the latent
-variable score matrix. - V the latent variable axes matrix. - B the effect
-size matrix.
+an object of class \code{lfmm} with the following attributes:
+\itemize{
+\item U the latent variable score matrix with dimensions n x K.
+\item V the latent variable axes matrix with dimensions p x K.
+\item B the effect size matrix with dimensions p x d.
+}
 }
 \description{
-This function compute the $L_1$ regularized least squares estimator of LFMM.
-The algorithm optimize the loss function
+This function computes regularized least squares estimates
+for the parameters of latent factor mixed models using a lasso penalty.
 }
 \details{
+The algorithm minimizes the following penalized least-squares criterion
+
 \deqn{ Llasso(U, V, B) =
 frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
-\norm{B}^{2}_{2} }.
+\norm{B}^{2}_{2} , }
+where Y is a response data matrix, X contains all explanatory variables,
+U denotes the score matrix, V is the loading matrix, and B is the effect
+size matrix.
 }
 \examples{
 library(lfmm)

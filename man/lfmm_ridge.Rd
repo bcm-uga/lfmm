@@ -2,33 +2,38 @@
 % Please edit documentation in R/lfmm.R
 \name{lfmm_ridge}
 \alias{lfmm_ridge}
-\title{LFMM \eqn{L_2} regularized estimator}
+\title{LFMM least-squares estimates with ridge penalty}
 \usage{
 lfmm_ridge(Y, X, K, lambda = 1e-05)
 }
 \arguments{
-\item{Y}{Explained variables matrix. Each column is a variable.}
+\item{Y}{a response variable matrix with n rows and p columns. Each column is a response variable.}
 
-\item{X}{Explaining variables matrix. Each column is a variable.}
+\item{X}{an explanatory variable matrix with n rows and d columns.
+Each column corresponds to an explanatory variable.}
 
-\item{K}{Number of latent factor.}
+\item{K}{an integer for the number of latent factors in the regression model.}
 
-\item{lambda}{The value of regularization term.}
+\item{lambda}{a numeric value for the regularization parameter.}
 }
 \value{
-A lfmm class object with following attribute:
+an object of class \code{lfmm} with the following attributes:
 \itemize{
-\item U the latent variable score matrix.
-\item V the latent variable axes matrix.
-\item B the effect size matrix.
+\item U the latent variable score matrix with dimensions n x K.
+\item V the latent variable axes matrix with dimensions p x K.
+\item B the effect size matrix with dimensions p x d.
 }
 }
 \description{
-This function compute the \eqnL{_2} regularized least squares estimator of LFMM.
+This function computes regularized least squares estimates
+for the parameters of latent factor mixed models using a ridge penalty.
 }
 \details{
-The algorithm optimize the loss function
-\deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2} norm{B}^{2}_{2}}.
+The algorithm minimizes the following penalized least-squares criterion
+\deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
++ \frac{\lambda}{2} norm{B}^{2}_{2} ,}
+where Y is a response data matrix, X contains all explanatory variables,
+U denotes the score matrix, V is the loading matrix, and B is the effect size matrix.
 }
 \examples{
 library(lfmm)
@@ -42,10 +47,10 @@ dat <- lfmm_sampler(n = 100, p = 1000, K = K,
                     B.sd = 1.0,
                     U.sd = 1.0,
                     V.sd = 1.0)
-## run lfmm
+## fit an LFMM with K = 3 latent factors
 lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 
-## plot size effect matrix
+## plot the size effect matrix
 id <- seq_along(lfmm.res$B)
 cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
 plot(id, lfmm.res$B, col = cols)

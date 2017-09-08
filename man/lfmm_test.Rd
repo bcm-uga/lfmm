@@ -2,33 +2,45 @@
 % Please edit documentation in R/lfmm.R
 \name{lfmm_test}
 \alias{lfmm_test}
-\title{Hypothesis testing of association of Y with X with correction by latent factor.
-This function compute the pvalue of the association test of each column of Y
-with X. The hypothesis testing take into account latent variables computed
-by lfmm_lasso or lfmm_ridge.}
+\title{Statistical tests of association between a response matrix and explanatory variables
+with correction for unobserved confounders (latent factors).
+This function returns significance values for the association between each column of the
+response matrix, Y, and the explanatory variables, X. The test is based on LFMM fitted by
+either a ridge or a lasso penalty.}
 \usage{
 lfmm_test(Y, X, lfmm, calibrate = c("gif", "median+MAD"))
 }
 \arguments{
-\item{Y}{Explained variables matrix. Each column is a variable.}
+\item{Y}{a response variable matrix with n rows and p columns. Each column is a response variable.}
 
-\item{X}{Explaining variables matrix. Each column is a variable.}
+\item{X}{an explanatory variable matrix with n rows and d columns.
+Each column corresponds to an explanatory variable.}
 
-\item{lfmm}{Object returned by lfmm_lasso or lfmm_ridge}
+\item{lfmm}{an object of class \code{lfmm} returned by the \link{lfmm_lasso} or \link{lfmm_ridge}
+function}
 
-\item{calibrate}{If "gif", pvalue are calibrated by computing the genomic
-inflation factor of the zscore. If "median+MAD", pvalue are calibrated by
-computing the median and MAD of the zscore. If NULL, pvalue are not
-calibrated.}
+\item{calibrate}{a character string: "gif" or "median+MAD". If the "gif" option is set (default),
+the pvalues are calibrated by using the genomic control method. The method uses a robust estimate of the
+variance of z-scores called "genomic inflation factor". If the "median+MAD" option is set,
+the pvalues are calibrated by computing the median and MAD of the zscores. If \code{NULL}, the
+pvalues are not calibrated.}
 }
 \value{
-A list with pvalue, zscore and effect.
+a list with the following attributes:
+\itemize{
+\item B the effect size matrix with dimensions p x d.
+\item score a p x d matrix which contains z-scores for each explanatory variable (column of X)
+\item pvalue a p x d matrix which contains p-values for each explanatory variable
+\item calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable
+\item gif a numeric value for the genomic inflation factor.
+}
 }
 \description{
-Hypothesis testing of association of Y with X with correction by latent factor.
-This function compute the pvalue of the association test of each column of Y
-with X. The hypothesis testing take into account latent variables computed
-by lfmm_lasso or lfmm_ridge.
+Statistical tests of association between a response matrix and explanatory variables
+with correction for unobserved confounders (latent factors).
+This function returns significance values for the association between each column of the
+response matrix, Y, and the explanatory variables, X. The test is based on LFMM fitted by
+either a ridge or a lasso penalty.
 }
 \examples{
 library(lfmm)
@@ -45,12 +57,12 @@ dat <- lfmm_sampler(n = 100, p = 1000, K = K,
 lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 
 ## hp
-hp.res <- lfmm_test(Y = dat$Y, X = dat$X, lfmm = lfmm.res, calibrate = TRUE)
+hp.res <- lfmm_test(Y = dat$Y, X = dat$X, lfmm = lfmm.res)
 
 ## plot score
 id <- seq_along(hp.res$calibrated.score)
 cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
-plot(id, hp.res$calibrated.score, col = cols)
+plot(id, hp.res$calibrated.score2, col = cols)
 
 ## plot pvalue
 id <- seq_along(hp.res$calibrated.pvalue)
