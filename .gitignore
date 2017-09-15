@@ -1,5 +1,9 @@
 # R
 .Rhistory
+.Rbuildignore
+.RData
+.Rproj.user
+lfmm.Rproj
 
 # Prerequisites
 *.d
@@ -38,3 +42,7 @@
 TAGS
 
 Rplots.pdf
+
+
+#trucs zarb
+.DS_Store

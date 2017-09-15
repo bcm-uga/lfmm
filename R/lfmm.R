@@ -1,18 +1,23 @@
-##' LFMM \eqn{L_2} regularized estimator
+##' LFMM least-squares estimates with ridge penalty
 ##'
-##' This function compute the \eqnL{_2} regularized least squares estimator of LFMM.
+##' This function computes regularized least squares estimates 
+##' for the parameters of latent factor mixed models using a ridge penalty.
 ##'
-##' The algorithm optimize the loss function
-##' \deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2} norm{B}^{2}_{2}}.
-##'
-##' @param Y Explained variables matrix. Each column is a variable.
-##' @param X Explaining variables matrix. Each column is a variable.
-##' @param K Number of latent factor.
-##' @param lambda The value of regularization term.
-##' @return A lfmm class object with following attribute: 
-##'  - U the latent variable score matrix.
-##'  - V the latent variable axes matrix.
-##'  - B the effect size matrix.
+##' The algorithm minimizes the following penalized least-squares criterion
+##' \deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
+##' + \frac{\lambda}{2} norm{B}^{2}_{2} ,}
+##' where Y is a response data matrix, X contains all explanatory variables, 
+##' U denotes the score matrix, V is the loading matrix, and B is the effect size matrix.
+##' 
+##' @param Y a response variable matrix with n rows and p columns. Each column is a response variable.
+##' @param X an explanatory variable matrix with n rows and d columns. 
+##' Each column corresponds to an explanatory variable.
+##' @param K an integer for the number of latent factors in the regression model.
+##' @param lambda a numeric value for the regularization parameter.
+##' @return an object of class \code{lfmm} with the following attributes: 
+##'  - U the latent variable score matrix with dimensions n x K.
+##'  - V the latent variable axes matrix with dimensions p x K.
+##'  - B the effect size matrix with dimensions p x d.
 ##'
 ##' @export
 ##' @author cayek
@@ -28,10 +33,10 @@
 ##'                     B.sd = 1.0,
 ##'                     U.sd = 1.0,
 ##'                     V.sd = 1.0)
-##' ## run lfmm
+##' ## fit an LFMM with K = 3 latent factors
 ##' lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 ##'
-##' ## plot size effect matrix
+##' ## plot the size effect matrix
 ##' id <- seq_along(lfmm.res$B)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, lfmm.res$B, col = cols)
@@ -48,33 +53,40 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
   m
 }
 
-##' LFMM \eqn{L_1} regularized estimator
+##'  LFMM least-squares estimates with lasso penalty
 ##'
-##' This function compute the $L_1$ regularized least squares estimator of LFMM.
-##' The algorithm optimize the loss function
+##' This function computes regularized least squares estimates 
+##' for the parameters of latent factor mixed models using a lasso penalty. 
+##' 
+##' The algorithm minimizes the following penalized least-squares criterion
 ##'
 ##' \deqn{ Llasso(U, V, B) =
 ##' frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
-##' \norm{B}^{2}_{2} }.
+##' \norm{B}^{2}_{2} , }
+##' where Y is a response data matrix, X contains all explanatory variables, 
+##' U denotes the score matrix, V is the loading matrix, and B is the effect 
+##' size matrix.
 ##'
-##' @param Y Explained variables matrix. Each column is a variable.
-##' @param X Explaining variables matrix. Each column is a variable.
-##' @param K Number of latent factor.
-##' @param nozero.prop The proportion of line of B expected to be different from
-##'   zero.
-##' @param lambda.num The number of 'lambda' values.
-##' @param lambda.min.ratio Smallest value for `lambda`, as a fraction of
-##'   `lambda.max`, the (data derived) entry value (i.e. the smallest value for
+##' @param Y a response variable matrix with n rows and p columns. Each column is a response variable.
+##' @param X an explanatory variable matrix with n rows and d columns. 
+##' Each column corresponds to an explanatory variable.
+##' @param K an integer for the number of latent factors in the regression model.
+##' @param nozero.prop a numeric value for the proportion of rows in B that 
+##' are expected to be non-null.
+##' @param lambda.num a numeric value for the number of 'lambda' values (obscure).
+##' @param lambda.min.ratio (obscure parameter) a numeric value for the smallest `lambda` value,
+##'  A fraction of `lambda.max`, the (data derived) entry value (i.e. the smallest value for
 ##'   which all coefficients are zero).
-##' @param lambda Smallest value for `lambda`, as a fraction of 'lambda.max',
+##' @param lambda (obscure parameter) Smallest value of `lambda`. A fraction of 'lambda.max',
 ##'   the (data derived) entry value (i.e. the smallest value for which all
 ##'   coefficients are zero).
-##' @param it.max The number of iteration of the algorithm.
-##' @param relative.err.epsilon The relative error used to determine if the
-##'   algorithm converged.
-##' @return A lfmm class object with following attribute: - U the latent
-##'   variable score matrix. - V the latent variable axes matrix. - B the effect
-##'   size matrix.
+##' @param it.max an integer value for the number of iterations of the algorithm.
+##' @param relative.err.epsilon a numeric value for a relative convergence error. Determine 
+##' whether the algorithm converges or not.
+##' @return an object of class \code{lfmm} with the following attributes: 
+##'  - U the latent variable score matrix with dimensions n x K.
+##'  - V the latent variable axes matrix with dimensions p x K.
+##'  - B the effect size matrix with dimensions p x d.
 ##'
 ##' @export
 ##' @author cayek
@@ -118,21 +130,29 @@ lfmm_lasso <- function(Y, X, K,
   m
 }
 
-##' Hypothesis testing of association of Y with X with correction by latent factor.
-##' This function compute the pvalue of the association test of each column of Y
-##' with X. The hypothesis testing take into account latent variables computed
-##' by lfmm_lasso or lfmm_ridge.
+##' Statistical tests of association between a response matrix and explanatory variables
+##' with correction for unobserved confounders (latent factors).
+##' This function returns significance values for the association between each column of the 
+##' response matrix, Y, and the explanatory variables, X. The test is based on LFMM fitted by 
+##' either a ridge or a lasso penalty.
 ##'
 ##'
-##' @param Y Explained variables matrix. Each column is a variable.
-##' @param X Explaining variables matrix. Each column is a variable.
-##' @param lfmm Object returned by lfmm_lasso or lfmm_ridge
-##' @param calibrate If "gif", pvalue are calibrated by computing the genomic
-##'   inflation factor of the zscore. If "median+MAD", pvalue are calibrated by
-##'   computing the median and MAD of the zscore. If NULL, pvalue are not
-##'   calibrated.
-##' @return A list with pvalue, zscore and effect.
-##'
+##' @param Y a response variable matrix with n rows and p columns. Each column is a response variable.
+##' @param X an explanatory variable matrix with n rows and d columns. 
+##' Each column corresponds to an explanatory variable.
+##' @param lfmm an object of class \code{lfmm} returned by the \link{lfmm_lasso} or \link{lfmm_ridge}
+##' function
+##' @param calibrate a character string: "gif" or "median+MAD". If the "gif" option is set (default), 
+##' the pvalues are calibrated by using the genomic control method. The method uses a robust estimate of the 
+##' variance of z-scores called "genomic inflation factor". If the "median+MAD" option is set, 
+##' the pvalues are calibrated by computing the median and MAD of the zscores. If \code{NULL}, the 
+##' pvalues are not calibrated.
+##' @return a list with the following attributes:
+##'  - B the effect size matrix with dimensions p x d.
+##'  - score a p x d matrix which contains z-scores for each explanatory variable (column of X)
+##'  - pvalue a p x d matrix which contains p-values for each explanatory variable
+##'  - calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable
+##'  - gif a numeric value for the genomic inflation factor.
 ##' @export
 ##' @author cayek
 ##' @examples
