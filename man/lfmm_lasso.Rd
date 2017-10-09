@@ -9,20 +9,23 @@ lfmm_lasso(Y, X, K, nozero.prop = 0.1, lambda.num = 100,
   relative.err.epsilon = 1e-06)
 }
 \arguments{
-\item{Y}{a response variable matrix with n rows and p columns. Each column is a response variable.}
+\item{Y}{a response variable matrix with n rows and p columns.
+Each column is a response variable (e.g., SNP genotype,
+gene expression level, beta-normalized methylation profile, etc).
+Response variables must be encoded as numeric.}
 
 \item{X}{an explanatory variable matrix with n rows and d columns.
-Each column corresponds to an explanatory variable.}
+Each column corresponds to a distinct explanatory variable (eg. phenotype).
+Explanatory variables must be encoded as numeric.}
 
 \item{K}{an integer for the number of latent factors in the regression model.}
 
-\item{nozero.prop}{a numeric value for the proportion of rows in B that
-are expected to be non-null.}
+\item{nozero.prop}{a numeric value for the expected proportion of non-zero effect sizes.}
 
 \item{lambda.num}{a numeric value for the number of 'lambda' values (obscure).}
 
 \item{lambda.min.ratio}{(obscure parameter) a numeric value for the smallest \code{lambda} value,
-A fraction of \code{lambda.max}, the (data derived) entry value (i.e. the smallest value for
+A fraction of \code{lambda.max}, the data derived entry value (i.e. the smallest value for
 which all coefficients are zero).}
 
 \item{lambda}{(obscure parameter) Smallest value of \code{lambda}. A fraction of 'lambda.max',

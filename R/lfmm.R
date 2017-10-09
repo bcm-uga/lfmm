@@ -9,14 +9,18 @@
 ##' where Y is a response data matrix, X contains all explanatory variables, 
 ##' U denotes the score matrix, V is the loading matrix, and B is the effect size matrix.
 ##' 
-##' @param Y a response variable matrix with n rows and p columns. Each column is a response variable.
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column corresponds to a distinct response variable (e.g., SNP genotype, 
+##' gene expression level, beta-normalized methylation profile, etc).
+##' Response variables must be encoded as numeric.
 ##' @param X an explanatory variable matrix with n rows and d columns. 
-##' Each column corresponds to an explanatory variable.
+##' Each column corresponds to a distinct explanatory variable (eg. phenotype).
+##' Explanatory variables must be encoded as numeric.
 ##' @param K an integer for the number of latent factors in the regression model.
 ##' @param lambda a numeric value for the regularization parameter.
 ##' @return an object of class \code{lfmm} with the following attributes: 
 ##'  - U the latent variable score matrix with dimensions n x K.
-##'  - V the latent variable axes matrix with dimensions p x K.
+##'  - V the latent variable axis matrix with dimensions p x K.
 ##'  - B the effect size matrix with dimensions p x d.
 ##'
 ##' @export
@@ -36,7 +40,7 @@
 ##' ## fit an LFMM with K = 3 latent factors
 ##' lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 ##'
-##' ## plot the size effect matrix
+##' ## plot the effect size matrix
 ##' id <- seq_along(lfmm.res$B)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, lfmm.res$B, col = cols)
@@ -67,15 +71,18 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 ##' U denotes the score matrix, V is the loading matrix, and B is the effect 
 ##' size matrix.
 ##'
-##' @param Y a response variable matrix with n rows and p columns. Each column is a response variable.
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column is a response variable (e.g., SNP genotype, 
+##' gene expression level, beta-normalized methylation profile, etc).
+##' Response variables must be encoded as numeric.
 ##' @param X an explanatory variable matrix with n rows and d columns. 
-##' Each column corresponds to an explanatory variable.
+##' Each column corresponds to a distinct explanatory variable (eg. phenotype).
+##' Explanatory variables must be encoded as numeric.
 ##' @param K an integer for the number of latent factors in the regression model.
-##' @param nozero.prop a numeric value for the proportion of rows in B that 
-##' are expected to be non-null.
+##' @param nozero.prop a numeric value for the expected proportion of non-zero effect sizes.
 ##' @param lambda.num a numeric value for the number of 'lambda' values (obscure).
 ##' @param lambda.min.ratio (obscure parameter) a numeric value for the smallest `lambda` value,
-##'  A fraction of `lambda.max`, the (data derived) entry value (i.e. the smallest value for
+##'  A fraction of `lambda.max`, the data derived entry value (i.e. the smallest value for
 ##'   which all coefficients are zero).
 ##' @param lambda (obscure parameter) Smallest value of `lambda`. A fraction of 'lambda.max',
 ##'   the (data derived) entry value (i.e. the smallest value for which all
@@ -130,22 +137,24 @@ lfmm_lasso <- function(Y, X, K,
   m
 }
 
-##' Statistical tests of association between a response matrix and explanatory variables
-##' with correction for unobserved confounders (latent factors).
+##' Statistical tests with latent factor mixed models
+##' 
+##' 
 ##' This function returns significance values for the association between each column of the 
-##' response matrix, Y, and the explanatory variables, X. The test is based on LFMM fitted by 
-##' either a ridge or a lasso penalty.
+##' response matrix, Y, and the explanatory variables, X, including correction for unobserved confounders 
+##' (latent factors). The test is based on an LFMM fitted with a ridge or lasso penalty.
 ##'
 ##'
-##' @param Y a response variable matrix with n rows and p columns. Each column is a response variable.
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column is a response variable (numeric).
 ##' @param X an explanatory variable matrix with n rows and d columns. 
-##' Each column corresponds to an explanatory variable.
-##' @param lfmm an object of class \code{lfmm} returned by the \link{lfmm_lasso} or \link{lfmm_ridge}
-##' function
-##' @param calibrate a character string: "gif" or "median+MAD". If the "gif" option is set (default), 
-##' the pvalues are calibrated by using the genomic control method. The method uses a robust estimate of the 
-##' variance of z-scores called "genomic inflation factor". If the "median+MAD" option is set, 
-##' the pvalues are calibrated by computing the median and MAD of the zscores. If \code{NULL}, the 
+##' Each column corresponds to an explanatory variable (numeric).
+##' @param lfmm an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
+##' or \link{lfmm_ridge} function
+##' @param calibrate a character string, "gif" or "median+MAD". If the "gif" option is set (default), 
+##' significance values are calibrated by using the genomic control method. Genomic control 
+##' uses a robust estimate of the variance of z-scores called "genomic inflation factor". 
+##' If the "median+MAD" option is set, the pvalues are calibrated by computing the median and MAD of the zscores. If \code{NULL}, the 
 ##' pvalues are not calibrated.
 ##' @return a list with the following attributes:
 ##'  - B the effect size matrix with dimensions p x d.

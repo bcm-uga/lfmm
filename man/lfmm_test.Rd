@@ -2,27 +2,24 @@
 % Please edit documentation in R/lfmm.R
 \name{lfmm_test}
 \alias{lfmm_test}
-\title{Statistical tests of association between a response matrix and explanatory variables
-with correction for unobserved confounders (latent factors).
-This function returns significance values for the association between each column of the
-response matrix, Y, and the explanatory variables, X. The test is based on LFMM fitted by
-either a ridge or a lasso penalty.}
+\title{Statistical tests with latent factor mixed models}
 \usage{
 lfmm_test(Y, X, lfmm, calibrate = c("gif", "median+MAD"))
 }
 \arguments{
-\item{Y}{a response variable matrix with n rows and p columns. Each column is a response variable.}
+\item{Y}{a response variable matrix with n rows and p columns.
+Each column is a response variable (numeric).}
 
 \item{X}{an explanatory variable matrix with n rows and d columns.
-Each column corresponds to an explanatory variable.}
+Each column corresponds to an explanatory variable (numeric).}
 
-\item{lfmm}{an object of class \code{lfmm} returned by the \link{lfmm_lasso} or \link{lfmm_ridge}
-function}
+\item{lfmm}{an object of class \code{lfmm} returned by the \link{lfmm_lasso}
+or \link{lfmm_ridge} function}
 
-\item{calibrate}{a character string: "gif" or "median+MAD". If the "gif" option is set (default),
-the pvalues are calibrated by using the genomic control method. The method uses a robust estimate of the
-variance of z-scores called "genomic inflation factor". If the "median+MAD" option is set,
-the pvalues are calibrated by computing the median and MAD of the zscores. If \code{NULL}, the
+\item{calibrate}{a character string, "gif" or "median+MAD". If the "gif" option is set (default),
+significance values are calibrated by using the genomic control method. Genomic control
+uses a robust estimate of the variance of z-scores called "genomic inflation factor".
+If the "median+MAD" option is set, the pvalues are calibrated by computing the median and MAD of the zscores. If \code{NULL}, the
 pvalues are not calibrated.}
 }
 \value{
@@ -36,11 +33,9 @@ a list with the following attributes:
 }
 }
 \description{
-Statistical tests of association between a response matrix and explanatory variables
-with correction for unobserved confounders (latent factors).
 This function returns significance values for the association between each column of the
-response matrix, Y, and the explanatory variables, X. The test is based on LFMM fitted by
-either a ridge or a lasso penalty.
+response matrix, Y, and the explanatory variables, X, including correction for unobserved confounders
+(latent factors). The test is based on an LFMM fitted with a ridge or lasso penalty.
 }
 \examples{
 library(lfmm)

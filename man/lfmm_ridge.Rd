@@ -7,10 +7,14 @@
 lfmm_ridge(Y, X, K, lambda = 1e-05)
 }
 \arguments{
-\item{Y}{a response variable matrix with n rows and p columns. Each column is a response variable.}
+\item{Y}{a response variable matrix with n rows and p columns.
+Each column corresponds to a distinct response variable (e.g., SNP genotype,
+gene expression level, beta-normalized methylation profile, etc).
+Response variables must be encoded as numeric.}
 
 \item{X}{an explanatory variable matrix with n rows and d columns.
-Each column corresponds to an explanatory variable.}
+Each column corresponds to a distinct explanatory variable (eg. phenotype).
+Explanatory variables must be encoded as numeric.}
 
 \item{K}{an integer for the number of latent factors in the regression model.}
 
@@ -20,7 +24,7 @@ Each column corresponds to an explanatory variable.}
 an object of class \code{lfmm} with the following attributes:
 \itemize{
 \item U the latent variable score matrix with dimensions n x K.
-\item V the latent variable axes matrix with dimensions p x K.
+\item V the latent variable axis matrix with dimensions p x K.
 \item B the effect size matrix with dimensions p x d.
 }
 }
@@ -50,7 +54,7 @@ dat <- lfmm_sampler(n = 100, p = 1000, K = K,
 ## fit an LFMM with K = 3 latent factors
 lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 
-## plot the size effect matrix
+## plot the effect size matrix
 id <- seq_along(lfmm.res$B)
 cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
 plot(id, lfmm.res$B, col = cols)
