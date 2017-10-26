@@ -3,9 +3,17 @@ Type: Package
 Title: Latent Factor Mixed Model
 Version: 0.0
 Date: 2017-06-14
+Authors@R: c(
+  person("Kevin", "Caye", 
+         email = "kevin.caye@gmail.com", 
+         role = c("aut", "cre")),
+  person("Olivier", "François", 
+         email = "olivier.francois@univ-grenoble-alpes.fr", 
+         role = "ths"))
 Author: Kevin Caye
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Maintainer: Kevin Caye <kevin.caye@gmail.com>
+Description: Implements effcient methods for accounting for unobserved confounding factors
+             in large association studies.
 License: GPL-3 + file LICENSE
 LazyData: LazyData: TRUE
 Encoding: UTF-8

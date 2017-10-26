@@ -22,6 +22,9 @@ lfmm_document:
 lfmm_check:
 	R -e 'devtools::check(pkg = ".")'
 
+lfmm_build_site:
+	R -e 'pkgdown::build_site()'
+
 lfmm_clean:
 	rm -f R/RcppExports.R src/RcppExports.cpp src/*.o src/*.so
 

@@ -1,0 +1,21 @@
+templates:
+  params:
+    bootswatch: readable
+
+navbar:
+  title: "bigstatsr"
+  left:
+    - text: "Manual"
+      href: reference/index.html
+    - text: "Vignettes"
+      menu:
+      - text: "TODO"
+        href: TODO
+  right:
+    - icon: fa-github
+      href: https://github.com/bcm-uga/lfmm
+
+reference:
+  - title: Main functions
+    contents:
+    - lfmm_test
