@@ -2,15 +2,13 @@
 # lfmm
 The R package **lfmm** provides function to estimate unobserved confounding
 factors in large association studies. Considering that we observed n samples
-of p explained variables, put in a matrix $Y$, and n sample of a variable of
+of p explained variables, put in a matrix Y, and n sample of a variable of
 interest. We want to find out which explained variables are associated with the
 variable of interest. The variables of interest and other useful covariates for
 the model are put in a matrix X. Let considering the factor augmented linear
 model 
 
-$$
 Y = U V^T + X B^T + E,
-$$
 
 where
 
