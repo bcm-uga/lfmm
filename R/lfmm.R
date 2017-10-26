@@ -5,10 +5,10 @@
 ##'
 ##' The algorithm minimizes the following penalized least-squares criterion
 ##' \deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
-##' + \frac{\lambda}{2} norm{B}^{2}_{2} ,}
+##' + \frac{\lambda}{2} ||B||^{2}_{2} ,}
 ##' where Y is a response data matrix, X contains all explanatory variables, 
 ##' U denotes the score matrix, V is the loading matrix, and B is the effect size matrix.
-##' 
+##'
 ##' @param Y a response variable matrix with n rows and p columns. 
 ##' Each column corresponds to a distinct response variable (e.g., SNP genotype, 
 ##' gene expression level, beta-normalized methylation profile, etc).
@@ -57,6 +57,76 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
   m
 }
 
+##' K-flod cross validation of LFMM least-squares estimates with ridge penalty
+##'
+##' This function split the dataset into a train set and test set to compute a
+##' prediction error. The function \code{\link{lfmm_ridge}} is run with the
+##' train set and the prediction error is evaluated with the test set.
+##'
+##'
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column corresponds to a distinct response variable (e.g., SNP genotype, 
+##' gene expression level, beta-normalized methylation profile, etc).
+##' Response variables must be encoded as numeric.
+##' @param X an explanatory variable matrix with n rows and d columns. 
+##' Each column corresponds to a distinct explanatory variable (eg. phenotype).
+##' Explanatory variables must be encoded as numeric.
+##' @param Ks a list of integer for the number of latent factors in the regression model.
+##' @param lambdas a list of numeric values for the regularization parameter.
+##' @param n.fold.row number of folds along rows.
+##' @param p.fold.col number of folds along columns.
+##' @return a dataframe with prediction error for each value of lambda and K
+##'
+##' @export
+##' @author cayek
+##' @examples
+##' library(ggplot2)
+##' library(lfmm)
+##'
+##'  ## sample data
+##'  K <- 3
+##'  dat <- lfmm_sampler(n = 100, p = 1000, K = K,
+##'                      outlier.prop = 0.1,
+##'                      cs = c(0.8),
+##'                      sigma = 0.2,
+##'                      B.sd = 1.0,
+##'                      U.sd = 1.0,
+##'                      V.sd = 1.0)
+##'
+##'  ## run cross validation
+##'  errs <- lfmm_ridge_CV(Y = dat$Y,
+##'                          X = dat$X,
+##'                          n.fold.row = 5,
+##'                          n.fold.col = 5,
+##'                          lambdas = c(1e-10, 1, 1e20),
+##'                          Ks = c(1,2,3,4,5,6))
+##'
+##'  ## plot error
+##'  ggplot(errs, aes(y = err, x = as.factor(K))) +
+##'    geom_boxplot() +
+##'    facet_grid(lambda ~ ., scale = "free")
+##'
+##'  ggplot(errs, aes(y = err, x = as.factor(lambda))) +
+##'    geom_boxplot() +
+##'    facet_grid(K ~ ., scales = "free")
+##'
+##' @seealso \code{\link{lfmm_ridge}}
+lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas , Ks) {
+
+  ## init
+  lfmm <- lfmm::ridgeLFMM(K = NULL,
+                          lambda = NULL)
+  dat <- LfmmDat(Y = Y, X = X)
+
+  ## run and return
+  return(lfmm::lfmm_CV(m  = lfmm, dat = dat,
+                       n.fold.row = n.fold.row,
+                       n.fold.col = n.fold.col,
+                       Ks = Ks,
+                       lambdas = lambdas))
+}
+
+
 ##'  LFMM least-squares estimates with lasso penalty
 ##'
 ##' This function computes regularized least squares estimates 
@@ -65,8 +135,8 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 ##' The algorithm minimizes the following penalized least-squares criterion
 ##'
 ##' \deqn{ Llasso(U, V, B) =
-##' frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
-##' \norm{B}^{2}_{2} , }
+##' \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
+##' ||B||^{2}_{2} , }
 ##' where Y is a response data matrix, X contains all explanatory variables, 
 ##' U denotes the score matrix, V is the loading matrix, and B is the effect 
 ##' size matrix.

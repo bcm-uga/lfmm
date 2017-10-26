@@ -183,12 +183,12 @@ test_that("ridgeLFMM CV", {
   lfmm <- ridgeLFMM(K = 3, lambda = 1e-5)
 
   cv.err <- lfmm_CV(m = lfmm,
-                                    dat = dat,
-                                    n.fold.row = 5,
-                                    n.fold.col = 5,
-                                    lambdas = c(1e-10, 1 , 1e20),
-                                    Ks = c(1, 2,3,4,5,6),
-                                    col.prop = 1.0)
+                    dat = dat,
+                    n.fold.row = 5,
+                    n.fold.col = 5,
+                    lambdas = c(1e-10, 1 , 1e20),
+                    Ks = c(1, 2,3,4,5,6),
+                    col.prop = 1.0)
   expect_equal(dim(cv.err), c(6 * 3 * 5 * 5, 4))
 
   skip("plots")

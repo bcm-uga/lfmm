@@ -35,7 +35,7 @@ for the parameters of latent factor mixed models using a ridge penalty.
 \details{
 The algorithm minimizes the following penalized least-squares criterion
 \deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
-+ \frac{\lambda}{2} norm{B}^{2}_{2} ,}
++ \frac{\lambda}{2} ||B||^{2}_{2} ,}
 where Y is a response data matrix, X contains all explanatory variables,
 U denotes the score matrix, V is the loading matrix, and B is the effect size matrix.
 }

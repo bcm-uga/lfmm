@@ -21,6 +21,41 @@ test_that("lfmm_ridge", {
 
 })
 
+test_that("lfmm_ridge CV", {
+
+  library(ggplot2)
+
+  ## sample data
+  K <- 3
+  dat <- lfmm_sampler(n = 100, p = 1000, K = K,
+                      outlier.prop = 0.1,
+                      cs = c(0.8),
+                      sigma = 0.2,
+                      B.sd = 1.0,
+                      U.sd = 1.0,
+                      V.sd = 1.0)
+
+  ## run cross validation
+  errs <- lfmm_ridge_CV(Y = dat$Y,
+                          X = dat$X,
+                          n.fold.row = 5,
+                          n.fold.col = 5,
+                          lambdas = c(1e-10, 1, 1e20),
+                          Ks = c(1,2,3,4,5,6))
+
+  ## plot error
+  skip("plot")
+  ggplot(errs, aes(y = err, x = as.factor(K))) +
+    geom_boxplot() +
+    facet_grid(lambda ~ ., scale = "free")
+
+  ggplot(errs, aes(y = err, x = as.factor(lambda))) +
+    geom_boxplot() +
+    facet_grid(K ~ ., scales = "free")
+
+})
+
+
 test_that("ridge_lasso", {
 
   K <- 3
