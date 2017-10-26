@@ -143,13 +143,15 @@ U denotes the score matrix, V is the loading matrix, and B is the effect size ma
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>lfmm</span>)
 <span class='fu'>data</span>(<span class='no'>example.data</span>)
-<span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='no'>example.data</span>$<span class='no'>genotype</span>)
+<span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='no'>example.data</span>$<span class='no'>genotype</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 <span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='no'>example.data</span>$<span class='no'>phenotype</span>)
 
 <span class='co'>## fits an lfmm model, i.e, computes B, U, V:</span>
-<span class='no'>mod.lfmm</span> <span class='kw'>&lt;-</span> <span class='fu'>lfmm_ridge</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>6</span>)</div><div class='output co'>#&gt; <span class='error'>Error: TridiagEigen: failed to compute all the eigenvalues</span></div><div class='input'>
+<span class='no'>mod.lfmm</span> <span class='kw'>&lt;-</span> <span class='fu'>lfmm_ridge</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>6</span>)
+
 <span class='co'>## performs association testing using the fitted model:</span>
-<span class='no'>pv</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_test.html'>lfmm_test</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>, <span class='kw'>lfmm</span> <span class='kw'>=</span> <span class='no'>mod.lfmm</span>, <span class='kw'>calibrate</span> <span class='kw'>=</span> <span class='st'>"gif"</span>)</div><div class='output co'>#&gt; <span class='error'>Error in cbind(dat$X, lfmm$U): objet 'mod.lfmm' introuvable</span></div><div class='input'>
+<span class='no'>pv</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_test.html'>lfmm_test</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>, <span class='kw'>lfmm</span> <span class='kw'>=</span> <span class='no'>mod.lfmm</span>, <span class='kw'>calibrate</span> <span class='kw'>=</span> <span class='st'>"gif"</span>)
+
 <span class='co'>## Manhattan plot</span>
 <span class='fu'>plot</span>(-<span class='fu'>log10</span>(<span class='no'>pv</span>$<span class='no'>calibrated.pvalue</span>), <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>19</span>, <span class='kw'>cex</span> <span class='kw'>=</span> <span class='fl'>.2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"grey"</span>)</div><div class='input'><span class='fu'>points</span>(<span class='no'>example.data</span>$<span class='no'>causal.set</span>,
       -<span class='fu'>log10</span>(<span class='no'>pv</span>$<span class='no'>calibrated.pvalue</span>)[<span class='no'>example.data</span>$<span class='no'>causal.set</span>],

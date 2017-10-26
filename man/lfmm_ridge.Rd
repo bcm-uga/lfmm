@@ -42,7 +42,7 @@ U denotes the score matrix, V is the loading matrix, and B is the effect size ma
 \examples{
 library(lfmm)
 data(example.data)
-Y <- scale(example.data$genotype)
+Y <- scale(example.data$genotype, scale = FALSE)
 X <- scale(example.data$phenotype)
 
 ## fits an lfmm model, i.e, computes B, U, V:
