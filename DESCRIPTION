@@ -15,7 +15,7 @@ Maintainer: Kevin Caye <kevin.caye@gmail.com>
 Description: Implements effcient methods for accounting for unobserved confounding factors
              in large association studies.
 License: GPL-3 + file LICENSE
-LazyData: LazyData: TRUE
+LazyData: TRUE
 Encoding: UTF-8
 Depends:
     R (>= 3.2.3)
