@@ -31,6 +31,7 @@ library(lfmm)
 u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2)
 v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
 b <- matrix(c(rep(0, 990), rep(1000, 10)))
+y <- u\%*\%v + rnorm(100000, sd = 2)
 x <- 1000 + y\%*\%b + rnorm(100, sd = 100)
 
 ## Compute direct effect sizes using lfmm_ridge
