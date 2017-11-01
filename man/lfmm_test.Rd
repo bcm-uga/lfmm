@@ -4,7 +4,7 @@
 \alias{lfmm_test}
 \title{Statistical tests with latent factor mixed models}
 \usage{
-lfmm_test(Y, X, lfmm, calibrate = c("gif", "median+MAD"))
+lfmm_test(Y, X, lfmm, calibrate = "gif")
 }
 \arguments{
 \item{Y}{a response variable matrix with n rows and p columns.

@@ -277,7 +277,7 @@ lfmm_lasso <- function(Y, X, K,
 ##' id <- seq_along(hp.res$calibrated.pvalue)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, -log10(hp.res$calibrated.pvalue), col = cols)
-lfmm_test <- function(Y, X, lfmm, calibrate = c("gif", "median+MAD")) {
+lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 
   ## init
   dat <- LfmmDat(Y = Y, X = X)
@@ -306,4 +306,104 @@ lfmm_test <- function(Y, X, lfmm, calibrate = c("gif", "median+MAD")) {
   }
 
   hp
+}
+
+
+##' Indirect effect sizes for latent factor models
+##' 
+##' 
+##' This function returns 'indirect' effect sizes for the regression of X (of dimension 1) on the matrix Y,
+##' as usually computed in genome-wide association studies.
+##'
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column is a response variable (numeric).
+##' @param X an explanatory variable with n rows and d = 1 column (numeric). 
+##' @param object an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
+##' or \link{lfmm_ridge} function.
+##' @return a vector of length p containing all effect sizes for the regression 
+##' of X on the matrix Y 
+##' @export
+##' @author cayek, francoio
+##' @examples
+##' library(lfmm)
+##'
+##' ## Simulation of 1000 phenotypes (x)
+##' ## Only the 10 last variables have significant effect sizes
+##' u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2)
+##' v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
+##' b <- matrix(c(rep(0, 990), rep(1000, 10)))
+##' x <- 1000 + y%*%b + rnorm(100, sd = 100)
+##' 
+##' ## Compute direct effect sizes using lfmm_ridge
+##' mod <- lfmm_ridge(Y = scale(y, scale = F), X = scale(x, scale = F), K = 2)
+##' 
+##' ## Compute indirect effect sizes using lfmm_ridge estimates
+##' b.estimates <- effect_size(scale(y, scale = F), scale(x, scale = F), mod)
+##' 
+##' ## plot the 20 last effect sizes (true values are 0 and 1000)
+##' plot(b.estimates[981:1000] )
+effect_size <- function(Y, X, object){
+  if (ncol(X) > 1) stop("Indirect effect sizes are computed for 
+                        a single variable (d=1).")
+  reg.lm <- function(i){
+    dat <- data.frame(Y[,i], object$U)
+    lm(X ~ ., data = dat)$coefficients[2]
+  } 
+  p <- ncol(Y)
+  effect.sizes <- sapply(1:p, FUN = reg.lm)
+  return(effect.sizes)
+}
+
+##' Predict polygenic risk scores from latent factor models
+##' 
+##' 
+##' This function polygenic risk scores from latent factor models. It uses the 
+##' 'indirect' effect sizes for the regression of X (a single phenotype) on the matrix Y,
+##' for predicting phenotypes fromnew data.
+##'
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column is a response variable (numeric).
+##' @param X an explanatory variable with n rows and d = 1 column (numeric). 
+##' @param object an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
+##' or \link{lfmm_ridge} function.
+##' @param fdr.level a numeric value for the FDR level in the lfmm test used to define
+##' candidate variables for predicting new phenotypes.
+##' @param newdata a matrix with n rows and p' columns, and similar to Y, on which 
+##' predictions of X will be based. If NULL, Y is used as newdata. 
+##' @return a list with the following attributes:
+##'       - prediction: a vector of length n containing the predicted values for X. If 
+##'       newdata = NULL, the fitted values are returned.
+##'       - candidates: vector of candidate columns of Y on which the predictions are 
+##'       built.
+##' @export
+##' @author cayek, francoio
+##' @examples
+##' library(lfmm)
+##'
+##' ## Simulation of 1000 phenotypes (x)
+##' ## Only the 10 last variables have significant effect sizes
+##' u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2)
+##' v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
+##' b <- matrix(c(rep(0, 990), rep(1000, 10)))
+##' x <- 1000 + y%*%b + rnorm(100, sd = 100)
+##' 
+##' ## Compute direct effect sizes using lfmm_ridge
+##' ## Note that centering is important (scale = F).
+##' 
+##' mod <- lfmm_ridge(Y = scale(y, scale = F), X = scale(x, scale = F), K = 2)
+##' x.pred <- predict_lfmm(Y = scale(y, scale = F), scale(x, scale = F), mod)$pred
+##' 
+##' compare simulated and predicted/fitted phenotypes
+##' plot(x, x.pred)
+##' abline(0,1)
+##' abline(lm(x.pred~x), col = 2)
+predict_lfmm <- function(Y, X, object, fdr.level = 0.1, newdata = NULL){
+  b.values <- effect_size(Y, X, object) 
+  pvalues <- lfmm_test(Y, X, object,calibrate = "gif")$calibrated.pvalue
+  p = length(pvalues)
+  w = which(sort(pvalues) < fdr.level * (1:p)/p)
+  candidates = order(pvalues)[w]
+  if (is.null(newdata)) {newdata <- Y}
+  x.pred <- newdata[,candidates] %*% matrix(b.values[candidates])
+  return( list(prediction = x.pred, candidates = candidates) )
 }
