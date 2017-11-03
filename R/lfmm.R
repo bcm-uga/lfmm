@@ -74,9 +74,9 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
   m
 }
 
-##' K-flod cross validation of LFMM least-squares estimates with ridge penalty
+##' K-fold cross validation of LFMM least-squares estimates with ridge penalty
 ##'
-##' This function split the dataset into a train set and test set to compute a
+##' This function splits the data set into a train set and test set to compute a
 ##' prediction error. The function \code{\link{lfmm_ridge}} is run with the
 ##' train set and the prediction error is evaluated with the test set.
 ##'
@@ -88,8 +88,8 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 ##' @param X an explanatory variable matrix with n rows and d columns. 
 ##' Each column corresponds to a distinct explanatory variable (eg. phenotype).
 ##' Explanatory variables must be encoded as numeric.
-##' @param Ks a list of integer for the number of latent factors in the regression model.
-##' @param lambdas a list of numeric values for the regularization parameter.
+##' @param K a list of integer for the number of latent factors in the regression model.
+##' @param lambda a list of numeric values for the regularization parameter.
 ##' @param n.fold.row number of folds along rows.
 ##' @param p.fold.col number of folds along columns.
 ##' @return a dataframe with prediction error for each value of lambda and K
@@ -186,7 +186,24 @@ lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas , Ks) {
 ##' @author cayek
 ##' @examples
 ##' library(lfmm)
+##' data(example.data)
+##' Y <- scale(example.data$genotype, scale = FALSE)
+##' X <- scale(example.data$phenotype)
+##' 
+##' ## fits an lfmm model, i.e, computes B, U, V:
+##' mod.lfmm <- lfmm_lasso(Y = Y, X = X, K = 6)
+##' 
+##' ## performs association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
+##' 
+##' ## Manhattan plot
+##' plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+##' points(example.data$causal.set, 
+##'       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+##'        type = "h", col = "blue")
 ##'
+##' 
+##' ## Another example 
 ##' ## sample data
 ##' K <- 3
 ##' dat <- lfmm_sampler(n = 100, p = 1000, K = K,
@@ -253,7 +270,24 @@ lfmm_lasso <- function(Y, X, K,
 ##' @author cayek
 ##' @examples
 ##' library(lfmm)
+##' data(example.data)
+##' Y <- scale(example.data$genotype, scale = FALSE)
+##' X <- scale(example.data$phenotype)
+##' 
+##' ## fits an lfmm model, i.e, computes B, U, V:
+##' mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
+##' 
+##' ## performs association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
+##' 
+##' ## Manhattan plot
+##' plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+##' points(example.data$causal.set, 
+##'       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+##'        type = "h", col = "blue")
 ##'
+##' 
+##' ## Another example 
 ##' K <- 3
 ##' dat <- lfmm_sampler(n = 100, p = 1000, K = K,
 ##'                     outlier.prop = 0.1,
@@ -327,22 +361,37 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 ##' @examples
 ##' library(lfmm)
 ##'
-##' ## Simulation of 1000 phenotypes (x)
-##' ## Only the 10 last variables have significant effect sizes
-##' u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2)
+##' ## Simulation of 1000 genotypes for 100 individuals (y)
+##' u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2) 
 ##' v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
-##' b <- matrix(c(rep(0, 990), rep(1000, 10)))
-##' y <- u%*%v + rnorm(100000, sd = 2)
-##' x <- 1000 + y%*%b + rnorm(100, sd = 100)
+##' y <- matrix(rbinom(100000, size = 2, 
+##'                   prob = 1/(1 + exp(-0.3*(u%*%v 
+##'                   + rnorm(100000, sd = 2))))),
+##'                   nrow = 100,
+##'                   ncol = 1000)
+##'
+##' #PCA of genotypes, 3 main axes of variation (K = 2) 
+##' plot(prcomp(y))
+##'   
+##' ## Simulation of 1000 phenotypes (x)
+##' ## Only the last 10 genotypes have significant effect sizes (b)
+##' b <- matrix(c(rep(0, 990), rep(6000, 10)))
+##' x <- y%*%b + rnorm(100, sd = 100)
+##' x <- scale(x, scale = F)
 ##' 
 ##' ## Compute direct effect sizes using lfmm_ridge
-##' mod <- lfmm_ridge(Y = scale(y, scale = F), X = scale(x, scale = F), K = 2)
-##' 
+##' ## Note that centering is important (scale = F).
+##' mod <- lfmm_ridge(Y = scale(y, scale = F), 
+##'                   X = x,
+##'                   K = 2)
+##'               
 ##' ## Compute indirect effect sizes using lfmm_ridge estimates
-##' b.estimates <- effect_size(scale(y, scale = F), scale(x, scale = F), mod)
+##' b.estimates <- effect_size(scale(y, scale = F), x, mod)
 ##' 
-##' ## plot the 20 last effect sizes (true values are 0 and 1000)
-##' plot(b.estimates[981:1000] )
+##' ## plot the last 30 effect sizes (true values are 0 and 6000)
+##' plot(b.estimates[971:1000])
+##' abline(0, 0)
+##' abline(6000, 0, col = 2)
 effect_size <- function(Y, X, object){
   if (ncol(X) > 1) stop("Indirect effect sizes are computed for 
                         a single variable (d=1).")
@@ -381,26 +430,39 @@ effect_size <- function(Y, X, object){
 ##' @examples
 ##' library(lfmm)
 ##'
-##' ## Simulation of 1000 phenotypes (x)
-##' ## Only the 10 last variables have significant effect sizes
-##' u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2)
+##' ## Simulation of 1000 genotypes for 100 individuals (y)
+##' u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2) 
 ##' v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
+##' y <- matrix(rbinom(100000, size = 2, 
+##'                   prob = 1/(1 + exp(-0.3*(u%*%v 
+##'                   + rnorm(100000, sd = 2))))),
+##'                   nrow = 100,
+##'                   ncol = 1000)
+##'
+##' #PCA of genotypes, 3 main axes of variation (K = 2) 
+##' plot(prcomp(y))
+##'   
+##' ## Simulation of 1000 phenotypes (x)
+##' ## Only the last 10 genotypes have significant effect sizes (b)
 ##' b <- matrix(c(rep(0, 990), rep(6000, 10)))
-##' y <- u%*%v + rnorm(100000, sd = 2)
-##' x <- 1000 + y%*%b + rnorm(100, sd = 100)
+##' x <- y%*%b + rnorm(100, sd = 100)
+##' x <- scale(x, scale = F)
 ##' 
 ##' ## Compute direct effect sizes using lfmm_ridge
 ##' ## Note that centering is important (scale = F).
-##' 
-##' mod <- lfmm_ridge(Y = scale(y, scale = F), X = scale(x, scale = F), 
+##' mod <- lfmm_ridge(Y = scale(y, scale = F), 
+##'                   X = x,
 ##'                   K = 2)
-##' x.pred <- predict_lfmm(Y = scale(y, scale = F), scale(x, scale = F),
-##'                        fdr.level = 0.1, mod)$pred
+##'               
+##' x.pred <- predict_lfmm(Y = scale(y, scale = F), 
+##'                        X = x,
+##'                        fdr.level = 0.1, 
+##'                        mod)$pred
 ##' 
 ##' ##Compare simulated and predicted/fitted phenotypes
 ##' plot(x, x.pred)
 ##' abline(0,1)
-##' abline(lm(x.pred~x), col = 2)
+##' abline(lm(x.pred ~ x), col = 2)
 predict_lfmm <- function(Y, X, object, fdr.level = 0.1, newdata = NULL){
   b.values <- effect_size(Y, X, object) 
   pvalues <- lfmm_test(Y, X, object,calibrate = "gif")$calibrated.pvalue

@@ -36,26 +36,39 @@ for predicting phenotypes fromnew data.
 \examples{
 library(lfmm)
 
-## Simulation of 1000 phenotypes (x)
-## Only the 10 last variables have significant effect sizes
-u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2)
+## Simulation of 1000 genotypes for 100 individuals (y)
+u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2) 
 v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
+y <- matrix(rbinom(100000, size = 2, 
+                  prob = 1/(1 + exp(-0.3*(u\%*\%v 
+                  + rnorm(100000, sd = 2))))),
+            nrow = 100,
+            ncol = 1000)
+
+#PCA of genotypes, 3 main axes of variation (K = 2) 
+plot(prcomp(y))
+  
+## Simulation of 1000 phenotypes (x)
+## Only the last 10 genotypes have significant effect sizes (b)
 b <- matrix(c(rep(0, 990), rep(6000, 10)))
-y <- u\%*\%v + rnorm(100000, sd = 2)
-x <- 1000 + y\%*\%b + rnorm(100, sd = 100)
+x <- y\%*\%b + rnorm(100, sd = 100)
+x <- scale(x, scale = F)
 
 ## Compute direct effect sizes using lfmm_ridge
 ## Note that centering is important (scale = F).
-
-mod <- lfmm_ridge(Y = scale(y, scale = F), X = scale(x, scale = F), 
-                  K = 2)
-x.pred <- predict_lfmm(Y = scale(y, scale = F), scale(x, scale = F),
-                       fdr.level = 0.1, mod)$pred
+mod <- lfmm_ridge(Y = scale(y, scale = F), 
+              X = x,
+              K = 2)
+              
+x.pred <- predict_lfmm(Y = scale(y, scale = F), 
+                       X = x,
+                       fdr.level = 0.1, 
+                       mod)$pred
 
 ##Compare simulated and predicted/fitted phenotypes
 plot(x, x.pred)
 abline(0,1)
-abline(lm(x.pred~x), col = 2)
+abline(lm(x.pred ~ x), col = 2)
 }
 \author{
 cayek, francoio

@@ -26,22 +26,35 @@ as usually computed in genome-wide association studies.
 \examples{
 library(lfmm)
 
-## Simulation of 1000 phenotypes (x)
-## Only the 10 last variables have significant effect sizes
-u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2)
+## Simulation of 1000 genotypes for 100 individuals (y)
+u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2) 
 v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
-b <- matrix(c(rep(0, 990), rep(1000, 10)))
-y <- u\%*\%v + rnorm(100000, sd = 2)
-x <- 1000 + y\%*\%b + rnorm(100, sd = 100)
+y <- matrix(rbinom(100000, size = 2, 
+                  prob = 1/(1 + exp(-0.3*(u\%*\%v 
+                  + rnorm(100000, sd = 2))))),
+            nrow = 100,
+            ncol = 1000)
+
+#PCA of genotypes, 3 main axes of variation (K = 2) 
+plot(prcomp(y))
+  
+## Simulation of 1000 phenotypes (x)
+## Only the last 10 genotypes have significant effect sizes (b)
+b <- matrix(c(rep(0, 990), rep(6000, 10)))
+x <- y\%*\%b + rnorm(100, sd = 100)
+x <- scale(x, scale = F)
 
 ## Compute direct effect sizes using lfmm_ridge
-mod <- lfmm_ridge(Y = scale(y, scale = F), X = scale(x, scale = F), K = 2)
-
+## Note that centering is important (scale = F).
+mod <- lfmm_ridge(Y = scale(y, scale = F), 
+                  X = x,
+                  K = 2)
+              
 ## Compute indirect effect sizes using lfmm_ridge estimates
-b.estimates <- effect_size(scale(y, scale = F), scale(x, scale = F), mod)
+b.estimates <- effect_size(scale(y, scale = F), x, mod)
 
-## plot the 20 last effect sizes (true values are 0 and 1000)
-plot(b.estimates[981:1000] )
+## plot the last 20 effect sizes (true values are 0 and 1000)
+plot(b.estimates[981:1000])
 }
 \author{
 cayek, francoio
