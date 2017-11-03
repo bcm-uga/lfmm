@@ -74,11 +74,11 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
   m
 }
 
-##' K-fold cross validation of LFMM least-squares estimates with ridge penalty
+##' Cross validation of LFMM least-squares estimates with ridge penalty
 ##'
-##' This function splits the data set into a train set and test set to compute a
-##' prediction error. The function \code{\link{lfmm_ridge}} is run with the
-##' train set and the prediction error is evaluated with the test set.
+##' This function splits the data set into a train set and a test set, and returns 
+##' a prediction error. The function \code{\link{lfmm_ridge}} is run with the
+##' train set and the prediction error is evaluated from the test set.
 ##'
 ##'
 ##' @param Y a response variable matrix with n rows and p columns. 
@@ -88,11 +88,11 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 ##' @param X an explanatory variable matrix with n rows and d columns. 
 ##' Each column corresponds to a distinct explanatory variable (eg. phenotype).
 ##' Explanatory variables must be encoded as numeric.
-##' @param K a list of integer for the number of latent factors in the regression model.
-##' @param lambda a list of numeric values for the regularization parameter.
-##' @param n.fold.row number of folds along rows.
-##' @param p.fold.col number of folds along columns.
-##' @return a dataframe with prediction error for each value of lambda and K
+##' @param Ks a list of integer for the number of latent factors in the regression model.
+##' @param lambdas a list of numeric values for the regularization parameter.
+##' @param n.fold.row number of cross-validation folds along rows.
+##' @param p.fold.col number of cross-validation folds along columns.
+##' @return a dataframe containing prediction errors for all values of lambda and K
 ##'
 ##' @export
 ##' @author cayek
@@ -128,7 +128,7 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 ##'    facet_grid(K ~ ., scales = "free")
 ##'
 ##' @seealso \code{\link{lfmm_ridge}}
-lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas , Ks) {
+lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas, Ks) {
 
   ## init
   lfmm <- lfmm::ridgeLFMM(K = NULL,
@@ -404,27 +404,27 @@ effect_size <- function(Y, X, object){
   return(effect.sizes)
 }
 
-##' Predict polygenic risk scores from latent factor models
+##' Predict polygenic scores from latent factor models
 ##' 
 ##' 
-##' This function polygenic risk scores from latent factor models. It uses the 
-##' 'indirect' effect sizes for the regression of X (a single phenotype) on the matrix Y,
-##' for predicting phenotypes fromnew data.
+##' This function computes polygenic risk scores from the estimates of latent factor models. 
+##' It uses the indirect' effect sizes for the regression of X (a single phenotype) on the matrix Y,
+##' for predicting phenotypic values for new genotype data.
 ##'
-##' @param Y a response variable matrix with n rows and p columns. 
+##' @param Y a response variable matrix with n rows and p columns, typically containing genotypes. 
 ##' Each column is a response variable (numeric).
-##' @param X an explanatory variable with n rows and d = 1 column (numeric). 
+##' @param X an explanatory variable with n rows and d = 1 column (numeric) representing a phenotype 
+##' with zero mean across the sample. 
 ##' @param object an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
-##' or \link{lfmm_ridge} function.
+##' or \link{lfmm_ridge} function, computed for X and Y.
 ##' @param fdr.level a numeric value for the FDR level in the lfmm test used to define
 ##' candidate variables for predicting new phenotypes.
 ##' @param newdata a matrix with n rows and p' columns, and similar to Y, on which 
-##' predictions of X will be based. If NULL, Y is used as newdata. 
+##' predictions of X will be based. If NULL, Y is used as new data. 
 ##' @return a list with the following attributes:
-##'       - prediction: a vector of length n containing the predicted values for X. If 
-##'       newdata = NULL, the fitted values are returned.
-##'       - candidates: vector of candidate columns of Y on which the predictions are 
-##'       built.
+##' - prediction: a vector of length n containing the predicted values for X. If newdata 
+##' = NULL, the fitted values are returned.
+##' - candidates: a vector of candidate columns of Y on which the predictions are built.
 ##' @export
 ##' @author cayek, francoio
 ##' @examples

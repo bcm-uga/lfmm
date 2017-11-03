@@ -1,6 +1,6 @@
 Package: lfmm
 Type: Package
-Title: Latent Factor Mixed Model
+Title: Latent Factor Mixed Models
 Version: 0.0
 Date: 2017-06-14
 Authors@R: c(
@@ -12,7 +12,7 @@ Authors@R: c(
          role = "ths"))
 Author: Kevin Caye
 Maintainer: Kevin Caye <kevin.caye@gmail.com>
-Description: Implements effcient methods for accounting for unobserved confounding factors
+Description: Implements statistical methods for correcting confounding factors
              in large association studies.
 License: GPL-3 + file LICENSE
 LazyData: TRUE

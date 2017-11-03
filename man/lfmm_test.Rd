@@ -39,7 +39,24 @@ response matrix, Y, and the explanatory variables, X, including correction for u
 }
 \examples{
 library(lfmm)
+data(example.data)
+Y <- scale(example.data$genotype, scale = FALSE)
+X <- scale(example.data$phenotype)
 
+## fits an lfmm model, i.e, computes B, U, V:
+mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
+
+## performs association testing using the fitted model:
+pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
+
+## Manhattan plot
+plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+points(example.data$causal.set, 
+      -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+       type = "h", col = "blue")
+
+
+## Another example 
 K <- 3
 dat <- lfmm_sampler(n = 100, p = 1000, K = K,
                     outlier.prop = 0.1,

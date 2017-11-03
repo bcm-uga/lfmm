@@ -2,7 +2,7 @@
 % Please edit documentation in R/lfmm.R
 \name{lfmm_ridge_CV}
 \alias{lfmm_ridge_CV}
-\title{K-flod cross validation of LFMM least-squares estimates with ridge penalty}
+\title{Cross validation of LFMM least-squares estimates with ridge penalty}
 \usage{
 lfmm_ridge_CV(Y, X, n.fold.row, n.fold.col, lambdas, Ks)
 }
@@ -16,21 +16,21 @@ Response variables must be encoded as numeric.}
 Each column corresponds to a distinct explanatory variable (eg. phenotype).
 Explanatory variables must be encoded as numeric.}
 
-\item{n.fold.row}{number of folds along rows.}
+\item{n.fold.row}{number of cross-validation folds along rows.}
 
 \item{lambdas}{a list of numeric values for the regularization parameter.}
 
 \item{Ks}{a list of integer for the number of latent factors in the regression model.}
 
-\item{p.fold.col}{number of folds along columns.}
+\item{p.fold.col}{number of cross-validation folds along columns.}
 }
 \value{
-a dataframe with prediction error for each value of lambda and K
+a dataframe containing prediction errors for all values of lambda and K
 }
 \description{
-This function split the dataset into a train set and test set to compute a
-prediction error. The function \code{\link{lfmm_ridge}} is run with the
-train set and the prediction error is evaluated with the test set.
+This function splits the data set into a train set and a test set, and returns
+a prediction error. The function \code{\link{lfmm_ridge}} is run with the
+train set and the prediction error is evaluated from the test set.
 }
 \examples{
 library(ggplot2)

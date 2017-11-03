@@ -2,36 +2,38 @@
 % Please edit documentation in R/lfmm.R
 \name{predict_lfmm}
 \alias{predict_lfmm}
-\title{Predict polygenic risk scores from latent factor models}
+\title{Predict polygenic scores from latent factor models}
 \usage{
 predict_lfmm(Y, X, object, fdr.level = 0.1, newdata = NULL)
 }
 \arguments{
-\item{Y}{a response variable matrix with n rows and p columns.
+\item{Y}{a response variable matrix with n rows and p columns, typically containing genotypes.
 Each column is a response variable (numeric).}
 
-\item{X}{an explanatory variable with n rows and d = 1 column (numeric).}
+\item{X}{an explanatory variable with n rows and d = 1 column (numeric) representing a phenotype
+with zero mean across the sample.}
 
 \item{object}{an object of class \code{lfmm} returned by the \link{lfmm_lasso}
-or \link{lfmm_ridge} function.}
+or \link{lfmm_ridge} function, computed for X and Y.}
 
 \item{fdr.level}{a numeric value for the FDR level in the lfmm test used to define
 candidate variables for predicting new phenotypes.}
 
 \item{newdata}{a matrix with n rows and p' columns, and similar to Y, on which
-predictions of X will be based. If NULL, Y is used as newdata.}
+predictions of X will be based. If NULL, Y is used as new data.}
 }
 \value{
 a list with the following attributes:
-- prediction: a vector of length n containing the predicted values for X. If
-newdata = NULL, the fitted values are returned.
-- candidates: vector of candidate columns of Y on which the predictions are
-built.
+\itemize{
+\item prediction: a vector of length n containing the predicted values for X. If newdata
+= NULL, the fitted values are returned.
+\item candidates: a vector of candidate columns of Y on which the predictions are built.
+}
 }
 \description{
-This function polygenic risk scores from latent factor models. It uses the
-'indirect' effect sizes for the regression of X (a single phenotype) on the matrix Y,
-for predicting phenotypes fromnew data.
+This function computes polygenic risk scores from the estimates of latent factor models.
+It uses the indirect' effect sizes for the regression of X (a single phenotype) on the matrix Y,
+for predicting phenotypic values for new genotype data.
 }
 \examples{
 library(lfmm)
@@ -42,8 +44,8 @@ v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
 y <- matrix(rbinom(100000, size = 2, 
                   prob = 1/(1 + exp(-0.3*(u\%*\%v 
                   + rnorm(100000, sd = 2))))),
-            nrow = 100,
-            ncol = 1000)
+                  nrow = 100,
+                  ncol = 1000)
 
 #PCA of genotypes, 3 main axes of variation (K = 2) 
 plot(prcomp(y))
@@ -57,8 +59,8 @@ x <- scale(x, scale = F)
 ## Compute direct effect sizes using lfmm_ridge
 ## Note that centering is important (scale = F).
 mod <- lfmm_ridge(Y = scale(y, scale = F), 
-              X = x,
-              K = 2)
+                  X = x,
+                  K = 2)
               
 x.pred <- predict_lfmm(Y = scale(y, scale = F), 
                        X = x,

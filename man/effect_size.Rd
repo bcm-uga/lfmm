@@ -32,8 +32,8 @@ v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
 y <- matrix(rbinom(100000, size = 2, 
                   prob = 1/(1 + exp(-0.3*(u\%*\%v 
                   + rnorm(100000, sd = 2))))),
-            nrow = 100,
-            ncol = 1000)
+                  nrow = 100,
+                  ncol = 1000)
 
 #PCA of genotypes, 3 main axes of variation (K = 2) 
 plot(prcomp(y))
@@ -53,8 +53,10 @@ mod <- lfmm_ridge(Y = scale(y, scale = F),
 ## Compute indirect effect sizes using lfmm_ridge estimates
 b.estimates <- effect_size(scale(y, scale = F), x, mod)
 
-## plot the last 20 effect sizes (true values are 0 and 1000)
-plot(b.estimates[981:1000])
+## plot the last 30 effect sizes (true values are 0 and 6000)
+plot(b.estimates[971:1000])
+abline(0, 0)
+abline(6000, 0, col = 2)
 }
 \author{
 cayek, francoio

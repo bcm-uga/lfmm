@@ -95,7 +95,7 @@ response matrix, Y, and the explanatory variables, X, including correction for u
 (latent factors). The test is based on an LFMM fitted with a ridge or lasso penalty.</p>
     
 
-    <pre class="usage"><span class='fu'>lfmm_test</span>(<span class='no'>Y</span>, <span class='no'>X</span>, <span class='no'>lfmm</span>, <span class='kw'>calibrate</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"gif"</span>, <span class='st'>"median+MAD"</span>))</pre>
+    <pre class="usage"><span class='fu'>lfmm_test</span>(<span class='no'>Y</span>, <span class='no'>X</span>, <span class='no'>lfmm</span>, <span class='kw'>calibrate</span> <span class='kw'>=</span> <span class='st'>"gif"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -139,7 +139,22 @@ pvalues are not calibrated.</p></td>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>lfmm</span>)
+<span class='fu'>data</span>(<span class='no'>example.data</span>)
+<span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='no'>example.data</span>$<span class='no'>genotype</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='no'>example.data</span>$<span class='no'>phenotype</span>)
 
+<span class='co'>## fits an lfmm model, i.e, computes B, U, V:</span>
+<span class='no'>mod.lfmm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_ridge.html'>lfmm_ridge</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>6</span>)
+
+<span class='co'>## performs association testing using the fitted model:</span>
+<span class='no'>pv</span> <span class='kw'>&lt;-</span> <span class='fu'>lfmm_test</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>, <span class='kw'>lfmm</span> <span class='kw'>=</span> <span class='no'>mod.lfmm</span>, <span class='kw'>calibrate</span> <span class='kw'>=</span> <span class='st'>"gif"</span>)
+
+<span class='co'>## Manhattan plot</span>
+<span class='fu'>plot</span>(-<span class='fu'>log10</span>(<span class='no'>pv</span>$<span class='no'>calibrated.pvalue</span>), <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>19</span>, <span class='kw'>cex</span> <span class='kw'>=</span> <span class='fl'>.2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"grey"</span>)</div><div class='input'><span class='fu'>points</span>(<span class='no'>example.data</span>$<span class='no'>causal.set</span>,
+      -<span class='fu'>log10</span>(<span class='no'>pv</span>$<span class='no'>calibrated.pvalue</span>)[<span class='no'>example.data</span>$<span class='no'>causal.set</span>],
+       <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"h"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"blue"</span>)</div><div class='img'><img src='lfmm_test-4.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+
+<span class='co'>## Another example </span>
 <span class='no'>K</span> <span class='kw'>&lt;-</span> <span class='fl'>3</span>
 <span class='no'>dat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_sampler.html'>lfmm_sampler</a></span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>1000</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='no'>K</span>,
                     <span class='kw'>outlier.prop</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
@@ -151,15 +166,16 @@ pvalues are not calibrated.</p></td>
 <span class='no'>lfmm.res</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_ridge.html'>lfmm_ridge</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>dat</span>$<span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>dat</span>$<span class='no'>X</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>lambda</span> <span class='kw'>=</span> <span class='fl'>1e-5</span>)
 
 <span class='co'>## hp</span>
-<span class='no'>hp.res</span> <span class='kw'>&lt;-</span> <span class='fu'>lfmm_test</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>dat</span>$<span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>dat</span>$<span class='no'>X</span>, <span class='kw'>lfmm</span> <span class='kw'>=</span> <span class='no'>lfmm.res</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: la condition a une longueur &gt; 1 et seul le premier élément est utilisé</span></div><div class='output co'>#&gt; <span class='warning'>Warning: la condition a une longueur &gt; 1 et seul le premier élément est utilisé</span></div><div class='input'>
+<span class='no'>hp.res</span> <span class='kw'>&lt;-</span> <span class='fu'>lfmm_test</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>dat</span>$<span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>dat</span>$<span class='no'>X</span>, <span class='kw'>lfmm</span> <span class='kw'>=</span> <span class='no'>lfmm.res</span>)
+
 <span class='co'>## plot score</span>
 <span class='no'>id</span> <span class='kw'>&lt;-</span> <span class='fu'>seq_along</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.score</span>)
 <span class='no'>cols</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>'red'</span>, <span class='st'>'green'</span>)[<span class='fu'>as.numeric</span>(<span class='no'>id</span> <span class='kw'>%in%</span> <span class='no'>dat</span>$<span class='no'>outlier</span>) + <span class='fl'>1</span>]
-<span class='fu'>plot</span>(<span class='no'>id</span>, <span class='no'>hp.res</span>$<span class='no'>calibrated.score2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-1.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+<span class='fu'>plot</span>(<span class='no'>id</span>, <span class='no'>hp.res</span>$<span class='no'>calibrated.score2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-5.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
 <span class='co'>## plot pvalue</span>
 <span class='no'>id</span> <span class='kw'>&lt;-</span> <span class='fu'>seq_along</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.pvalue</span>)
 <span class='no'>cols</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>'red'</span>, <span class='st'>'green'</span>)[<span class='fu'>as.numeric</span>(<span class='no'>id</span> <span class='kw'>%in%</span> <span class='no'>dat</span>$<span class='no'>outlier</span>) + <span class='fl'>1</span>]
-<span class='fu'>plot</span>(<span class='no'>id</span>, -<span class='fu'>log10</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.pvalue</span>), <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-2.png' alt='' width='700' height='432.632880098887' /></div></pre>
+<span class='fu'>plot</span>(<span class='no'>id</span>, -<span class='fu'>log10</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.pvalue</span>), <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-6.png' alt='' width='700' height='432.632880098887' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
