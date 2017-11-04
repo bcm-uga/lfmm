@@ -1,13 +1,14 @@
 ##' LFMM least-squares estimates with ridge penalty
 ##'
 ##' This function computes regularized least squares estimates 
-##' for the parameters of latent factor mixed models using a ridge penalty.
+##' for latent factor mixed models using a ridge penalty.
 ##'
 ##' The algorithm minimizes the following penalized least-squares criterion
-##' \deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
+##' \deqn{ L(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
 ##' + \frac{\lambda}{2} ||B||^{2}_{2} ,}
 ##' where Y is a response data matrix, X contains all explanatory variables, 
-##' U denotes the score matrix, V is the loading matrix, and B is the effect size matrix.
+##' U denotes the score matrix, V is the loading matrix, B is the (direct) effect 
+##' size matrix, and lambda is a regularization parameter.
 ##'
 ##' @param Y a response variable matrix with n rows and p columns. 
 ##' Each column corresponds to a distinct response variable (e.g., SNP genotype, 
@@ -15,21 +16,21 @@
 ##' Response variables must be encoded as numeric.
 ##' @param X an explanatory variable matrix with n rows and d columns. 
 ##' Each column corresponds to a distinct explanatory variable (eg. phenotype).
-##' Explanatory variables must be encoded as numeric.
+##' Explanatory variables must be encoded as numeric variables.
 ##' @param K an integer for the number of latent factors in the regression model.
 ##' @param lambda a numeric value for the regularization parameter.
 ##' @return an object of class \code{lfmm} with the following attributes: 
-##'  - U the latent variable score matrix with dimensions n x K.
-##'  - V the latent variable axis matrix with dimensions p x K.
+##'  - U the latent variable score matrix with dimensions n x K,
+##'  - V the latent variable axis matrix with dimensions p x K,
 ##'  - B the effect size matrix with dimensions p x d.
-##'
+##' @details The response variable matrix Y and the explanatory variable are centered.
 ##' @export
 ##' @author cayek
 ##' @examples
 ##' library(lfmm)
 ##' data(example.data)
-##' Y <- scale(example.data$genotype, scale = FALSE)
-##' X <- scale(example.data$phenotype)
+##' Y <- example.data$genotype
+##' X <- example.data$phenotype
 ##' 
 ##' ## fits an lfmm model, i.e, computes B, U, V:
 ##' mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
@@ -65,7 +66,7 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 
   ## init
   m <- ridgeLFMM(K = K, lambda = lambda)
-  dat <- LfmmDat(Y = Y, X = X)
+  dat <- LfmmDat(Y = scale(Y, scale = FALSE), X = scale(X, scale = FALSE))
 
   ## run
   m <- lfmm_fit(m, dat)
@@ -74,7 +75,7 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
   m
 }
 
-##' Cross validation of LFMM least-squares estimates with ridge penalty
+##' Cross validation of LFMM estimates with ridge penalty
 ##'
 ##' This function splits the data set into a train set and a test set, and returns 
 ##' a prediction error. The function \code{\link{lfmm_ridge}} is run with the
@@ -93,6 +94,7 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
 ##' @param n.fold.row number of cross-validation folds along rows.
 ##' @param p.fold.col number of cross-validation folds along columns.
 ##' @return a dataframe containing prediction errors for all values of lambda and K
+##' @details The response variable matrix Y and the explanatory variable are centered.
 ##'
 ##' @export
 ##' @author cayek
@@ -133,7 +135,7 @@ lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas, Ks) {
   ## init
   lfmm <- lfmm::ridgeLFMM(K = NULL,
                           lambda = NULL)
-  dat <- LfmmDat(Y = Y, X = X)
+  dat <- LfmmDat(Y = scale(Y, scale = FALSE), X = scale(X, scale = FALSE))
 
   ## run and return
   return(lfmm::lfmm_CV(m  = lfmm, dat = dat,
@@ -147,16 +149,10 @@ lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas, Ks) {
 ##'  LFMM least-squares estimates with lasso penalty
 ##'
 ##' This function computes regularized least squares estimates 
-##' for the parameters of latent factor mixed models using a lasso penalty. 
+##' for latent factor mixed models using a lasso penalty. 
 ##' 
 ##' The algorithm minimizes the following penalized least-squares criterion
 ##'
-##' \deqn{ Llasso(U, V, B) =
-##' \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
-##' ||B||^{2}_{2} , }
-##' where Y is a response data matrix, X contains all explanatory variables, 
-##' U denotes the score matrix, V is the loading matrix, and B is the effect 
-##' size matrix.
 ##'
 ##' @param Y a response variable matrix with n rows and p columns. 
 ##' Each column is a response variable (e.g., SNP genotype, 
@@ -178,17 +174,18 @@ lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas, Ks) {
 ##' @param relative.err.epsilon a numeric value for a relative convergence error. Determine 
 ##' whether the algorithm converges or not.
 ##' @return an object of class \code{lfmm} with the following attributes: 
-##'  - U the latent variable score matrix with dimensions n x K.
-##'  - V the latent variable axes matrix with dimensions p x K.
+##'  - U the latent variable score matrix with dimensions n x K,
+##'  - V the latent variable axes matrix with dimensions p x K,
 ##'  - B the effect size matrix with dimensions p x d.
+##' @details The response variable matrix Y and the explanatory variable are centered.
 ##'
 ##' @export
 ##' @author cayek
 ##' @examples
 ##' library(lfmm)
 ##' data(example.data)
-##' Y <- scale(example.data$genotype, scale = FALSE)
-##' X <- scale(example.data$phenotype)
+##' Y <- example.data$genotype
+##' X <- example.data$phenotype
 ##' 
 ##' ## fits an lfmm model, i.e, computes B, U, V:
 ##' mod.lfmm <- lfmm_lasso(Y = Y, X = X, K = 6)
@@ -232,7 +229,7 @@ lfmm_lasso <- function(Y, X, K,
                  lambda.num = lambda.num,
                  lambda.min.ratio = lambda.min.ratio,
                  lambda = lambda)
-  dat <- LfmmDat(Y = Y, X = X)
+  dat <- LfmmDat(Y = scale(Y, scale = FALSE), X = scale(X, scale = FALSE))
 
   ## run
   m <- lfmm_fit(m, dat, it.max = it.max, relative.err.epsilon = relative.err.epsilon)
@@ -262,17 +259,18 @@ lfmm_lasso <- function(Y, X, K,
 ##' pvalues are not calibrated.
 ##' @return a list with the following attributes:
 ##'  - B the effect size matrix with dimensions p x d.
-##'  - score a p x d matrix which contains z-scores for each explanatory variable (column of X)
-##'  - pvalue a p x d matrix which contains p-values for each explanatory variable
-##'  - calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable
+##'  - score a p x d matrix which contains z-scores for each explanatory variable (columns of X),
+##'  - pvalue a p x d matrix which contains p-values for each explanatory variable,
+##'  - calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable,
 ##'  - gif a numeric value for the genomic inflation factor.
+##' @details The response variable matrix Y and the explanatory variable are centered.
 ##' @export
 ##' @author cayek
 ##' @examples
 ##' library(lfmm)
 ##' data(example.data)
-##' Y <- scale(example.data$genotype, scale = FALSE)
-##' X <- scale(example.data$phenotype)
+##' Y <- example.data$genotype
+##' X <- example.data$phenotype
 ##' 
 ##' ## fits an lfmm model, i.e, computes B, U, V:
 ##' mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
@@ -286,7 +284,6 @@ lfmm_lasso <- function(Y, X, K,
 ##'       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
 ##'        type = "h", col = "blue")
 ##'
-##' 
 ##' ## Another example 
 ##' K <- 3
 ##' dat <- lfmm_sampler(n = 100, p = 1000, K = K,
@@ -314,7 +311,7 @@ lfmm_lasso <- function(Y, X, K,
 lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 
   ## init
-  dat <- LfmmDat(Y = Y, X = X)
+  dat <- LfmmDat(Y = scale(Y, scale = FALSE), X = scale(X, scale = FALSE))
 
   ## hp
   X <- cbind(dat$X, lfmm$U)
@@ -322,7 +319,7 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
   hp <- hypothesis_testing_lm(dat, X)
   hp$score <- hp$score[,1:d, drop = FALSE]
   hp$pvalue <- hp$pvalue[,1:d, drop = FALSE]
-  hp$B <- hp$B[,1:d, drop = FALSE]
+  hp$B <- hp$B[ ,1:d, drop = FALSE]
 
   ## calibrate
   if (is.null(calibrate)) {
@@ -352,10 +349,11 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 ##' @param Y a response variable matrix with n rows and p columns. 
 ##' Each column is a response variable (numeric).
 ##' @param X an explanatory variable with n rows and d = 1 column (numeric). 
-##' @param object an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
+##' @param lfmm.object an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
 ##' or \link{lfmm_ridge} function.
 ##' @return a vector of length p containing all effect sizes for the regression 
 ##' of X on the matrix Y 
+##' @details The response variable matrix Y and the explanatory variable are centered.
 ##' @export
 ##' @author cayek, francoio
 ##' @examples
@@ -377,27 +375,28 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 ##' ## Only the last 10 genotypes have significant effect sizes (b)
 ##' b <- matrix(c(rep(0, 990), rep(6000, 10)))
 ##' x <- y%*%b + rnorm(100, sd = 100)
-##' x <- scale(x, scale = F)
 ##' 
 ##' ## Compute direct effect sizes using lfmm_ridge
 ##' ## Note that centering is important (scale = F).
-##' mod <- lfmm_ridge(Y = scale(y, scale = F), 
+##' mod.lfmm <- lfmm_ridge(Y = y, 
 ##'                   X = x,
 ##'                   K = 2)
 ##'               
 ##' ## Compute indirect effect sizes using lfmm_ridge estimates
-##' b.estimates <- effect_size(scale(y, scale = F), x, mod)
+##' b.estimates <- effect_size(y, x, mod.lfmm)
 ##' 
 ##' ## plot the last 30 effect sizes (true values are 0 and 6000)
 ##' plot(b.estimates[971:1000])
 ##' abline(0, 0)
 ##' abline(6000, 0, col = 2)
-effect_size <- function(Y, X, object){
+effect_size <- function(Y, X, lfmm.object){
   if (ncol(X) > 1) stop("Indirect effect sizes are computed for 
                         a single variable (d=1).")
+  Y = scale(Y, scale = FALSE)
+  X = scale(X, scale = FALSE)
   reg.lm <- function(i){
-    dat <- data.frame(Y[,i], object$U)
-    lm(X ~ ., data = dat)$coefficients[2]
+    datafr <- data.frame(Y[,i], lfmm.object$U)
+    lm(X ~ ., data = datafr)$coefficients[2]
   } 
   p <- ncol(Y)
   effect.sizes <- sapply(1:p, FUN = reg.lm)
@@ -415,7 +414,7 @@ effect_size <- function(Y, X, object){
 ##' Each column is a response variable (numeric).
 ##' @param X an explanatory variable with n rows and d = 1 column (numeric) representing a phenotype 
 ##' with zero mean across the sample. 
-##' @param object an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
+##' @param lfmm.object an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
 ##' or \link{lfmm_ridge} function, computed for X and Y.
 ##' @param fdr.level a numeric value for the FDR level in the lfmm test used to define
 ##' candidate variables for predicting new phenotypes.
@@ -425,6 +424,7 @@ effect_size <- function(Y, X, object){
 ##' - prediction: a vector of length n containing the predicted values for X. If newdata 
 ##' = NULL, the fitted values are returned.
 ##' - candidates: a vector of candidate columns of Y on which the predictions are built.
+##' @details The response variable matrix Y and the explanatory variable are centered.
 ##' @export
 ##' @author cayek, francoio
 ##' @examples
@@ -446,25 +446,25 @@ effect_size <- function(Y, X, object){
 ##' ## Only the last 10 genotypes have significant effect sizes (b)
 ##' b <- matrix(c(rep(0, 990), rep(6000, 10)))
 ##' x <- y%*%b + rnorm(100, sd = 100)
-##' x <- scale(x, scale = F)
 ##' 
 ##' ## Compute direct effect sizes using lfmm_ridge
-##' ## Note that centering is important (scale = F).
-##' mod <- lfmm_ridge(Y = scale(y, scale = F), 
+##' mod <- lfmm_ridge(Y = y, 
 ##'                   X = x,
 ##'                   K = 2)
 ##'               
-##' x.pred <- predict_lfmm(Y = scale(y, scale = F), 
+##' x.pred <- predict_lfmm(Y = y, 
 ##'                        X = x,
 ##'                        fdr.level = 0.1, 
 ##'                        mod)$pred
 ##' 
 ##' ##Compare simulated and predicted/fitted phenotypes
-##' plot(x, x.pred)
+##' plot(x - mean(x), x.pred)
 ##' abline(0,1)
-##' abline(lm(x.pred ~ x), col = 2)
-predict_lfmm <- function(Y, X, object, fdr.level = 0.1, newdata = NULL){
-  b.values <- effect_size(Y, X, object) 
+##' abline(lm(x.pred ~ scale(x, scale = FALSE), col = 2)
+predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
+  Y = scale(Y, scale = FALSE)
+  X = scale(X, scale = FALSE)
+  b.values <- effect_size(Y, X, lfmm.object) 
   pvalues <- lfmm_test(Y, X, object,calibrate = "gif")$calibrated.pvalue
   p = length(pvalues)
   w = which(sort(pvalues) < fdr.level * (1:p)/p)
@@ -472,4 +472,98 @@ predict_lfmm <- function(Y, X, object, fdr.level = 0.1, newdata = NULL){
   if (is.null(newdata)) {newdata <- Y}
   x.pred <- newdata[,candidates] %*% matrix(b.values[candidates])
   return( list(prediction = x.pred, candidates = candidates) )
+}
+
+
+##' Recursive tests with latent factor mixed models
+##' 
+##' 
+##' This function tests for association between each column of the response matrix, Y, 
+##' and the explanatory variables, X, by recursively including the top hits in the set 
+##' of explanatory variables. The recursive tests are based on LFMMs fitted with ridge 
+##' penalty.
+##'
+##'
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column is a response variable (numeric).
+##' @param X an explanatory variable matrix with n rows and d = 1 column (eg. phenotype). 
+##' @param K an integer for the number of latent factors in the regression model.
+##' @param lambda a numeric value for the regularization parameter.
+##' @param niter an integer value for the number of recursive tests.
+##' @param scale a local value, \code{TRUE} if the explanatory variable need to be scaled 
+##' (recommended option).   
+##' @return a list with the following attributes: 
+##'  - candidates a vector of niter candidate variables (columns of Y),
+##'  - log.p a vector of uncorrected log p-values for checking (not trustable for testing). 
+##' @details The response variable matrix Y and the explanatory variable are centered.
+##' 
+##' @export
+##' @author cayek, francoio
+##' @examples
+##' library(lfmm)
+##' data("example.data")
+##' Y <- example.data$genotype
+##' X <- example.data$phenotype #scaled variable
+##' 
+##' obj <- iterate_testing(Y, X, K = 6, niter = 22, scale = TRUE)
+##' 
+##' #perfect hits for each causal SNPs (1-20)
+##' obj$candidate %in% example.data$causal.set
+##' 
+##' #check candidates at distance 20  (about 10kb)
+##' theta <- 20
+##' #number of hits for each causal SNPs (1-20)
+##'  large.list <- as.numeric(
+##'   apply(sapply(obj$candidate, 
+##'   function(x) abs(x - example.data$causal.set) < theta), 
+##'   2, 
+##'   which))
+##' table(large.list)
+##' 
+##' # Plot log P
+##' plot(obj$log.p, xlab = "Iteration")
+iterate_testing <- function(Y, X, K, niter = 20, scale = FALSE, lambda = 1e-4){
+  
+  mod.lfmm <- lfmm_ridge(Y = Y, 
+                         X = X, 
+                         K = K, 
+                         lambda = lambda)
+  pv <- lfmm_test(Y = Y, 
+                  X = X, 
+                  lfmm = mod.lfmm, 
+                  calibrate = "gif")
+  candidate.list <-  order(-log10(pv$calibrated.pvalue[,1]),
+                           decreasing = TRUE)[1] 
+  log.pvalues <- sort(-log10(pv$calibrated.pvalue), 
+                      decreasing  = TRUE)[1]
+  
+  for (i in 1:(niter-1)){
+    if (scale){
+      X.m <- scale(cbind(X, Y[,candidate.list]))} else {
+        X.m <- cbind(X, Y[,candidate.list])  
+      }
+    
+    mod.lfmm <- lfmm_ridge(Y = Y, 
+                           X = X.m, 
+                           K = K, 
+                           lambda = lambda) 
+    pv <- lfmm_test(Y = Y, 
+                    X = X.m, 
+                    lfmm = mod.lfmm, 
+                    calibrate = "gif")
+    j <- 1
+    while (order(-log10(pv$calibrated.pvalue[,1]), 
+                 decreasing = TRUE)[j] %in% candidate.list) {
+      j <- j + 1
+    }
+    
+    candidate.list <- c(candidate.list,
+                        order(-log10(pv$calibrated.pvalue[,1]),
+                              decreasing = TRUE)[j])
+    log.pvalues <- c(log.pvalues, 
+                     sort(-log10(pv$calibrated.pvalue[,1]), 
+                          decreasing = TRUE)[j])
+    
+  }
+  return(list(candidates = candidate.list, log.p = log.pvalues))
 }

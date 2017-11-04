@@ -4,7 +4,7 @@
 \alias{predict_lfmm}
 \title{Predict polygenic scores from latent factor models}
 \usage{
-predict_lfmm(Y, X, object, fdr.level = 0.1, newdata = NULL)
+predict_lfmm(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL)
 }
 \arguments{
 \item{Y}{a response variable matrix with n rows and p columns, typically containing genotypes.
@@ -13,7 +13,7 @@ Each column is a response variable (numeric).}
 \item{X}{an explanatory variable with n rows and d = 1 column (numeric) representing a phenotype
 with zero mean across the sample.}
 
-\item{object}{an object of class \code{lfmm} returned by the \link{lfmm_lasso}
+\item{lfmm.object}{an object of class \code{lfmm} returned by the \link{lfmm_lasso}
 or \link{lfmm_ridge} function, computed for X and Y.}
 
 \item{fdr.level}{a numeric value for the FDR level in the lfmm test used to define
@@ -35,6 +35,9 @@ This function computes polygenic risk scores from the estimates of latent factor
 It uses the indirect' effect sizes for the regression of X (a single phenotype) on the matrix Y,
 for predicting phenotypic values for new genotype data.
 }
+\details{
+The response variable matrix Y and the explanatory variable are centered.
+}
 \examples{
 library(lfmm)
 
@@ -54,23 +57,21 @@ plot(prcomp(y))
 ## Only the last 10 genotypes have significant effect sizes (b)
 b <- matrix(c(rep(0, 990), rep(6000, 10)))
 x <- y\%*\%b + rnorm(100, sd = 100)
-x <- scale(x, scale = F)
 
 ## Compute direct effect sizes using lfmm_ridge
-## Note that centering is important (scale = F).
-mod <- lfmm_ridge(Y = scale(y, scale = F), 
+mod <- lfmm_ridge(Y = y, 
                   X = x,
                   K = 2)
               
-x.pred <- predict_lfmm(Y = scale(y, scale = F), 
+x.pred <- predict_lfmm(Y = y, 
                        X = x,
                        fdr.level = 0.1, 
                        mod)$pred
 
 ##Compare simulated and predicted/fitted phenotypes
-plot(x, x.pred)
+plot(x - mean(x), x.pred)
 abline(0,1)
-abline(lm(x.pred ~ x), col = 2)
+abline(lm(x.pred ~ scale(x, scale = FALSE), col = 2)
 }
 \author{
 cayek, francoio

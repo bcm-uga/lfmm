@@ -14,7 +14,7 @@ Response variables must be encoded as numeric.}
 
 \item{X}{an explanatory variable matrix with n rows and d columns.
 Each column corresponds to a distinct explanatory variable (eg. phenotype).
-Explanatory variables must be encoded as numeric.}
+Explanatory variables must be encoded as numeric variables.}
 
 \item{K}{an integer for the number of latent factors in the regression model.}
 
@@ -23,27 +23,30 @@ Explanatory variables must be encoded as numeric.}
 \value{
 an object of class \code{lfmm} with the following attributes:
 \itemize{
-\item U the latent variable score matrix with dimensions n x K.
-\item V the latent variable axis matrix with dimensions p x K.
+\item U the latent variable score matrix with dimensions n x K,
+\item V the latent variable axis matrix with dimensions p x K,
 \item B the effect size matrix with dimensions p x d.
 }
 }
 \description{
 This function computes regularized least squares estimates
-for the parameters of latent factor mixed models using a ridge penalty.
+for latent factor mixed models using a ridge penalty.
 }
 \details{
 The algorithm minimizes the following penalized least-squares criterion
-\deqn{ Lridge(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
+\deqn{ L(U, V, B) = \frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 
 + \frac{\lambda}{2} ||B||^{2}_{2} ,}
 where Y is a response data matrix, X contains all explanatory variables,
-U denotes the score matrix, V is the loading matrix, and B is the effect size matrix.
+U denotes the score matrix, V is the loading matrix, B is the (direct) effect
+size matrix, and lambda is a regularization parameter.
+
+The response variable matrix Y and the explanatory variable are centered.
 }
 \examples{
 library(lfmm)
 data(example.data)
-Y <- scale(example.data$genotype, scale = FALSE)
-X <- scale(example.data$phenotype)
+Y <- example.data$genotype
+X <- example.data$phenotype
 
 ## fits an lfmm model, i.e, computes B, U, V:
 mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)

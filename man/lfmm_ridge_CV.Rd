@@ -2,7 +2,7 @@
 % Please edit documentation in R/lfmm.R
 \name{lfmm_ridge_CV}
 \alias{lfmm_ridge_CV}
-\title{Cross validation of LFMM least-squares estimates with ridge penalty}
+\title{Cross validation of LFMM estimates with ridge penalty}
 \usage{
 lfmm_ridge_CV(Y, X, n.fold.row, n.fold.col, lambdas, Ks)
 }
@@ -31,6 +31,9 @@ a dataframe containing prediction errors for all values of lambda and K
 This function splits the data set into a train set and a test set, and returns
 a prediction error. The function \code{\link{lfmm_ridge}} is run with the
 train set and the prediction error is evaluated from the test set.
+}
+\details{
+The response variable matrix Y and the explanatory variable are centered.
 }
 \examples{
 library(ggplot2)

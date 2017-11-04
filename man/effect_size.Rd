@@ -4,7 +4,7 @@
 \alias{effect_size}
 \title{Indirect effect sizes for latent factor models}
 \usage{
-effect_size(Y, X, object)
+effect_size(Y, X, lfmm.object)
 }
 \arguments{
 \item{Y}{a response variable matrix with n rows and p columns.
@@ -12,7 +12,7 @@ Each column is a response variable (numeric).}
 
 \item{X}{an explanatory variable with n rows and d = 1 column (numeric).}
 
-\item{object}{an object of class \code{lfmm} returned by the \link{lfmm_lasso}
+\item{lfmm.object}{an object of class \code{lfmm} returned by the \link{lfmm_lasso}
 or \link{lfmm_ridge} function.}
 }
 \value{
@@ -22,6 +22,9 @@ of X on the matrix Y
 \description{
 This function returns 'indirect' effect sizes for the regression of X (of dimension 1) on the matrix Y,
 as usually computed in genome-wide association studies.
+}
+\details{
+The response variable matrix Y and the explanatory variable are centered.
 }
 \examples{
 library(lfmm)
@@ -42,16 +45,15 @@ plot(prcomp(y))
 ## Only the last 10 genotypes have significant effect sizes (b)
 b <- matrix(c(rep(0, 990), rep(6000, 10)))
 x <- y\%*\%b + rnorm(100, sd = 100)
-x <- scale(x, scale = F)
 
 ## Compute direct effect sizes using lfmm_ridge
 ## Note that centering is important (scale = F).
-mod <- lfmm_ridge(Y = scale(y, scale = F), 
+mod.lfmm <- lfmm_ridge(Y = y, 
                   X = x,
                   K = 2)
               
 ## Compute indirect effect sizes using lfmm_ridge estimates
-b.estimates <- effect_size(scale(y, scale = F), x, mod)
+b.estimates <- effect_size(y, x, mod.lfmm)
 
 ## plot the last 30 effect sizes (true values are 0 and 6000)
 plot(b.estimates[971:1000])

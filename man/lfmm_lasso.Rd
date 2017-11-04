@@ -40,30 +40,25 @@ whether the algorithm converges or not.}
 \value{
 an object of class \code{lfmm} with the following attributes:
 \itemize{
-\item U the latent variable score matrix with dimensions n x K.
-\item V the latent variable axes matrix with dimensions p x K.
+\item U the latent variable score matrix with dimensions n x K,
+\item V the latent variable axes matrix with dimensions p x K,
 \item B the effect size matrix with dimensions p x d.
 }
 }
 \description{
 This function computes regularized least squares estimates
-for the parameters of latent factor mixed models using a lasso penalty.
+for latent factor mixed models using a lasso penalty.
 }
 \details{
 The algorithm minimizes the following penalized least-squares criterion
 
-\deqn{ Llasso(U, V, B) =
-\frac{1}{2} ||Y - U V^{T} - X B^T||_{F}^2 + \frac{\lambda}{2}
-||B||^{2}_{2} , }
-where Y is a response data matrix, X contains all explanatory variables,
-U denotes the score matrix, V is the loading matrix, and B is the effect
-size matrix.
+The response variable matrix Y and the explanatory variable are centered.
 }
 \examples{
 library(lfmm)
 data(example.data)
-Y <- scale(example.data$genotype, scale = FALSE)
-X <- scale(example.data$phenotype)
+Y <- example.data$genotype
+X <- example.data$phenotype
 
 ## fits an lfmm model, i.e, computes B, U, V:
 mod.lfmm <- lfmm_lasso(Y = Y, X = X, K = 6)

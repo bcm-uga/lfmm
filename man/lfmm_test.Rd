@@ -26,9 +26,9 @@ pvalues are not calibrated.}
 a list with the following attributes:
 \itemize{
 \item B the effect size matrix with dimensions p x d.
-\item score a p x d matrix which contains z-scores for each explanatory variable (column of X)
-\item pvalue a p x d matrix which contains p-values for each explanatory variable
-\item calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable
+\item score a p x d matrix which contains z-scores for each explanatory variable (columns of X),
+\item pvalue a p x d matrix which contains p-values for each explanatory variable,
+\item calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable,
 \item gif a numeric value for the genomic inflation factor.
 }
 }
@@ -37,11 +37,14 @@ This function returns significance values for the association between each colum
 response matrix, Y, and the explanatory variables, X, including correction for unobserved confounders
 (latent factors). The test is based on an LFMM fitted with a ridge or lasso penalty.
 }
+\details{
+The response variable matrix Y and the explanatory variable are centered.
+}
 \examples{
 library(lfmm)
 data(example.data)
-Y <- scale(example.data$genotype, scale = FALSE)
-X <- scale(example.data$phenotype)
+Y <- example.data$genotype
+X <- example.data$phenotype
 
 ## fits an lfmm model, i.e, computes B, U, V:
 mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
@@ -54,7 +57,6 @@ plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
 points(example.data$causal.set, 
       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
        type = "h", col = "blue")
-
 
 ## Another example 
 K <- 3
