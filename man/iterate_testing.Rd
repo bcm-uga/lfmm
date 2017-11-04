@@ -51,12 +51,12 @@ obj$candidate \%in\% example.data$causal.set
 #check candidates at distance 20  (about 10kb)
 theta <- 20
 #number of hits for each causal SNPs (1-20)
- large.list <- as.numeric(
+ hit.20 <- as.numeric(
   apply(sapply(obj$candidate, 
   function(x) abs(x - example.data$causal.set) < theta), 
   2, 
   which))
-table(large.list)
+table(hit.20)
 
 # Plot log P
 plot(obj$log.p, xlab = "Iteration")

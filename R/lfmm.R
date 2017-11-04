@@ -513,17 +513,18 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' #check candidates at distance 20  (about 10kb)
 ##' theta <- 20
 ##' #number of hits for each causal SNPs (1-20)
-##'  large.list <- as.numeric(
+##'  hit.20 <- as.numeric(
 ##'   apply(sapply(obj$candidate, 
 ##'   function(x) abs(x - example.data$causal.set) < theta), 
 ##'   2, 
 ##'   which))
-##' table(large.list)
+##' table(hit.20)
 ##' 
 ##' # Plot log P
 ##' plot(obj$log.p, xlab = "Iteration")
 iterate_testing <- function(Y, X, K, niter = 20, scale = FALSE, lambda = 1e-4){
-  
+  if (ncol(X) > 1) stop("The function works with a single explanatory variable 
+                        (d=1).")
   mod.lfmm <- lfmm_ridge(Y = Y, 
                          X = X, 
                          K = K, 
