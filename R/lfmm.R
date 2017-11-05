@@ -475,12 +475,12 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 }
 
 
-##' Recursive tests with latent factor mixed models
+##' Forward inclusion tests with latent factor mixed models
 ##' 
 ##' 
 ##' This function tests for association between each column of the response matrix, Y, 
 ##' and the explanatory variables, X, by recursively including the top hits in the set 
-##' of explanatory variables. The recursive tests are based on LFMMs fitted with ridge 
+##' of explanatory variables. The recursive tests are based on LFMMs with ridge 
 ##' penalty.
 ##'
 ##'
@@ -489,9 +489,13 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' @param X an explanatory variable matrix with n rows and d = 1 column (eg. phenotype). 
 ##' @param K an integer for the number of latent factors in the regression model.
 ##' @param lambda a numeric value for the regularization parameter.
-##' @param niter an integer value for the number of recursive tests.
-##' @param scale a local value, \code{TRUE} if the explanatory variable need to be scaled 
-##' (recommended option).   
+##' @param niter an integer value for the number of forward inclusion tests.
+##' @param scale a local value, \code{TRUE} if the explanatory variable, X, is scaled 
+##' (recommended option). 
+##' @param candidate.list a vector of integers corresponding to columns in Y, and evaluated
+##' as top hits in previous association analysis. If \code{NULL}, a list of candidates 
+##' is built from the first LFMM top hit.
+##' 
 ##' @return a list with the following attributes: 
 ##'  - candidates a vector of niter candidate variables (columns of Y),
 ##'  - log.p a vector of uncorrected log p-values for checking (not trustable for testing). 
@@ -505,7 +509,7 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' Y <- example.data$genotype
 ##' X <- example.data$phenotype #scaled variable
 ##' 
-##' obj <- iterate_testing(Y, X, K = 6, niter = 22, scale = TRUE)
+##' obj <- forward_test(Y, X, K = 6, niter = 22, scale = TRUE)
 ##' 
 ##' #perfect hits for each causal SNPs (1-20)
 ##' obj$candidate %in% example.data$causal.set
@@ -522,26 +526,37 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' 
 ##' # Plot log P
 ##' plot(obj$log.p, xlab = "Iteration")
-iterate_testing <- function(Y, X, K, niter = 20, scale = FALSE, lambda = 1e-4){
-  if (ncol(X) > 1) stop("The function works with a single explanatory variable 
-                        (d=1).")
-  mod.lfmm <- lfmm_ridge(Y = Y, 
-                         X = X, 
-                         K = K, 
-                         lambda = lambda)
-  pv <- lfmm_test(Y = Y, 
-                  X = X, 
-                  lfmm = mod.lfmm, 
-                  calibrate = "gif")
-  candidate.list <-  order(-log10(pv$calibrated.pvalue[,1]),
-                           decreasing = TRUE)[1] 
-  log.pvalues <- sort(-log10(pv$calibrated.pvalue), 
-                      decreasing  = TRUE)[1]
+forward_test <- function(Y, 
+                         X, 
+                         K, 
+                         niter = 20, 
+                         scale = FALSE,
+                         candidate.list = NULL,
+                         lambda = 1e-4){
   
-  for (i in 1:(niter-1)){
+  if (ncol(X) > 1) stop("The function works with 
+                          a single explanatory variable 
+                          (d=1).")
+  
+  if (!is.null(candidate.list)){
+      if (!is.integer(candidate.list)) 
+      {
+         stop("Error in candidate.list: A list 
+                of integers is required.")}
+      if (max(candidate.list)>ncol(Y))
+      {
+        stop("Error in candidate.list: 
+             max(candidate.list)>ncol(Y).")}
+    }
+  
+  candidates <- candidate.list 
+  log.pvalues <- NULL
+  
+  for (i in 1:niter){
     if (scale){
-      X.m <- scale(cbind(X, Y[,candidate.list]))} else {
-        X.m <- cbind(X, Y[,candidate.list])  
+      X.m <- scale(cbind(X, Y[,candidates]))} 
+    else {
+        X.m <- cbind(X, Y[,candidates])  
       }
     
     mod.lfmm <- lfmm_ridge(Y = Y, 
@@ -554,17 +569,16 @@ iterate_testing <- function(Y, X, K, niter = 20, scale = FALSE, lambda = 1e-4){
                     calibrate = "gif")
     j <- 1
     while (order(-log10(pv$calibrated.pvalue[,1]), 
-                 decreasing = TRUE)[j] %in% candidate.list) {
+                 decreasing = TRUE)[j] %in% candidates) {
       j <- j + 1
     }
     
-    candidate.list <- c(candidate.list,
-                        order(-log10(pv$calibrated.pvalue[,1]),
-                              decreasing = TRUE)[j])
+    candidates <- c(candidates,
+                    order(-log10(pv$calibrated.pvalue[,1]),
+                    decreasing = TRUE)[j])
     log.pvalues <- c(log.pvalues, 
                      sort(-log10(pv$calibrated.pvalue[,1]), 
-                          decreasing = TRUE)[j])
-    
-  }
-  return(list(candidates = candidate.list, log.p = log.pvalues))
+                     decreasing = TRUE)[j])
+    }
+  return(list(candidates = candidates, log.p = log.pvalues))
 }
