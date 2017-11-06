@@ -129,19 +129,23 @@ pvalues are not calibrated.</p></td>
 
     <p>a list with the following attributes:</p><ul>
 <li><p>B the effect size matrix with dimensions p x d.</p></li>
-<li><p>score a p x d matrix which contains z-scores for each explanatory variable (column of X)</p></li>
-<li><p>pvalue a p x d matrix which contains p-values for each explanatory variable</p></li>
-<li><p>calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable</p></li>
+<li><p>score a p x d matrix which contains z-scores for each explanatory variable (columns of X),</p></li>
+<li><p>pvalue a p x d matrix which contains p-values for each explanatory variable,</p></li>
+<li><p>calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable,</p></li>
 <li><p>gif a numeric value for the genomic inflation factor.</p></li>
 </ul>
 
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The response variable matrix Y and the explanatory variable are centered.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>lfmm</span>)
 <span class='fu'>data</span>(<span class='no'>example.data</span>)
-<span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='no'>example.data</span>$<span class='no'>genotype</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='no'>example.data</span>$<span class='no'>phenotype</span>)
+<span class='no'>Y</span> <span class='kw'>&lt;-</span> <span class='no'>example.data</span>$<span class='no'>genotype</span>
+<span class='no'>X</span> <span class='kw'>&lt;-</span> <span class='no'>example.data</span>$<span class='no'>phenotype</span>
 
 <span class='co'>## fits an lfmm model, i.e, computes B, U, V:</span>
 <span class='no'>mod.lfmm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_ridge.html'>lfmm_ridge</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>6</span>)
@@ -152,8 +156,7 @@ pvalues are not calibrated.</p></td>
 <span class='co'>## Manhattan plot</span>
 <span class='fu'>plot</span>(-<span class='fu'>log10</span>(<span class='no'>pv</span>$<span class='no'>calibrated.pvalue</span>), <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>19</span>, <span class='kw'>cex</span> <span class='kw'>=</span> <span class='fl'>.2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"grey"</span>)</div><div class='input'><span class='fu'>points</span>(<span class='no'>example.data</span>$<span class='no'>causal.set</span>,
       -<span class='fu'>log10</span>(<span class='no'>pv</span>$<span class='no'>calibrated.pvalue</span>)[<span class='no'>example.data</span>$<span class='no'>causal.set</span>],
-       <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"h"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"blue"</span>)</div><div class='img'><img src='lfmm_test-4.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
-
+       <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"h"</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"blue"</span>)</div><div class='img'><img src='lfmm_test-1.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
 <span class='co'>## Another example </span>
 <span class='no'>K</span> <span class='kw'>&lt;-</span> <span class='fl'>3</span>
 <span class='no'>dat</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_sampler.html'>lfmm_sampler</a></span>(<span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>1000</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='no'>K</span>,
@@ -171,11 +174,11 @@ pvalues are not calibrated.</p></td>
 <span class='co'>## plot score</span>
 <span class='no'>id</span> <span class='kw'>&lt;-</span> <span class='fu'>seq_along</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.score</span>)
 <span class='no'>cols</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>'red'</span>, <span class='st'>'green'</span>)[<span class='fu'>as.numeric</span>(<span class='no'>id</span> <span class='kw'>%in%</span> <span class='no'>dat</span>$<span class='no'>outlier</span>) + <span class='fl'>1</span>]
-<span class='fu'>plot</span>(<span class='no'>id</span>, <span class='no'>hp.res</span>$<span class='no'>calibrated.score2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-5.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+<span class='fu'>plot</span>(<span class='no'>id</span>, <span class='no'>hp.res</span>$<span class='no'>calibrated.score2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-2.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
 <span class='co'>## plot pvalue</span>
 <span class='no'>id</span> <span class='kw'>&lt;-</span> <span class='fu'>seq_along</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.pvalue</span>)
 <span class='no'>cols</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>'red'</span>, <span class='st'>'green'</span>)[<span class='fu'>as.numeric</span>(<span class='no'>id</span> <span class='kw'>%in%</span> <span class='no'>dat</span>$<span class='no'>outlier</span>) + <span class='fl'>1</span>]
-<span class='fu'>plot</span>(<span class='no'>id</span>, -<span class='fu'>log10</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.pvalue</span>), <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-6.png' alt='' width='700' height='432.632880098887' /></div></pre>
+<span class='fu'>plot</span>(<span class='no'>id</span>, -<span class='fu'>log10</span>(<span class='no'>hp.res</span>$<span class='no'>calibrated.pvalue</span>), <span class='kw'>col</span> <span class='kw'>=</span> <span class='no'>cols</span>)</div><div class='img'><img src='lfmm_test-3.png' alt='' width='700' height='432.632880098887' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -183,6 +186,8 @@ pvalues are not calibrated.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

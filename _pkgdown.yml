@@ -22,3 +22,6 @@ reference:
     - lfmm_ridge_CV
     - lfmm_lasso
     - lfmm_test
+    - effect_size
+    - predict_lfmm
+    - forward_test

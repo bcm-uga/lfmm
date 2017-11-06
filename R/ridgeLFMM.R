@@ -2,10 +2,29 @@
 ##' @export
 ridgeLFMM <- function(K, lambda) {
   m <- list( K = K,
-            lambda = lambda)
+            lambda = lambda,
+            algorithm = "analytical")
   class(m) <- "ridgeLFMM"
   m
 }
+
+ridgeLFMM_init <- function(m, dat) {
+
+  ## init B
+  if (is.null(m$B)) {
+    m$B <- matrix(0.0, ncol(dat$Y), ncol(dat$X))
+  }
+
+  ## init U and V
+  if (is.null(m$U)) {
+    m$U <- matrix(0.0, nrow(dat$Y), m$K)
+  }
+  if (is.null(m$V)) {
+    m$V <- matrix(0.0, ncol(dat$Y), m$K)
+  }
+  m
+}
+
 
 ridgeLFMM_noNA<- function(m, dat) {
   ## compute of P
@@ -15,6 +34,48 @@ ridgeLFMM_noNA<- function(m, dat) {
   m <- ridgeLFMM_main(m, dat, P.list)
   m
 }
+
+ridgeLFMM_noNA_alternated<- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
+
+  ## init
+  m <- ridgeLFMM_init(m, dat)
+
+  ## main loop
+  err2 <- .Machine$double.xmax
+  it <- 1
+  repeat {
+    ## main algorithm
+    ## compute W = UV^T
+    Af <- function(x, args) {
+      dat$productY(x)- dat$X %*% crossprod(m$B, x)
+    }
+    Atransf <- function(x, args) {
+      dat$productYt(x) - m$B %*% crossprod(dat$X, x)
+    }
+    res.rspectra <- compute_svd(Af, Atransf, k = m$K, nu = m$K, nv = m$K,
+                                dim = c(nrow(dat$Y), ncol(dat$Y)))
+    m$U <- res.rspectra$u %*% diag(res.rspectra$d, length(res.rspectra$d), length(res.rspectra$d))
+    m$V <- res.rspectra$v
+
+    ## step B
+    Af <- function(x) {
+      t(dat$productYt(x)) - tcrossprod(crossprod(x, m$U), m$V)
+    }
+    m$B <- compute_B_ridge(Af, dat$X, m$lambda)
+
+
+    err2.new <- dat$err2_lfmm(m$U, m$V, m$B)
+    message("It = ", it, "/", it.max, ", err2 = ", err2.new)
+    if(it > it.max || (abs(err2 - err2.new) / err2) < relative.err.min) {
+      break
+    }
+    err2 <- err2.new
+    it <- it + 1
+  }
+
+  m
+}
+
 
 ridgeLFMM_main <- function(m, dat, P.list) {
 
@@ -86,18 +147,30 @@ ridgeLFMM_withNA <- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
 lfmm_fit.ridgeLFMM <- function(m, dat, it.max = 100, relative.err.min = 1e-6) {
   ## test if there missing value in Y
   if (anyNA(dat$Y)) {
-    res <- ridgeLFMM_withNA(m, dat,
-                     relative.err.min = relative.err.min,
-                     it.max = it.max)
+    if (m$algorithm %in% c("analytical", "alternated")) {
+      res <- ridgeLFMM_withNA(m, dat,
+                              relative.err.min = relative.err.min,
+                              it.max = it.max)
+    } else {
+      stop("algorithm must be analytical or alternated")
+    }
   } else {
-    res <- ridgeLFMM_noNA(m, dat)
+    if (m$algorithm == "analytical") {
+      res <- ridgeLFMM_noNA(m, dat)
+    } else if (m$algorithm == "alternated") {
+      res <- ridgeLFMM_noNA_alternated(m, dat,
+                                       relative.err.min = relative.err.min,
+                                       it.max = it.max)
+    } else {
+      stop("algorithm must be analytical or alternated.")
+    }
   }
 }
 
-##' Fit assuming V and B
-##'
-##' @export
-lfmm_fit_knowing_loadings.ridgeLFMM <- function(m, dat) {
+  ##' Fit assuming V and B
+  ##'
+  ##' @export
+  lfmm_fit_knowing_loadings.ridgeLFMM <- function(m, dat) {
   m$U <- (dat$Y -  tcrossprod(dat$X, m$B)) %*% m$V
   m
 }

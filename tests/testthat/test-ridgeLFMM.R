@@ -122,6 +122,7 @@ test_that("ridgeLFMM of ThesisRpackage with NA", {
 
 test_that("ridgeLFMM with NA", {
 
+  set.seed(454)
   n <- 100
   p <- 1000
   dat <- lfmm_sampler(n = n, p = p, K = 3,
