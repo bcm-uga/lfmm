@@ -452,7 +452,7 @@ effect_size <- function(Y, X, lfmm.object){
 ##'                   nrow = 100,
 ##'                   ncol = 1000)
 ##'
-##' #PCA of genotypes, 3 main axes of variation (K = 2) 
+##' #PCA of genotypes, 2 main axes of variation (K = 2) 
 ##' plot(prcomp(y))
 ##'   
 ##' ## Simulation of 1000 phenotypes (x)
