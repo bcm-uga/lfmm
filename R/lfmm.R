@@ -19,7 +19,18 @@
 ##' Explanatory variables must be encoded as numeric variables.
 ##' @param K an integer for the number of latent factors in the regression model.
 ##' @param lambda a numeric value for the regularization parameter.
-##' @return an object of class \code{lfmm} with the following attributes: 
+##' @param algorithm analytical solution algorithm or numerical alternated algorithm.
+##' The analytical solution algorithm is based on global minimum of the loss function and
+##' the computation is very quick. The numerical alternated algorithm converges toward a local
+##' minimum of the loss function. The interest of the alternated algorithm is that it does not
+##' imply the computation of a \eqn{n \times n} matrix. Whereas the analytical algorithm requires
+##' the computation of a \eqn{n \times n} matrix, which can be a problem when n is very large.
+##' @param it.max an integer value for the number of iterations of the algorithm. Only for the
+##' alternated numerical algorithm
+##' @param relative.err.epsilon a numeric value for a relative convergence error. Determine
+##' whether the algorithm converges or not. Only for the
+##' alternated numerical algorithm.
+##' @return an object of class \code{lfmm} with the following attributes:
 ##'  - U the latent variable score matrix with dimensions n x K,
 ##'  - V the latent variable axis matrix with dimensions p x K,
 ##'  - B the effect size matrix with dimensions p x d.
@@ -62,14 +73,16 @@
 ##' id <- seq_along(lfmm.res$B)
 ##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
 ##' plot(id, lfmm.res$B, col = cols)
-lfmm_ridge <- function(Y, X, K, lambda = 1e-5) {
+lfmm_ridge <- function(Y, X, K, lambda = 1e-5, algorithm = c("analytical", "alternated"),
+                       it.max = 100, relative.err.min = 1e-6) {
 
   ## init
   m <- ridgeLFMM(K = K, lambda = lambda)
+  m$algorithm <- algorithm[1]
   dat <- LfmmDat(Y = scale(Y, scale = FALSE), X = scale(X, scale = FALSE))
 
   ## run
-  m <- lfmm_fit(m, dat)
+  m <- lfmm_fit(m, dat, it.max = it.max, relative.err.min = relative.err.min)
 
   ## return
   m
@@ -311,7 +324,7 @@ lfmm_lasso <- function(Y, X, K,
 lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 
   ## init
-  dat <- LfmmDat(Y = scale(Y, scale = FALSE), X = scale(X, scale = FALSE))
+  dat <- LfmmDat(Y = scale(Y, scale = FALSE), X = scale(X, scale = FALSE)) ## WARNING : scale here !!
 
   ## hp
   X <- cbind(dat$X, lfmm$U)

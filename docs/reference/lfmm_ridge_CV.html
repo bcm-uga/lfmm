@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>K-fold cross validation of LFMM least-squares estimates with ridge penalty — lfmm_ridge_CV • lfmm</title>
+<title>Cross validation of LFMM estimates with ridge penalty — lfmm_ridge_CV • lfmm</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -86,13 +86,13 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>K-fold cross validation of LFMM least-squares estimates with ridge penalty</h1>
+    <h1>Cross validation of LFMM estimates with ridge penalty</h1>
     </div>
 
     
-    <p>This function splits the data set into a train set and test set to compute a
-prediction error. The function <code><a href='lfmm_ridge.html'>lfmm_ridge</a></code> is run with the
-train set and the prediction error is evaluated with the test set.</p>
+    <p>This function splits the data set into a train set and a test set, and returns
+a prediction error. The function <code><a href='lfmm_ridge.html'>lfmm_ridge</a></code> is run with the
+train set and the prediction error is evaluated from the test set.</p>
     
 
     <pre class="usage"><span class='fu'>lfmm_ridge_CV</span>(<span class='no'>Y</span>, <span class='no'>X</span>, <span class='no'>n.fold.row</span>, <span class='no'>n.fold.col</span>, <span class='no'>lambdas</span>, <span class='no'>Ks</span>)</pre>
@@ -115,25 +115,29 @@ Explanatory variables must be encoded as numeric.</p></td>
     </tr>
     <tr>
       <th>n.fold.row</th>
-      <td><p>number of folds along rows.</p></td>
+      <td><p>number of cross-validation folds along rows.</p></td>
     </tr>
     <tr>
-      <th>K</th>
-      <td><p>a list of integer for the number of latent factors in the regression model.</p></td>
-    </tr>
-    <tr>
-      <th>lambda</th>
+      <th>lambdas</th>
       <td><p>a list of numeric values for the regularization parameter.</p></td>
     </tr>
     <tr>
+      <th>Ks</th>
+      <td><p>a list of integer for the number of latent factors in the regression model.</p></td>
+    </tr>
+    <tr>
       <th>p.fold.col</th>
-      <td><p>number of folds along columns.</p></td>
+      <td><p>number of cross-validation folds along columns.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a dataframe with prediction error for each value of lambda and K</p>
+    <p>a dataframe containing prediction errors for all values of lambda and K</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The response variable matrix Y and the explanatory variable are centered.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -159,7 +163,7 @@ Explanatory variables must be encoded as numeric.</p></td>
                          <span class='kw'>n.fold.row</span> <span class='kw'>=</span> <span class='fl'>5</span>,
                          <span class='kw'>n.fold.col</span> <span class='kw'>=</span> <span class='fl'>5</span>,
                          <span class='kw'>lambdas</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1e-10</span>, <span class='fl'>1</span>, <span class='fl'>1e20</span>),
-                         <span class='kw'>Ks</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>4</span>,<span class='fl'>5</span>,<span class='fl'>6</span>))</div><div class='output co'>#&gt; <span class='message'>=== params</span></div><div class='output co'>#&gt;   lambda K
+                         <span class='kw'>Ks</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>4</span>,<span class='fl'>5</span>,<span class='fl'>6</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: executing %dopar% sequentially: no parallel backend registered</span></div><div class='output co'>#&gt; <span class='message'>=== params</span></div><div class='output co'>#&gt;   lambda K
 #&gt; 1  1e-10 1</div><div class='output co'>#&gt; <span class='message'>=== params</span></div><div class='output co'>#&gt;   lambda K
 #&gt; 2      1 1</div><div class='output co'>#&gt; <span class='message'>=== params</span></div><div class='output co'>#&gt;   lambda K
 #&gt; 3  1e+20 1</div><div class='output co'>#&gt; <span class='message'>=== params</span></div><div class='output co'>#&gt;   lambda K
@@ -181,10 +185,10 @@ Explanatory variables must be encoded as numeric.</p></td>
  <span class='co'>## plot error</span>
  <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>errs</span>, <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>err</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>as.factor</span>(<span class='no'>K</span>))) +
    <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/geom_boxplot'>geom_boxplot</a></span>() +
-   <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/facet_grid'>facet_grid</a></span>(<span class='no'>lambda</span> ~ <span class='no'>.</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='st'>"free"</span>)</div><div class='img'><img src='lfmm_ridge_CV-3.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+   <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/facet_grid'>facet_grid</a></span>(<span class='no'>lambda</span> ~ <span class='no'>.</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='st'>"free"</span>)</div><div class='img'><img src='lfmm_ridge_CV-1.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
  <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/ggplot'>ggplot</a></span>(<span class='no'>errs</span>, <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/aes'>aes</a></span>(<span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>err</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>as.factor</span>(<span class='no'>lambda</span>))) +
    <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/geom_boxplot'>geom_boxplot</a></span>() +
-   <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/facet_grid'>facet_grid</a></span>(<span class='no'>K</span> ~ <span class='no'>.</span>, <span class='kw'>scales</span> <span class='kw'>=</span> <span class='st'>"free"</span>)</div><div class='img'><img src='lfmm_ridge_CV-4.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+   <span class='fu'><a href='http://www.rdocumentation.org/packages/ggplot2/topics/facet_grid'>facet_grid</a></span>(<span class='no'>K</span> ~ <span class='no'>.</span>, <span class='kw'>scales</span> <span class='kw'>=</span> <span class='st'>"free"</span>)</div><div class='img'><img src='lfmm_ridge_CV-2.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -193,6 +197,8 @@ Explanatory variables must be encoded as numeric.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
       

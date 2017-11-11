@@ -4,7 +4,8 @@
 \alias{lfmm_ridge}
 \title{LFMM least-squares estimates with ridge penalty}
 \usage{
-lfmm_ridge(Y, X, K, lambda = 1e-05)
+lfmm_ridge(Y, X, K, lambda = 1e-05, algorithm = c("analytical",
+  "alternated"), it.max = 100, relative.err.min = 1e-06)
 }
 \arguments{
 \item{Y}{a response variable matrix with n rows and p columns.
@@ -19,6 +20,20 @@ Explanatory variables must be encoded as numeric variables.}
 \item{K}{an integer for the number of latent factors in the regression model.}
 
 \item{lambda}{a numeric value for the regularization parameter.}
+
+\item{algorithm}{analytical solution algorithm or numerical alternated algorithm.
+The analytical solution algorithm is based on global minimum of the loss function and
+the computation is very quick. The numerical alternated algorithm converges toward a local
+minimum of the loss function. The interest of the alternated algorithm is that it does not
+imply the computation of a \eqn{n \times n} matrix. Whereas the analytical algorithm requires
+the computation of a \eqn{n \times n} matrix, which can be a problem when n is very large.}
+
+\item{it.max}{an integer value for the number of iterations of the algorithm. Only for the
+alternated numerical algorithm}
+
+\item{relative.err.epsilon}{a numeric value for a relative convergence error. Determine
+whether the algorithm converges or not. Only for the
+alternated numerical algorithm.}
 }
 \value{
 an object of class \code{lfmm} with the following attributes:
