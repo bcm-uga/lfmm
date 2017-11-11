@@ -72,7 +72,7 @@ x.pred <- predict_lfmm(Y = y,
 plot(x - mean(x), x.pred, 
      pch = 19, col = "grey", 
      xlab = "Observed phenotypes (centered)", 
-     y = "Predicted from PRS")
+     ylab = "Predicted from PRS")
 abline(0,1)
 abline(lm(x.pred ~ scale(x, scale = FALSE)), col = 2)
 }
