@@ -468,20 +468,23 @@ effect_size <- function(Y, X, lfmm.object){
 ##' x.pred <- predict_lfmm(Y = y, 
 ##'                        X = x,
 ##'                        fdr.level = 0.1, 
-##'                        mod)$pred
+##'                        mod)
+##'                     
+##' x.pred$candidates
 ##' 
 ##' ##Compare simulated and predicted/fitted phenotypes
-##' plot(x - mean(x), x.pred, 
+##' plot(x - mean(x), x.pred$pred, 
 ##'      pch = 19, col = "grey", 
 ##'      xlab = "Observed phenotypes (centered)", 
 ##'      ylab = "Predicted from PRS")
 ##' abline(0,1)
-##' abline(lm(x.pred ~ scale(x, scale = FALSE)), col = 2)
+##' abline(lm(x.pred$pred ~ scale(x, scale = FALSE)), col = 2)
 predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
   Y = scale(Y, scale = FALSE)
   X = scale(X, scale = FALSE)
   b.values <- effect_size(Y, X, lfmm.object) 
   pvalues <- lfmm_test(Y, X, lfmm.object, calibrate = "gif")$calibrated.pvalue
+  pvalues[is.na(pvalues)] <- 1
   p = length(pvalues)
   w = which(sort(pvalues) < fdr.level * (1:p)/p)
   candidates = order(pvalues)[w]

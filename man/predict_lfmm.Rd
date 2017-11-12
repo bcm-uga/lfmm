@@ -66,15 +66,17 @@ mod <- lfmm_ridge(Y = y,
 x.pred <- predict_lfmm(Y = y, 
                        X = x,
                        fdr.level = 0.1, 
-                       mod)$pred
+                       mod)
+                    
+x.pred$candidates
 
 ##Compare simulated and predicted/fitted phenotypes
-plot(x - mean(x), x.pred, 
+plot(x - mean(x), x.pred$pred, 
      pch = 19, col = "grey", 
      xlab = "Observed phenotypes (centered)", 
      ylab = "Predicted from PRS")
 abline(0,1)
-abline(lm(x.pred ~ scale(x, scale = FALSE)), col = 2)
+abline(lm(x.pred$pred ~ scale(x, scale = FALSE)), col = 2)
 }
 \author{
 cayek, francoio
