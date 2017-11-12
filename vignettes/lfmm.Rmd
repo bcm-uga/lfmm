@@ -190,7 +190,7 @@ The lasso estimates are based on minimizing a regularized least-squares problem 
 
 The **lasso_lfmm** function is applied to $Y$ (genotype) and $X$ (phenotypes, SD = 1).
 
-```{r}
+```{r, R.options= }
 ## Fit an LFMM, i.e, compute B, U, V estimates
  mod.lfmm <- lfmm_lasso(Y = Y, 
                         X = X, 
