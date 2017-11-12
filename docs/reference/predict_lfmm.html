@@ -142,43 +142,40 @@ predictions of X will be based. If NULL, Y is used as new data.</p></td>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>library(lfmm)
+    <pre class="examples"><div class='input'><span class='fu'>library</span>(<span class='no'>lfmm</span>)
 
-## Simulation of 1000 genotypes for 100 individuals (y)
-u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2) 
-v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
-y <- matrix(rbinom(100000, size = 2, 
-                  prob = 1/(1 + exp(-0.3*(u%*%v 
-                  + rnorm(100000, sd = 2))))),
-                  nrow = 100,
-                  ncol = 1000)
+<span class='co'>## Simulation of 1000 genotypes for 100 individuals (y)</span>
+<span class='no'>u</span> <span class='kw'>&lt;-</span> <span class='fu'>matrix</span>(<span class='fu'>rnorm</span>(<span class='fl'>300</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>1</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='no'>v</span> <span class='kw'>&lt;-</span> <span class='fu'>matrix</span>(<span class='fu'>rnorm</span>(<span class='fl'>3000</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>2</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>1000</span>)
+<span class='no'>y</span> <span class='kw'>&lt;-</span> <span class='fu'>matrix</span>(<span class='fu'>rbinom</span>(<span class='fl'>100000</span>, <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+                  <span class='kw'>prob</span> <span class='kw'>=</span> <span class='fl'>1</span>/(<span class='fl'>1</span> + <span class='fu'>exp</span>(-<span class='fl'>0.3</span>*(<span class='no'>u</span><span class='kw'>%*%</span><span class='no'>v</span>
+                  + <span class='fu'>rnorm</span>(<span class='fl'>100000</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>2</span>))))),
+                  <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+                  <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>1000</span>)
 
-#PCA of genotypes, 3 main axes of variation (K = 2) 
-plot(prcomp(y))
-  
-## Simulation of 1000 phenotypes (x)
-## Only the last 10 genotypes have significant effect sizes (b)
-b <- matrix(c(rep(0, 990), rep(6000, 10)))
-x <- y%*%b + rnorm(100, sd = 100)
+<span class='co'>#PCA of genotypes, 2 main axes of variation (K = 2) </span>
+<span class='fu'>plot</span>(<span class='fu'>prcomp</span>(<span class='no'>y</span>))</div><div class='img'><img src='predict_lfmm-1.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+<span class='co'>## Simulation of 1000 phenotypes (x)</span>
+<span class='co'>## Only the last 10 genotypes have significant effect sizes (b)</span>
+<span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='fu'>matrix</span>(<span class='fu'>c</span>(<span class='fu'>rep</span>(<span class='fl'>0</span>, <span class='fl'>990</span>), <span class='fu'>rep</span>(<span class='fl'>6000</span>, <span class='fl'>10</span>)))
+<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='no'>y</span><span class='kw'>%*%</span><span class='no'>b</span> + <span class='fu'>rnorm</span>(<span class='fl'>100</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>100</span>)
 
-## Compute direct effect sizes using lfmm_ridge
-mod <- lfmm_ridge(Y = y, 
-                  X = x,
-                  K = 2)
-              
-x.pred <- predict_lfmm(Y = y, 
-                       X = x,
-                       fdr.level = 0.1, 
-                       mod)$pred
+<span class='co'>## Compute direct effect sizes using lfmm_ridge</span>
+<span class='no'>mod</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_ridge.html'>lfmm_ridge</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>y</span>,
+                  <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>x</span>,
+                  <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 
-##Compare simulated and predicted/fitted phenotypes
-plot(x - mean(x), x.pred)
-abline(0,1)
-abline(lm(x.pred ~ scale(x, scale = FALSE), col = 2)
-</div><div class='output co'>#&gt; <span class='error'>Error: &lt;text&gt;:35:0: unexpected end of input</span>
-#&gt; <span class='error'>33: abline(lm(x.pred ~ scale(x, scale = FALSE), col = 2)</span>
-#&gt; <span class='error'>34: </span>
-#&gt; <span class='error'>   ^</span></div></pre>
+<span class='no'>x.pred</span> <span class='kw'>&lt;-</span> <span class='fu'>predict_lfmm</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>y</span>,
+                       <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>x</span>,
+                       <span class='kw'>fdr.level</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+                       <span class='no'>mod</span>)
+
+<span class='no'>x.pred</span>$<span class='no'>candidates</span></div><div class='output co'>#&gt; [1] 993 991</div><div class='input'>
+<span class='co'>##Compare simulated and predicted/fitted phenotypes</span>
+<span class='fu'>plot</span>(<span class='no'>x</span> - <span class='fu'>mean</span>(<span class='no'>x</span>), <span class='no'>x.pred</span>$<span class='no'>pred</span>,
+     <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>19</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"grey"</span>,
+     <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"Observed phenotypes (centered)"</span>,
+     <span class='kw'>ylab</span> <span class='kw'>=</span> <span class='st'>"Predicted from PRS"</span>)</div><div class='input'><span class='fu'>abline</span>(<span class='fl'>0</span>,<span class='fl'>1</span>)</div><div class='input'><span class='fu'>abline</span>(<span class='fu'>lm</span>(<span class='no'>x.pred</span>$<span class='no'>pred</span> ~ <span class='fu'>scale</span>(<span class='no'>x</span>, <span class='kw'>scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)), <span class='kw'>col</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='img'><img src='predict_lfmm-2.png' alt='' width='700' height='432.632880098887' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

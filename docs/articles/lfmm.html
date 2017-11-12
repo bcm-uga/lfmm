@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Presentation of the package lfmm • lfmm</title>
+<title>Overview of R Package lfmm • lfmm</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -63,26 +63,225 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Presentation of the package lfmm</h1>
-                        <h4 class="author">Kevin Caye</h4>
+      <h1>Overview of R Package lfmm</h1>
+                        <h4 class="author">Kevin Caye, Olivier Francois</h4>
             
-            <h4 class="date">June 15, 2017</h4>
+            <h4 class="date">November 15, 2017</h4>
           </div>
 
     
     
 <div class="contents">
-<div id="tess3-algorithm" class="section level2">
+<hr>
+<p><strong>Summary:</strong> Genome and epigenome-wide association studies are plagued with the problems of confounding and causality. The R package <strong>lfmm</strong> implements new algorithms for parameter estimation in latent factor mixed models (LFMM). The algorithms are designed for the correction of unobserved confounders. The new methods are computationally efficient, and provide statistically optimal corrections resulting in improved power and control for false discoveries. This short tutorial provides brief examples on how the R packages <strong>lfmm</strong> can be used for fitting latent factor mixed models and evaluating association between a response matrix (SNP genotype or methylation levels) and a variable of interest (phenotype or exposure levels) in GWAS, GEAS and EWAS. Corresponding software is available at the following url <a href="https://bcm-uga.github.io/lfmm/" class="uri">https://bcm-uga.github.io/lfmm/</a>.</p>
+<hr>
+<div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#tess3-algorithm" class="anchor"></a>tess3 algorithm</h2>
+<a href="#introduction" class="anchor"></a>Introduction</h2>
+<p>LFMMs belong to a broad class of statistical models for association studies including genome-wide association studies (GWAS), epigenome-wide association studies (EWAS), and genome-environment association studies (GEAS) among other. LFMMs were used in (Leek and Storey 2007) in gene expression analysis, and in (Frichot et al. 2013) for testing correlations between loci and environmental. Other implementations of LFMMs are available in the R packages <strong>lfmm</strong>, <strong>LEA</strong> (Frichot et al. 2013), <strong>sva</strong> (Leek and Storey 2007), and <strong>cate</strong> (Wang et al. 2017).</p>
+<p>Latent factor mixed models are statistical regression models to test associations between a multidimensional set of response variables and a set of variables of interest. The response variables can include genotypes, methylation levels, gene expression levels for <span class="math inline">\(n\)</span> individuals. The explanatory variables can represent environmental exposure or phenotypic traits. LFMMs include unobserved variables, called latent factors, that correct the model for confounding effects due to population structure and other hidden causes. Technically, LFMMs are defined according to the following formula <span class="math display">\[
+ Y = X B^T + U V^T + E
+\]</span> where <span class="math inline">\(Y\)</span> is the <span class="math inline">\(n \times p\)</span> matrix of observations of <span class="math inline">\(p\)</span> response variables on <span class="math inline">\(n\)</span> individuals, <span class="math inline">\(X\)</span> is the <span class="math inline">\(n \times d\)</span> matrix of explanatory variables measured for the <span class="math inline">\(n\)</span> individuals, <span class="math inline">\(B\)</span> is a <span class="math inline">\(p \times d\)</span> matrix of effects for all explanatory variables, <span class="math inline">\(U\)</span> is an <span class="math inline">\(n \times K\)</span> matrix of latent variables (confounders), and <span class="math inline">\(V\)</span> is a <span class="math inline">\(p \times d\)</span> matrix of loadings for all latent variables.</p>
+<p>To install the latest version of <strong>lfmm</strong>, use the github repository</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#devtools::install_github("bcm-uga/lfmm")</span></code></pre></div>
 </div>
-<div id="lassolfmm-algorithm" class="section level2">
+<div id="starting-with-lfmm" class="section level2">
 <h2 class="hasAnchor">
-<a href="#lassolfmm-algorithm" class="anchor"></a>LassoLFMM algorithm</h2>
+<a href="#starting-with-lfmm" class="anchor"></a>Starting with lfmm</h2>
+<p>The lfmm package can be loaded as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(lfmm)</code></pre></div>
+<p>In this tutorial, we present examples based on two data sets. The examples include simulated data based on single nucleotide polynormphisms for the plant species <em>A. thaliana</em> (Atwell et al. 2011), and on DNA methylation values of nonmalignant skin tissues (Vandiver et al. 2015).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Simulated phenotypes for Arabidopsis thaliana SNP data
+<span class="kw">data</span>(<span class="st">"example.data"</span>)
+## Simulated (and real) methylation levels for sun-exposed tissue sampled
+<span class="kw">data</span>(<span class="st">"skin.exposure"</span>)</code></pre></div>
+<p>For both data set, a principal component analysis (PCA) can reveal some ‘structure’ in the genotypic data. We perfom PCA by using the <strong>prcomp</strong> function as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Y &lt;-<span class="st"> </span>example.data$genotype
+pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
+<span class="kw">plot</span>(pc$sdev[<span class="dv">1</span>:<span class="dv">20</span>]^<span class="dv">2</span>, <span class="dt">xlab =</span> <span class="st">'PC'</span>, <span class="dt">ylab =</span> <span class="st">"Variance explained"</span>)
+<span class="kw">points</span>(<span class="dv">6</span>,pc$sdev[<span class="dv">6</span>]^<span class="dv">2</span>, <span class="dt">type =</span> <span class="st">"h"</span>, <span class="dt">lwd =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
+<p>For the <em>A. thaliana</em> samples, the screeplot indicates that there are around <span class="math inline">\(K = 6\)</span> main components in the data. We will use <span class="math inline">\(K = 6\)</span> latent factors in subsequent analyses of the <em>A. thaliana</em> example.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Y &lt;-<span class="st"> </span>skin.exposure$beta.value
+pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
+<span class="kw">plot</span>(pc$sdev[<span class="dv">1</span>:<span class="dv">20</span>]^<span class="dv">2</span>, <span class="dt">xlab =</span> <span class="st">'PC'</span>, <span class="dt">ylab =</span> <span class="st">"Variance explained"</span>)
+<span class="kw">points</span>(<span class="dv">2</span>,pc$sdev[<span class="dv">2</span>]^<span class="dv">2</span>, <span class="dt">type =</span> <span class="st">"h"</span>, <span class="dt">lwd =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
+<p>For the sun-exposed skin tissue samples, the screeplot indicates that there are around <span class="math inline">\(K = 2\)</span> main components in the data. We will use <span class="math inline">\(K = 2\)</span> latent factors in subsequent analyses of the skin tissue example.</p>
 </div>
-<div id="ridgelfmm-algorithm" class="section level2">
+<div id="lfmm-ridge-estimates" class="section level2">
 <h2 class="hasAnchor">
-<a href="#ridgelfmm-algorithm" class="anchor"></a>RidgeLFMM algorithm</h2>
+<a href="#lfmm-ridge-estimates" class="anchor"></a>LFMM ridge estimates</h2>
+<p>The R package contains two main functions for estimating the parameters of LFMMs: <strong>ridge_lfmm</strong> and <strong>lasso_lfmm</strong>. The ridge estimates are based on minimimizing a regularized least-squares problem with an <span class="math inline">\(L_2\)</span> penalty. The next steps illustrate the use of the <strong>ridge_lfmm</strong> function for the <em>A. thaliana</em> example.</p>
+</div>
+<div id="ridge-estimates-and-gwas-tests-for-the-a-thaliana-example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ridge-estimates-and-gwas-tests-for-the-a-thaliana-example" class="anchor"></a>Ridge estimates and GWAS tests for the A.thaliana example</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span>example.data$genotype
+ X &lt;-<span class="st"> </span>example.data$phenotype <span class="co">#scaled phenotype</span></code></pre></div>
+<p>The <strong>ridge_lfmm</strong> function is applied to <span class="math inline">\(Y\)</span> (genotype) and <span class="math inline">\(X\)</span> (phenotypes, SD = 1).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Fit an LFMM, i.e, compute B, U, V estimates
+ mod.lfmm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_ridge.html">lfmm_ridge</a></span>(<span class="dt">Y =</span> Y, 
+                        <span class="dt">X =</span> X, 
+                        <span class="dt">K =</span> <span class="dv">6</span>)</code></pre></div>
+<p>The <strong>ridge_lfmm</strong> function returns an object that contains the latent variable score matrix <span class="math inline">\(U\)</span>, the latent variable loading matrix <span class="math inline">\(U\)</span>, and <span class="math inline">\(B\)</span> the effect sizes for all SNPs. The result can be used to perform an association study:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## performs association testing using the fitted model:
+ pv &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_test.html">lfmm_test</a></span>(<span class="dt">Y =</span> Y, 
+                 <span class="dt">X =</span> X, 
+                 <span class="dt">lfmm =</span> mod.lfmm, 
+                 <span class="dt">calibrate =</span> <span class="st">"gif"</span>)</code></pre></div>
+<p>The histogram of test significance values is expected to be flat, with a peak near zero. A QQ-plot is displayed as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvalues &lt;-<span class="st"> </span>pv$calibrated.pvalue 
+<span class="kw">qqplot</span>(<span class="kw">rexp</span>(<span class="kw">length</span>(pvalues), <span class="dt">rate =</span> <span class="kw">log</span>(<span class="dv">10</span>)),
+       -<span class="kw">log10</span>(pvalues), <span class="dt">xlab =</span> <span class="st">"Expected quantile"</span>,
+       <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">cex =</span> .<span class="dv">4</span>)
+<span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
+<p>A Manhattan plot can be shown as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Manhattan plot
+ <span class="kw">plot</span>(-<span class="kw">log10</span>(pvalues), 
+      <span class="dt">pch =</span> <span class="dv">19</span>, 
+      <span class="dt">cex =</span> .<span class="dv">2</span>, 
+      <span class="dt">xlab =</span> <span class="st">"SNP"</span>, <span class="dt">ylab =</span> <span class="st">"-Log P"</span>,
+      <span class="dt">col =</span> <span class="st">"grey"</span>)
+ <span class="kw">points</span>(example.data$causal.set, 
+       -<span class="kw">log10</span>(pvalues)[example.data$causal.set], 
+        <span class="dt">type =</span> <span class="st">"h"</span>, 
+        <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+<p>The vertical bars indicate the position of the (known) causal loci used to generate the simulated phenotypes.</p>
+</div>
+<div id="ridge-estimates-and-ewas-tests-for-the-skin-exposure-example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#ridge-estimates-and-ewas-tests-for-the-skin-exposure-example" class="anchor"></a>Ridge estimates and EWAS tests for the skin exposure example</h2>
+<p>The skin exposure data set contains (partially simulated) DNA methylation data. The data are loaded as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span><span class="kw">scale</span>(skin.exposure$beta.value)
+ X &lt;-<span class="st"> </span><span class="kw">scale</span>(<span class="kw">as.numeric</span>(skin.exposure$exposure))</code></pre></div>
+<p>An LFMM model is fitted to the epigenomic data with <span class="math inline">\(K=2\)</span> latent factors, and an EWAS is performed for the sun exposure variable.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Fit and LFMM, i.e, compute B, U, V estimates
+ mod.lfmm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_ridge.html">lfmm_ridge</a></span>(<span class="dt">Y =</span> Y, 
+                        <span class="dt">X =</span> X, 
+                        <span class="dt">K =</span> <span class="dv">2</span>)
+ 
+ ## Perform association testing using the fitted model:
+ pv &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_test.html">lfmm_test</a></span>(<span class="dt">Y =</span> Y, 
+                 <span class="dt">X =</span> X, 
+                 <span class="dt">lfmm =</span> mod.lfmm, 
+                 <span class="dt">calibrate =</span> <span class="st">"gif"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Manhattan plot
+ <span class="kw">plot</span>(-<span class="kw">log10</span>(pv$calibrated.pvalue), 
+      <span class="dt">pch =</span> <span class="dv">19</span>, 
+      <span class="dt">cex =</span> .<span class="dv">3</span>,
+      <span class="dt">xlab =</span> <span class="st">"Probe"</span>, <span class="dt">ylab =</span> <span class="st">"-Log P"</span>,
+      <span class="dt">col =</span> <span class="st">"grey"</span>)
+ causal.set &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">11</span>, <span class="dv">1496</span>, <span class="dt">by =</span> <span class="dv">80</span>)
+ <span class="kw">points</span>(causal.set, 
+       -<span class="kw">log10</span>(pv$calibrated.pvalue)[causal.set], 
+        <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-13-1.png" width="672"></p>
+<p>The blue circles represent the CpG sites which were causally associated with the variable of interest.</p>
+</div>
+<div id="lasso-estimates" class="section level2">
+<h2 class="hasAnchor">
+<a href="#lasso-estimates" class="anchor"></a>Lasso estimates</h2>
+<p>The lasso estimates are based on minimizing a regularized least-squares problem with an <span class="math inline">\(L_1\)</span> penalty. The <span class="math inline">\(L_1\)</span> norm is introduced for inducing sparsity on the fixed effects, and corresponds to the prior information that not all response variables may be associated with the variables of interest. More specifically, the prior implies that a limited number of rows of the effect size matrix <span class="math inline">\(B\)</span> are effectively non-zero. The next steps illustrate the use of the <strong>lasso_lfmm</strong> function on the <em>A. thaliana</em> example.</p>
+</div>
+<div id="lasso-estimates-et-gwas-tests-for-the-a-thaliana-example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#lasso-estimates-et-gwas-tests-for-the-a-thaliana-example" class="anchor"></a>Lasso estimates et GWAS tests for the A.thaliana example</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span>example.data$genotype
+ X &lt;-<span class="st"> </span>example.data$phenotype <span class="co">#scaled phenotype</span></code></pre></div>
+<p>The <strong>lasso_lfmm</strong> function is applied to <span class="math inline">\(Y\)</span> (genotype) and <span class="math inline">\(X\)</span> (phenotypes, SD = 1).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Fit an LFMM, i.e, compute B, U, V estimates
+ mod.lfmm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_lasso.html">lfmm_lasso</a></span>(<span class="dt">Y =</span> Y, 
+                        <span class="dt">X =</span> X, 
+                        <span class="dt">K =</span> <span class="dv">6</span>,
+                        <span class="dt">nozero.prop =</span> <span class="fl">0.01</span>)</code></pre></div>
+<p>The <strong>ridge_lasso</strong> function returns an object that contains the latent variable score matrix <span class="math inline">\(U\)</span>, the latent variable loading matrix <span class="math inline">\(U\)</span>, and <span class="math inline">\(B\)</span> the effect sizes for all SNPs. The result can be used to perform a GWAS as follows</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## performs association testing using the fitted model:
+ pv &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_test.html">lfmm_test</a></span>(<span class="dt">Y =</span> Y, 
+                 <span class="dt">X =</span> X, 
+                 <span class="dt">lfmm =</span> mod.lfmm, 
+                 <span class="dt">calibrate =</span> <span class="st">"gif"</span>)</code></pre></div>
+<p>The histogram of test significance values is expected to be flat, with a peak near zero. A QQ-plot is displayed as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvalues &lt;-<span class="st"> </span>pv$calibrated.pvalue 
+<span class="kw">qqplot</span>(<span class="kw">rexp</span>(<span class="kw">length</span>(pvalues), <span class="dt">rate =</span> <span class="kw">log</span>(<span class="dv">10</span>)),
+       -<span class="kw">log10</span>(pvalues), <span class="dt">xlab =</span> <span class="st">"Expected quantile"</span>,
+       <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">cex =</span> .<span class="dv">4</span>)
+<span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-17-1.png" width="672"></p>
+<p>The Lasso estimates lead to more liberal tests than with the ridge estimates. Here are the results in a Manhattan plot showing the causal set of loci.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Manhattan plot
+ <span class="kw">plot</span>(-<span class="kw">log10</span>(pvalues), 
+      <span class="dt">pch =</span> <span class="dv">19</span>, 
+      <span class="dt">cex =</span> .<span class="dv">2</span>, 
+      <span class="dt">xlab =</span> <span class="st">"SNP"</span>, <span class="dt">ylab =</span> <span class="st">"-Log P"</span>,
+      <span class="dt">col =</span> <span class="st">"grey"</span>)
+ <span class="kw">points</span>(example.data$causal.set, 
+       -<span class="kw">log10</span>(pvalues)[example.data$causal.set], 
+        <span class="dt">type =</span> <span class="st">"h"</span>, 
+        <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-18-1.png" width="672"></p>
+</div>
+<div id="prediction-of-phenotypic-values-with-polygenic-risk-scores" class="section level2">
+<h2 class="hasAnchor">
+<a href="#prediction-of-phenotypic-values-with-polygenic-risk-scores" class="anchor"></a>Prediction of phenotypic values with polygenic risk scores</h2>
+<p>We implemented a simple procedure to compute polygenic risk scores from LFMM estimate using the function <strong>effect_size</strong>, which takes an lfmm object in argument.</p>
+<p>Consider a simulation of 1000 genotypes for 100 individuals (<span class="math inline">\(Y\)</span> matrix) with 2 latent factors, and known effect sizes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Simulation of 1000 genotypes for 100 individuals (y)
+ u &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(<span class="dv">300</span>, <span class="dt">sd =</span> <span class="dv">1</span>), <span class="dt">nrow =</span> <span class="dv">100</span>, <span class="dt">ncol =</span> <span class="dv">2</span>) 
+ v &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(<span class="dv">3000</span>, <span class="dt">sd =</span> <span class="dv">2</span>), <span class="dt">nrow =</span> <span class="dv">2</span>, <span class="dt">ncol =</span> <span class="dv">1000</span>)
+ y &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rbinom</span>(<span class="dv">100000</span>, <span class="dt">size =</span> <span class="dv">2</span>, 
+                   <span class="dt">prob =</span> <span class="dv">1</span>/(<span class="dv">1</span> +<span class="st"> </span><span class="kw">exp</span>(-<span class="fl">0.3</span>*(u%*%v 
+                   +<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100000</span>, <span class="dt">sd =</span> <span class="dv">2</span>))))),
+                   <span class="dt">nrow =</span> <span class="dv">100</span>,
+                   <span class="dt">ncol =</span> <span class="dv">1000</span>)
+
+ ## Simulation of 1000 phenotypes (x)
+ ## Only the last 10 genotypes have significant effect sizes (b)
+ b &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">990</span>), <span class="kw">rep</span>(<span class="dv">6000</span>, <span class="dv">10</span>)))
+ x &lt;-<span class="st"> </span>y%*%b +<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100</span>, <span class="dt">sd =</span> <span class="dv">100</span>)</code></pre></div>
+<p>Now, compute direct effect sizes using the <strong>lfmm_ridge</strong> function</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> mod &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_ridge.html">lfmm_ridge</a></span>(<span class="dt">Y =</span> y, 
+                   <span class="dt">X =</span> x,
+                   <span class="dt">K =</span> <span class="dv">2</span>)</code></pre></div>
+<p>When the candidate list is known, indirect effect sized and PRS can be predicted using the <strong>effect_size</strong> function. For example,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  candidates &lt;-<span class="st"> </span><span class="dv">991</span>:<span class="dv">1000</span> <span class="co">#causal loci</span>
+  b.values &lt;-<span class="st"> </span><span class="kw"><a href="../reference/effect_size.html">effect_size</a></span>(<span class="dt">Y =</span> y, <span class="dt">X =</span> x, <span class="dt">lfmm.object =</span> mod) 
+  x.pred &lt;-<span class="st"> </span><span class="kw">scale</span>(y[,candidates], <span class="dt">scale =</span> F)%*%<span class="st"> </span><span class="kw">matrix</span>(b.values[candidates])</code></pre></div>
+<p>Compare the results with the observed values.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ##Compare simulated and predicted/fitted phenotypes
+ <span class="kw">plot</span>(x -<span class="st"> </span><span class="kw">mean</span>(x), x.pred, 
+      <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">col =</span> <span class="st">"grey"</span>, 
+      <span class="dt">xlab =</span> <span class="st">"Observed phenotypes (centered)"</span>, 
+      <span class="dt">ylab =</span> <span class="st">"Predicted from PRS"</span>)
+ <span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)
+ <span class="kw">abline</span>(<span class="kw">lm</span>(x.pred ~<span class="st"> </span><span class="kw">scale</span>(x, <span class="dt">scale =</span> <span class="ot">FALSE</span>)), <span class="dt">col =</span> <span class="dv">2</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-22-1.png" width="672"></p>
+<p>Note that the function <strong>predict_lfmm</strong> takes an lfmm object and an expect level of false discovery rate (FDR)in arguments. The FDR level is used to define candidates on which the PRS are computed.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> pred &lt;-<span class="st"> </span><span class="kw"><a href="../reference/predict_lfmm.html">predict_lfmm</a></span>(<span class="dt">Y =</span> y, 
+                      <span class="dt">X =</span> x,
+                      <span class="dt">fdr.level =</span> <span class="fl">0.1</span>, 
+                      mod)
+ 
+ ##Compare simulated and predicted/fitted phenotypes
+ <span class="kw">plot</span>(x -<span class="st"> </span><span class="kw">mean</span>(x), pred$pred, 
+      <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">col =</span> <span class="st">"grey"</span>, 
+      <span class="dt">xlab =</span> <span class="st">"Observed phenotypes (centered)"</span>, 
+      <span class="dt">ylab =</span> <span class="st">"Predicted from PRS"</span>)
+ <span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)
+ <span class="kw">abline</span>(<span class="kw">lm</span>(pred$pred ~<span class="st"> </span><span class="kw">scale</span>(x, <span class="dt">scale =</span> <span class="ot">FALSE</span>)), <span class="dt">col =</span> <span class="dv">2</span>)</code></pre></div>
+<p><img src="lfmm_files/figure-html/unnamed-chunk-23-1.png" width="672"></p>
+</div>
+<div id="references" class="section level2">
+<h2 class="hasAnchor">
+<a href="#references" class="anchor"></a>References</h2>
+<ul>
+<li><p>Vandiver, A. R. et al. (2015). Age and sun exposure-related widespread genomic blocks of hypomethylation in nonmalignant skin. Genome Biology, 16 16-80.</p></li>
+<li><p>Leek, J. T., Storey, J. D. (2007). Capturing heterogeneity in gene expression studies by surrogate variable analysis. PLoS Genetics, 3 e161.</p></li>
+<li><p>Frichot, E., Schoville, S. D., Bouchard, G., Francois, O. (2013). Testing for associations between loci and environmental gradients using latent factor mixed models. Molecular Biology and Evolution, 30 1687-1699.</p></li>
+<li><p>Wang, J., Zhao, Q., Hastie, T., Owen, A.B. (2017). Confounder adjustment in multiple hypothesis testing. The Annals of Statistics, 45 1863-1894.</p></li>
+</ul>
 </div>
 </div>
   </div>
@@ -92,9 +291,15 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#tess3-algorithm">tess3 algorithm</a></li>
-      <li><a href="#lassolfmm-algorithm">LassoLFMM algorithm</a></li>
-      <li><a href="#ridgelfmm-algorithm">RidgeLFMM algorithm</a></li>
+<li><a href="#introduction">Introduction</a></li>
+      <li><a href="#starting-with-lfmm">Starting with lfmm</a></li>
+      <li><a href="#lfmm-ridge-estimates">LFMM ridge estimates</a></li>
+      <li><a href="#ridge-estimates-and-gwas-tests-for-the-a-thaliana-example">Ridge estimates and GWAS tests for the A.thaliana example</a></li>
+      <li><a href="#ridge-estimates-and-ewas-tests-for-the-skin-exposure-example">Ridge estimates and EWAS tests for the skin exposure example</a></li>
+      <li><a href="#lasso-estimates">Lasso estimates</a></li>
+      <li><a href="#lasso-estimates-et-gwas-tests-for-the-a-thaliana-example">Lasso estimates et GWAS tests for the A.thaliana example</a></li>
+      <li><a href="#prediction-of-phenotypic-values-with-polygenic-risk-scores">Prediction of phenotypic values with polygenic risk scores</a></li>
+      <li><a href="#references">References</a></li>
       </ul>
 </div>
       </div>
