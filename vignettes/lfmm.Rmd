@@ -1,7 +1,7 @@
 ---
 title: "Overview of R Package lfmm"
-author: "Kevin Caye"
-date: "June 15, 2017"
+author: "Kevin Caye, Olivier Francois"
+date: "November 15, 2017"
 output:
   prettydoc::html_pretty:
     self_contained: true

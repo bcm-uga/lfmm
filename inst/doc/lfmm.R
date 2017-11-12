@@ -90,7 +90,7 @@ abline(0,1)
  Y <- example.data$genotype
  X <- example.data$phenotype #scaled phenotype
 
-## ------------------------------------------------------------------------
+## ---- message = FALSE----------------------------------------------------
 ## Fit an LFMM, i.e, compute B, U, V estimates
  mod.lfmm <- lfmm_lasso(Y = Y, 
                         X = X, 
