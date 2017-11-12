@@ -1,5 +1,5 @@
 ---
-title: "Presentation of the package lfmm"
+title: "Overview of the R package lfmm"
 author: "Kevin Caye"
 date: "June 15, 2017"
 output:
@@ -13,8 +13,334 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## tess3 algorithm
 
-## LassoLFMM algorithm
+***
 
-## RidgeLFMM algorithm
+**Abstract:** This short tutorial provides brief examples on how the R packages **lfmm** can be used for fitting latent factor mixed models and evaluating association between genotypic variation and phenotypic traits or environmental covariates. Two algorithms are presented: ridge regression, lasso regression. bla bla
+
+***
+## Introduction 
+
+LFMMs belong to a broad class of genome-wide association studies (GWAS) statistical models. EWAS, GEAS.
+
+Latent factor mixed models (LFMMs) are statistical regression models that can fit linear regression models to the data in order to test associations between a multidimensional set of response variables and a set of explanatory variables. The response variables can include multiple genotypes, and the explanatory variables can represent environmental measures or measures of phenotypic traits. LFMMs include unobserved variables, called latent factors, that correct the model for confounding effects due to population structure and other hidden causes. Technically, LFMMs are defined according to the following formula 
+$$
+ Y = X B^T + U V^T + E
+$$
+where $Y$ is an $n \times p$ matrix of observations of $p$ variables (e.g., genotypes) on $n$ individuals, $X$ is an $n \times d$ matrix of explanatory variables measured for the $n$ individuals, $B$ is a $p \times d$ matrix of effects for all explanatory variables, $U$ is an $n \times K$ matrix of latent variables (confounders), and $V$ is a $p \times d$ matrix of loadings for all latent variables.
+
+ LFMMs were used by Frichot et al. (2013) for testing correlation between loci and ecological variables. Other implementations of LFMMs are available in the R packages **lfmm**, **LEA** (Frichot et al. 2013), **sva** (Leek and Storey 2008), and **cate** (Wang et al. 2017).  
+
+For numerical effiency, we present examples using the R package **lfmm**: 
+```{r}
+#devtools::install_github("bcm-uga/lfmm")
+```
+
+## Starting with lfmm
+
+```{r}
+library(lfmm)
+```
+
+```{r}
+## Simulated phenotypes for Arabidopsis thaliana SNP data
+data("example.data")
+## Simulated (and real) methylation levels for sun-exposed tissue sampled
+data("skin.exposure")
+```
+
+
+A principal component analysis can reveal some 'population structure' in the genotypic data. We perfom PCA by using the **prcomp** function as follows. 
+
+
+```{r}
+Y <- example.data$genotype
+pc <- prcomp(Y)
+plot(pc$sdev[1:20]^2, xlab = 'PC', ylab = "Variance explained")
+points(6,pc$sdev[6]^2, type = "h", lwd = 3, col = "blue")
+```
+
+The screeplot indicates that there are $K = 5$ main components in the data. We will use $K = 6$ latent factors in subsequent analyses with LFMMs.
+
+## LFMM ridge estimates
+
+```{r}
+ Y <- example.data$genotype
+ X <- example.data$phenotype #scaled variable
+```
+
+
+
+```{r}
+ 
+ ## Fit and LFMM, i.e, compute B, U, V estimates
+ mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
+ 
+ ## performs association testing using the fitted model:
+ pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
+ 
+ ## Manhattan plot
+ plot(-log10(pv$calibrated.pvalue), 
+      pch = 19, 
+      cex = .2, 
+      xlab = "SNP", ylab = "-Log P",
+      col = "grey")
+ points(example.data$causal.set, 
+       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+        type = "h", 
+        col = "blue")
+```
+
+
+
+
+```{r}
+ Y <- scale(skin.exposure$beta.value)
+ X <- scale(as.numeric(skin.exposure$exposure))
+```
+
+
+```{r}
+ ## Fit and LFMM, i.e, compute B, U, V estimates
+ mod.lfmm <- lfmm_ridge(Y = Y, 
+                        X = X, 
+                        K = 2)
+ 
+ ## Perform association testing using the fitted model:
+ pv <- lfmm_test(Y = Y, 
+                 X = X, 
+                 lfmm = mod.lfmm, 
+                 calibrate = "gif")
+ 
+ ## Manhattan plot
+ plot(-log10(pv$calibrated.pvalue), 
+      pch = 19, 
+      cex = .3,
+      xlab = "Probe", ylab = "-Log P",
+      col = "grey")
+ causal.set <- seq(11, 1496, by = 80)
+ points(causal.set, 
+       -log10(pv$calibrated.pvalue)[causal.set], 
+        col = "blue")
+```
+
+
+
+
+
+## LFMM lasso estimation algorithm
+
+
+```{r}
+ Y <- example.data$genotype
+ X <- example.data$phenotype #scaled variable
+```
+
+
+
+```{r}
+ 
+ ## Fit and LFMM, i.e, compute B, U, V estimates
+ mod.lfmm <- lfmm_lasso(Y = Y, 
+                        X = X, 
+                        K = 6,
+                        nozero.prop = .01)
+ 
+ ## performs association testing using the fitted model:
+ pv <- lfmm_test(Y = Y, 
+                 X = X, 
+                 lfmm = mod.lfmm, 
+                 calibrate = "gif")
+ 
+ ## Manhattan plot
+ plot(-log10(pv$calibrated.pvalue), 
+      pch = 19, 
+      cex = .2, 
+      xlab = "SNP", ylab = "-Log P",
+      col = "grey")
+ points(example.data$causal.set, 
+       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+        type = "h", 
+        col = "blue")
+```
+
+
+
+
+```{r}
+ Y <- scale(skin.exposure$beta.value)
+ X <- scale(as.numeric(skin.exposure$exposure))
+```
+
+
+```{r}
+ ## Fit and LFMM, i.e, compute B, U, V estimates
+ mod.lfmm <- lfmm_lasso(Y = Y, 
+                        X = X, 
+                        K = 2,
+                        nozero.prop = .01)
+ 
+ ## Perform association testing using the fitted model:
+ pv <- lfmm_test(Y = Y, 
+                 X = X, 
+                 lfmm = mod.lfmm, 
+                 calibrate = "gif")
+ 
+ ## Manhattan plot
+ plot(-log10(pv$calibrated.pvalue), 
+      pch = 19, 
+      cex = .3,
+      xlab = "Probe", ylab = "-Log P",
+      col = "grey")
+ causal.set <- seq(11, 1496, by = 80)
+ points(causal.set, 
+       -log10(pv$calibrated.pvalue)[causal.set], 
+        col = "blue")
+```
+
+
+
+
+
+
+## Forward testing 
+
+```{r}
+ Y <- example.data$genotype
+ X <- example.data$phenotype #scaled variable
+ 
+ ## Fit an LFMM, i.e, compute B, U, V:
+ mod.lfmm <- lfmm_ridge(Y = Y,
+                        X = X, 
+                        K = 6)
+                        
+ ## Perform initial association testing and 
+ ## start forward tests (3 iterations)       
+ obj <- forward_test(Y, 
+                     X, 
+                     K = 6, 
+                     niter = 3, 
+                     scale = TRUE)
+ 
+ ## Record Log p.values for the 3 top hits
+ log.p <-  obj$log.p
+ log.p
+ 
+ ## Check perfect hits for each causal SNPs (labelled from 1 to 20)
+ obj$candidate %in% example.data$causal.set
+ 
+ ## Check for candidates at distance 20 SNPs (about 10kb)
+ theta <- 20
+ ## Number of hits for each causal SNPs (1-20)
+ hit.3 <- as.numeric(
+           apply(sapply(obj$candidate, 
+           function(x) abs(x - example.data$causal.set) < theta), 
+           2, 
+           which))
+ ## Number of hits for each causal SNPs (1-20) 
+ table(hit.3)
+``` 
+
+```{r} 
+ ## Continue forward tests (2 additional iterations)       
+ obj <- forward_test(Y, 
+                     X, 
+                     K = 6, 
+                     niter = 2,
+                     candidate.list = obj$candidates,
+                     scale = TRUE)
+ 
+ ## Record Log p.values for all 5 top hits
+ log.p <-  c(log.p, obj$log.p)
+ log.p
+ 
+ ## Check perfect hits for each causal SNPs (labelled from 1 to 20)
+ obj$candidate %in% example.data$causal.set
+ 
+ ## Check for candidates at distance 20 SNPs (about 10kb)
+ theta <- 20
+ ## Number of hits for each causal SNPs (1-20)
+  hit.5 <- as.numeric(
+           apply(sapply(obj$candidate, 
+           function(x) abs(x - example.data$causal.set) < theta), 
+           2, 
+           which))
+ ## Number of hits for each causal SNPs (1-20)          
+ table(hit.5)
+ 
+ ## Plot log P
+ plot(log.p, xlab = "Iteration")
+```
+
+
+## Phenotype prediction with polygenic scores
+
+
+```{r}
+ ## Simulation of 1000 genotypes for 100 individuals (y)
+ u <- matrix(rnorm(300, sd = 1), nrow = 100, ncol = 2) 
+ v <- matrix(rnorm(3000, sd = 2), nrow = 2, ncol = 1000)
+ y <- matrix(rbinom(100000, size = 2, 
+                   prob = 1/(1 + exp(-0.3*(u%*%v 
+                   + rnorm(100000, sd = 2))))),
+                   nrow = 100,
+                   ncol = 1000)
+
+ #PCA of genotypes, 2 main axes of variation (K = 2) 
+ plot(prcomp(y))
+   
+ ## Simulation of 1000 phenotypes (x)
+ ## Only the last 10 genotypes have significant effect sizes (b)
+ b <- matrix(c(rep(0, 990), rep(6000, 10)))
+ x <- y%*%b + rnorm(100, sd = 100)
+ 
+ ## Compute direct effect sizes using lfmm_ridge
+ mod <- lfmm_ridge(Y = y, 
+                   X = x,
+                   K = 2)
+               
+ x.pred <- predict_lfmm(Y = y, 
+                        X = x,
+                        fdr.level = 0.1, 
+                        mod)$pred
+ 
+ ##Compare simulated and predicted/fitted phenotypes
+ plot(x - mean(x), x.pred, 
+      pch = 19, col = "grey", 
+      xlab = "Observed phenotypes (centered)", 
+      ylab = "Predicted from PRS")
+ abline(0,1)
+ abline(lm(x.pred ~ scale(x, scale = FALSE)), col = 2)
+```
+
+
+
+
+```{r}
+ y <- example.data$genotype
+ x <- example.data$phenotype #scaled variable
+ 
+ ## Compute direct effect sizes using lfmm_ridge
+ mod <- lfmm_ridge(Y = y, 
+                   X = x,
+                   K = 6)
+               
+ x.pred <- predict_lfmm(Y = y, 
+                        X = x,
+                        fdr.level = 0.1, 
+                        mod)$pred
+ 
+ ##Compare simulated and predicted/fitted phenotypes
+ plot(x - mean(x), x.pred, 
+      pch = 19, col = "grey", 
+      xlab = "Observed phenotypes (centered)", 
+      ylab = "Predicted from PRS")
+ abline(0,1)
+ abline(lm(x.pred ~ scale(x, scale = FALSE)), 
+        col = 2)
+```
+
+
+## Cross-validation for the ridge estimate parameters 
+
+## References

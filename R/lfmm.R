@@ -525,22 +525,75 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' Y <- example.data$genotype
 ##' X <- example.data$phenotype #scaled variable
 ##' 
-##' obj <- forward_test(Y, X, K = 6, niter = 22, scale = TRUE)
+##' ## fits an LFMM, i.e, computes B, U, V:
+##' mod.lfmm <- lfmm_ridge(Y = Y,
+##'                        X = X, 
+##'                        K = 6)
+##'                        
+##' ## performs initial association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, 
+##'                 X = X,
+##'                 lfmm = mod.lfmm,
+##'                 calibrate = "gif")
+##' ## Manhattan plot 
+##' plot(-log10(pv$calibrated.pvalue), 
+##'       pch = 19, 
+##'       cex = .2,
+##'       col = "grey")
+##'       
+##' ## Start forward tests (3 iterations)       
+##' obj <- forward_test(Y, 
+##'                     X, 
+##'                     K = 6, 
+##'                     niter = 3, 
+##'                     scale = TRUE)
 ##' 
-##' #perfect hits for each causal SNPs (1-20)
+##' ## Record Log p.values for the 3 top hits
+##' log.p <-  obj$log.p
+##' log.p
+##' 
+##' ## Check perfect hits for each causal SNPs (labelled from 1 to 20)
 ##' obj$candidate %in% example.data$causal.set
 ##' 
-##' #check candidates at distance 20  (about 10kb)
+##' ## Check for candidates at distance 20 SNPs (about 10kb)
 ##' theta <- 20
-##' #number of hits for each causal SNPs (1-20)
-##'  hit.20 <- as.numeric(
-##'   apply(sapply(obj$candidate, 
-##'   function(x) abs(x - example.data$causal.set) < theta), 
-##'   2, 
-##'   which))
-##' table(hit.20)
+##' ## Number of hits for each causal SNPs (1-20)
+##'  hit.3 <- as.numeric(
+##'           apply(sapply(obj$candidate, 
+##'           function(x) abs(x - example.data$causal.set) < theta), 
+##'           2, 
+##'           which))
+##' ## Number of hits for each causal SNPs (1-20) 
+##' table(hit.3)
 ##' 
-##' # Plot log P
+##' 
+##' ## Continue forward tests (2 additional iterations)       
+##' obj <- forward_test(Y, 
+##'                     X, 
+##'                     K = 6, 
+##'                     niter = 2,
+##'                     candidate.list = obj$candidates,
+##'                     scale = TRUE)
+##' 
+##' ## Record Log p.values for all 5 top hits
+##' log.p <-  c(log.p, obj$log.p)
+##' log.p
+##' 
+##' ## Check perfect hits for each causal SNPs (labelled from 1 to 20)
+##' obj$candidate %in% example.data$causal.set
+##' 
+##' ## Check for candidates at distance 20 SNPs (about 10kb)
+##' theta <- 20
+##' ## Number of hits for each causal SNPs (1-20)
+##'  hit.5 <- as.numeric(
+##'           apply(sapply(obj$candidate, 
+##'           function(x) abs(x - example.data$causal.set) < theta), 
+##'           2, 
+##'           which))
+##' ## Number of hits for each causal SNPs (1-20)          
+##' table(hit.5)
+##' 
+##' ## Plot log P
 ##' plot(obj$log.p, xlab = "Iteration")
 forward_test <- function(Y, 
                          X, 
