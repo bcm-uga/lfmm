@@ -289,7 +289,7 @@ Note that the function **predict_lfmm** takes an lfmm object and an expect level
 ```{r}
  pred <- predict_lfmm(Y = y, 
                       X = x,
-                      fdr.level = 0.1, 
+                      fdr.level = 0.25, 
                       mod)
  
  ##Compare simulated and predicted/fitted phenotypes

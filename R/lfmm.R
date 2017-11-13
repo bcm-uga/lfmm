@@ -38,41 +38,62 @@
 ##' @export
 ##' @author cayek
 ##' @examples
+##' 
 ##' library(lfmm)
+##' 
+##' ## a GWAS example with Y = SNPs and X = phenotype
 ##' data(example.data)
 ##' Y <- example.data$genotype
 ##' X <- example.data$phenotype
 ##' 
-##' ## fits an lfmm model, i.e, computes B, U, V:
-##' mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
+##' ## Fit an LFMM with K = 6 factors
+##' mod.lfmm <- lfmm_ridge(Y = Y, 
+##'                        X = X, 
+##'                        K = 6)
 ##' 
-##' ## performs association testing using the fitted model:
-##' pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
+##' ## Perform association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, 
+##'                 X = X, 
+##'                 lfmm = mod.lfmm, 
+##'                 calibrate = "gif")
 ##' 
-##' ## Manhattan plot
-##' plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+##' ## Manhattan plot with causal loci shown
+##' 
+##' pvalues <- pv$calibrated.pvalue
+##' plot(-log10(pvalues), pch = 19, 
+##'      cex = .2, col = "grey", xlab = "SNP")
 ##' points(example.data$causal.set, 
-##'       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+##'       -log10(pvalues)[example.data$causal.set], 
 ##'        type = "h", col = "blue")
 ##'
 ##' 
-##' ## Another example  
-##' ## sample data
-##' K <- 3
-##' dat <- lfmm_sampler(n = 100, p = 1000, K = K,
-##'                     outlier.prop = 0.1,
-##'                     cs = c(0.8),
-##'                     sigma = 0.2,
-##'                     B.sd = 1.0,
-##'                     U.sd = 1.0,
-##'                     V.sd = 1.0)
-##' ## fit an LFMM with K = 3 latent factors
-##' lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
-##'
-##' ## plot the effect size matrix
-##' id <- seq_along(lfmm.res$B)
-##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
-##' plot(id, lfmm.res$B, col = cols)
+##' ## An EWAS example with Y = methylation data and X = exposure
+##' Y <- scale(skin.exposure$beta.value)
+##' X <- scale(as.numeric(skin.exposure$exposure))
+##' 
+##' ## Fit an LFMM with 2 latent factors
+##' mod.lfmm <- lfmm_ridge(Y = Y,
+##'                        X = X, 
+##'                        K = 2)
+##'                        
+##' ## Perform association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, 
+##'                 X = X,
+##'                 lfmm = mod.lfmm, 
+##'                 calibrate = "gif")
+##'                 
+##' ## Manhattan plot with true associations shown
+##' pvalues <- pv$calibrated.pvalue
+##' plot(-log10(pvalues), 
+##'      pch = 19, 
+##'      cex = .3,
+##'      xlab = "Probe",
+##'      col = "grey")
+##'      
+##' causal.set <- seq(11, 1496, by = 80)
+##' points(causal.set, 
+##'       -log10(pvalues)[causal.set], 
+##'        col = "blue")
 lfmm_ridge <- function(Y, X, K, lambda = 1e-5, algorithm = c("analytical", "alternated"),
                        it.max = 100, relative.err.min = 1e-6) {
 
@@ -195,47 +216,72 @@ lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas, Ks) {
 ##' @export
 ##' @author cayek
 ##' @examples
+##' 
 ##' library(lfmm)
+##' 
+##' ## a GWAS example with Y = SNPs and X = phenotype
 ##' data(example.data)
 ##' Y <- example.data$genotype
 ##' X <- example.data$phenotype
 ##' 
-##' ## fits an lfmm model, i.e, computes B, U, V:
-##' mod.lfmm <- lfmm_lasso(Y = Y, X = X, K = 6)
-##' 
-##' ## performs association testing using the fitted model:
-##' pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
-##' 
-##' ## Manhattan plot
-##' plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+##' ## Fit an LFMM with 6 factors
+##' mod.lfmm <- lfmm_lasso(Y = Y, 
+##'                        X = X, 
+##'                        K = 6,
+##'                        nozero.prop = 0.01)
+##'                        
+##' ## Perform association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, 
+##'                 X = X, 
+##'                 lfmm = mod.lfmm, 
+##'                 calibrate = "gif")
+##'                 
+##' ## Manhattan plot with causal loci shown
+##' pvalues <- pv$calibrated.pvalue
+##' plot(-log10(pvalues), 
+##'       pch = 19, cex = .2, 
+##'       col = "grey", xlab = "SNP")
+##'       
 ##' points(example.data$causal.set, 
-##'       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+##'        -log10(pvalues)[example.data$causal.set], 
 ##'        type = "h", col = "blue")
-##'
+##'        
+##' ## An EWAS example with Y = methylation data 
+##' ## and X = exposure
+##' Y <- scale(skin.exposure$beta.value)
+##' X <- scale(as.numeric(skin.exposure$exposure))
 ##' 
-##' ## Another example 
-##' ## sample data
-##' K <- 3
-##' dat <- lfmm_sampler(n = 100, p = 1000, K = K,
-##'                     outlier.prop = 0.1,
-##'                     cs = c(0.6),
-##'                     sigma = 0.2,
-##'                     B.sd = 1.0,
-##'                     U.sd = 1.0,
-##'                     V.sd = 1.0)
-##' ## run lfmm
-##' lfmm.res <- lfmm_lasso(Y = dat$Y, X = dat$X, K = 3, nozero.prop= 0.2)
-##'
-##' ## plot size effect matrix
-##' id <- seq_along(lfmm.res$B)
-##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
-##' plot(id, lfmm.res$B, col = cols)
-lfmm_lasso <- function(Y, X, K,
-                       nozero.prop = 0.1,
+##' ## Fit an LFMM with 2 latent factors
+##' mod.lfmm <- lfmm_lasso(Y = Y,
+##'                        X = X, 
+##'                        K = 2,
+##'                        nozero.prop = 0.01)
+##'                        
+##' ## Perform association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, 
+##'                 X = X,
+##'                 lfmm = mod.lfmm, 
+##'                 calibrate = "gif")
+##'                 
+##' ## Manhattan plot with true associations shown
+##' pvalues <- pv$calibrated.pvalue
+##' plot(-log10(pvalues), 
+##'      pch = 19, 
+##'      cex = .3,
+##'      xlab = "Probe",
+##'      col = "grey")
+##'      
+##' causal.set <- seq(11, 1496, by = 80)
+##' points(causal.set, 
+##'        -log10(pvalues)[causal.set], 
+##'        col = "blue")
+lfmm_lasso <- function(Y, X, K, 
+                       nozero.prop = 0.01,
                        lambda.num = 100,
                        lambda.min.ratio = 0.01,
                        lambda = NULL,
-                       it.max = 100, relative.err.epsilon = 1e-6) {
+                       it.max = 100, 
+                       relative.err.epsilon = 1e-6) {
   ## init
   m <- lassoLFMM(K = K,
                  nozero.prop = nozero.prop,
@@ -280,47 +326,62 @@ lfmm_lasso <- function(Y, X, K,
 ##' @export
 ##' @author cayek
 ##' @examples
+##' 
 ##' library(lfmm)
+##' 
+##' ## a GWAS example with Y = SNPs and X = phenotype
 ##' data(example.data)
 ##' Y <- example.data$genotype
 ##' X <- example.data$phenotype
 ##' 
-##' ## fits an lfmm model, i.e, computes B, U, V:
-##' mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
+##' ## Fit an LFMM with K = 6 factors
+##' mod.lfmm <- lfmm_ridge(Y = Y, 
+##'                        X = X, 
+##'                        K = 6)
 ##' 
-##' ## performs association testing using the fitted model:
-##' pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
+##' ## Perform association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, 
+##'                 X = X, 
+##'                 lfmm = mod.lfmm, 
+##'                 calibrate = "gif")
 ##' 
-##' ## Manhattan plot
-##' plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+##' ## Manhattan plot with causal loci shown
+##' 
+##' pvalues <- pv$calibrated.pvalue
+##' plot(-log10(pvalues), pch = 19, 
+##'      cex = .2, col = "grey", xlab = "SNP")
 ##' points(example.data$causal.set, 
-##'       -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+##'       -log10(pvalues)[example.data$causal.set], 
 ##'        type = "h", col = "blue")
 ##'
-##' ## Another example 
-##' K <- 3
-##' dat <- lfmm_sampler(n = 100, p = 1000, K = K,
-##'                     outlier.prop = 0.1,
-##'                     cs = c(0.8),
-##'                     sigma = 0.2,
-##'                     B.sd = 1.0,
-##'                     U.sd = 1.0,
-##'                     V.sd = 1.0)
-##' ## lfmm
-##' lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
-##'
-##' ## hp
-##' hp.res <- lfmm_test(Y = dat$Y, X = dat$X, lfmm = lfmm.res)
-##'
-##' ## plot score
-##' id <- seq_along(hp.res$calibrated.score)
-##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
-##' plot(id, hp.res$calibrated.score2, col = cols)
-##'
-##' ## plot pvalue
-##' id <- seq_along(hp.res$calibrated.pvalue)
-##' cols <- c('red', 'green')[as.numeric(id %in% dat$outlier) + 1]
-##' plot(id, -log10(hp.res$calibrated.pvalue), col = cols)
+##' 
+##' ## An EWAS example with Y = methylation data and X = exposure
+##' Y <- scale(skin.exposure$beta.value)
+##' X <- scale(as.numeric(skin.exposure$exposure))
+##' 
+##' ## Fit an LFMM with 2 latent factors
+##' mod.lfmm <- lfmm_ridge(Y = Y,
+##'                        X = X, 
+##'                        K = 2)
+##'                        
+##' ## Perform association testing using the fitted model:
+##' pv <- lfmm_test(Y = Y, 
+##'                 X = X,
+##'                 lfmm = mod.lfmm, 
+##'                 calibrate = "gif")
+##'                 
+##' ## Manhattan plot with true associations shown
+##' pvalues <- pv$calibrated.pvalue
+##' plot(-log10(pvalues), 
+##'      pch = 19, 
+##'      cex = .3,
+##'      xlab = "Probe",
+##'      col = "grey")
+##'      
+##' causal.set <- seq(11, 1496, by = 80)
+##' points(causal.set, 
+##'       -log10(pvalues)[causal.set], 
+##'        col = "blue")
 lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 
   ## init
@@ -353,10 +414,10 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 }
 
 
-##' Indirect effect sizes for latent factor models
+##' Direct effect sizes estimated from latent factor models
 ##' 
 ##' 
-##' This function returns 'indirect' effect sizes for the regression of X (of dimension 1) on the matrix Y,
+##' This function returns 'direct' effect sizes for the regression of X (of dimension 1) on the matrix Y,
 ##' as usually computed in genome-wide association studies.
 ##'
 ##' @param Y a response variable matrix with n rows and p columns. 
@@ -389,19 +450,31 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 ##' b <- matrix(c(rep(0, 990), rep(6000, 10)))
 ##' x <- y%*%b + rnorm(100, sd = 100)
 ##' 
-##' ## Compute direct effect sizes using lfmm_ridge
+##' ## Compute effect sizes using lfmm_ridge
 ##' ## Note that centering is important (scale = F).
 ##' mod.lfmm <- lfmm_ridge(Y = y, 
 ##'                   X = x,
 ##'                   K = 2)
 ##'               
-##' ## Compute indirect effect sizes using lfmm_ridge estimates
+##' ## Compute direct effect sizes using lfmm_ridge estimates
 ##' b.estimates <- effect_size(y, x, mod.lfmm)
 ##' 
 ##' ## plot the last 30 effect sizes (true values are 0 and 6000)
 ##' plot(b.estimates[971:1000])
 ##' abline(0, 0)
 ##' abline(6000, 0, col = 2)
+##' 
+##' ## Prediction of phenotypes
+##' candidates <- 991:1000 #set of causal loci 
+##' x.pred <- scale(y[,candidates], scale = F) %*% matrix(b.estimates[candidates])
+##' 
+##' ## Check predictions
+##' plot(x - mean(x), x.pred, 
+##'      pch = 19, col = "grey", 
+##'      xlab = "Observed phenotypes (centered)", 
+##'      ylab = "Predicted from PRS")
+##'      abline(0,1)
+##'      abline(lm(x.pred ~ scale(x, scale = FALSE)), col = 2)
 effect_size <- function(Y, X, lfmm.object){
   if (ncol(X) > 1) stop("Indirect effect sizes are computed for 
                         a single variable (d=1).")
@@ -460,14 +533,14 @@ effect_size <- function(Y, X, lfmm.object){
 ##' b <- matrix(c(rep(0, 990), rep(6000, 10)))
 ##' x <- y%*%b + rnorm(100, sd = 100)
 ##' 
-##' ## Compute direct effect sizes using lfmm_ridge
+##' ## Compute effect sizes using lfmm_ridge
 ##' mod <- lfmm_ridge(Y = y, 
 ##'                   X = x,
 ##'                   K = 2)
 ##'               
 ##' x.pred <- predict_lfmm(Y = y, 
 ##'                        X = x,
-##'                        fdr.level = 0.1, 
+##'                        fdr.level = 0.25, 
 ##'                        mod)
 ##'                     
 ##' x.pred$candidates

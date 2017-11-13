@@ -41,47 +41,62 @@ response matrix, Y, and the explanatory variables, X, including correction for u
 The response variable matrix Y and the explanatory variable are centered.
 }
 \examples{
+
 library(lfmm)
+
+## a GWAS example with Y = SNPs and X = phenotype
 data(example.data)
 Y <- example.data$genotype
 X <- example.data$phenotype
 
-## fits an lfmm model, i.e, computes B, U, V:
-mod.lfmm <- lfmm_ridge(Y = Y, X = X, K = 6)
+## Fit an LFMM with K = 6 factors
+mod.lfmm <- lfmm_ridge(Y = Y, 
+                       X = X, 
+                       K = 6)
 
-## performs association testing using the fitted model:
-pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
+## Perform association testing using the fitted model:
+pv <- lfmm_test(Y = Y, 
+                X = X, 
+                lfmm = mod.lfmm, 
+                calibrate = "gif")
 
-## Manhattan plot
-plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+## Manhattan plot with causal loci shown
+
+pvalues <- pv$calibrated.pvalue
+plot(-log10(pvalues), pch = 19, 
+     cex = .2, col = "grey", xlab = "SNP")
 points(example.data$causal.set, 
-      -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+      -log10(pvalues)[example.data$causal.set], 
        type = "h", col = "blue")
 
-## Another example 
-K <- 3
-dat <- lfmm_sampler(n = 100, p = 1000, K = K,
-                    outlier.prop = 0.1,
-                    cs = c(0.8),
-                    sigma = 0.2,
-                    B.sd = 1.0,
-                    U.sd = 1.0,
-                    V.sd = 1.0)
-## lfmm
-lfmm.res <- lfmm_ridge(Y = dat$Y, X = dat$X, K = 3, lambda = 1e-5)
 
-## hp
-hp.res <- lfmm_test(Y = dat$Y, X = dat$X, lfmm = lfmm.res)
+## An EWAS example with Y = methylation data and X = exposure
+Y <- scale(skin.exposure$beta.value)
+X <- scale(as.numeric(skin.exposure$exposure))
 
-## plot score
-id <- seq_along(hp.res$calibrated.score)
-cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
-plot(id, hp.res$calibrated.score2, col = cols)
-
-## plot pvalue
-id <- seq_along(hp.res$calibrated.pvalue)
-cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
-plot(id, -log10(hp.res$calibrated.pvalue), col = cols)
+## Fit an LFMM with 2 latent factors
+mod.lfmm <- lfmm_ridge(Y = Y,
+                       X = X, 
+                       K = 2)
+                       
+## Perform association testing using the fitted model:
+pv <- lfmm_test(Y = Y, 
+                X = X,
+                lfmm = mod.lfmm, 
+                calibrate = "gif")
+                
+## Manhattan plot with true associations shown
+pvalues <- pv$calibrated.pvalue
+plot(-log10(pvalues), 
+     pch = 19, 
+     cex = .3,
+     xlab = "Probe",
+     col = "grey")
+     
+causal.set <- seq(11, 1496, by = 80)
+points(causal.set, 
+      -log10(pvalues)[causal.set], 
+       col = "blue")
 }
 \author{
 cayek

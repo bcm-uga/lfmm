@@ -58,7 +58,7 @@ plot(prcomp(y))
 b <- matrix(c(rep(0, 990), rep(6000, 10)))
 x <- y\%*\%b + rnorm(100, sd = 100)
 
-## Compute direct effect sizes using lfmm_ridge
+## Compute effect sizes using lfmm_ridge
 mod <- lfmm_ridge(Y = y, 
                   X = x,
                   K = 2)

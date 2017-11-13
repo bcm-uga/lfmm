@@ -2,7 +2,7 @@
 % Please edit documentation in R/lfmm.R
 \name{effect_size}
 \alias{effect_size}
-\title{Indirect effect sizes for latent factor models}
+\title{Direct effect sizes estimated from latent factor models}
 \usage{
 effect_size(Y, X, lfmm.object)
 }
@@ -20,7 +20,7 @@ a vector of length p containing all effect sizes for the regression
 of X on the matrix Y
 }
 \description{
-This function returns 'indirect' effect sizes for the regression of X (of dimension 1) on the matrix Y,
+This function returns 'direct' effect sizes for the regression of X (of dimension 1) on the matrix Y,
 as usually computed in genome-wide association studies.
 }
 \details{
@@ -46,19 +46,31 @@ plot(prcomp(y))
 b <- matrix(c(rep(0, 990), rep(6000, 10)))
 x <- y\%*\%b + rnorm(100, sd = 100)
 
-## Compute direct effect sizes using lfmm_ridge
+## Compute effect sizes using lfmm_ridge
 ## Note that centering is important (scale = F).
 mod.lfmm <- lfmm_ridge(Y = y, 
                   X = x,
                   K = 2)
               
-## Compute indirect effect sizes using lfmm_ridge estimates
+## Compute direct effect sizes using lfmm_ridge estimates
 b.estimates <- effect_size(y, x, mod.lfmm)
 
 ## plot the last 30 effect sizes (true values are 0 and 6000)
 plot(b.estimates[971:1000])
 abline(0, 0)
 abline(6000, 0, col = 2)
+
+## Prediction of phenotypes
+candidates <- 991:1000 #set of causal loci 
+x.pred <- scale(y[,candidates], scale = F) \%*\% matrix(b.estimates[candidates])
+
+## Check predictions
+plot(x - mean(x), x.pred, 
+     pch = 19, col = "grey", 
+     xlab = "Observed phenotypes (centered)", 
+     ylab = "Predicted from PRS")
+     abline(0,1)
+     abline(lm(x.pred ~ scale(x, scale = FALSE)), col = 2)
 }
 \author{
 cayek, francoio

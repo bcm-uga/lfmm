@@ -4,7 +4,7 @@
 \alias{lfmm_lasso}
 \title{LFMM least-squares estimates with lasso penalty}
 \usage{
-lfmm_lasso(Y, X, K, nozero.prop = 0.1, lambda.num = 100,
+lfmm_lasso(Y, X, K, nozero.prop = 0.01, lambda.num = 100,
   lambda.min.ratio = 0.01, lambda = NULL, it.max = 100,
   relative.err.epsilon = 1e-06)
 }
@@ -55,41 +55,65 @@ The algorithm minimizes the following penalized least-squares criterion
 The response variable matrix Y and the explanatory variable are centered.
 }
 \examples{
+
 library(lfmm)
+
+## a GWAS example with Y = SNPs and X = phenotype
 data(example.data)
 Y <- example.data$genotype
 X <- example.data$phenotype
 
-## fits an lfmm model, i.e, computes B, U, V:
-mod.lfmm <- lfmm_lasso(Y = Y, X = X, K = 6)
-
-## performs association testing using the fitted model:
-pv <- lfmm_test(Y = Y, X = X, lfmm = mod.lfmm, calibrate = "gif")
-
-## Manhattan plot
-plot(-log10(pv$calibrated.pvalue), pch = 19, cex = .2, col = "grey")
+## Fit an LFMM with 6 factors
+mod.lfmm <- lfmm_lasso(Y = Y, 
+                       X = X, 
+                       K = 6,
+                       nozero.prop = 0.01)
+                       
+## Perform association testing using the fitted model:
+pv <- lfmm_test(Y = Y, 
+                X = X, 
+                lfmm = mod.lfmm, 
+                calibrate = "gif")
+                
+## Manhattan plot with causal loci shown
+pvalues <- pv$calibrated.pvalue
+plot(-log10(pvalues), 
+      pch = 19, cex = .2, 
+      col = "grey", xlab = "SNP")
+      
 points(example.data$causal.set, 
-      -log10(pv$calibrated.pvalue)[example.data$causal.set], 
+       -log10(pvalues)[example.data$causal.set], 
        type = "h", col = "blue")
+       
+## An EWAS example with Y = methylation data 
+## and X = exposure
+Y <- scale(skin.exposure$beta.value)
+X <- scale(as.numeric(skin.exposure$exposure))
 
-
-## Another example 
-## sample data
-K <- 3
-dat <- lfmm_sampler(n = 100, p = 1000, K = K,
-                    outlier.prop = 0.1,
-                    cs = c(0.6),
-                    sigma = 0.2,
-                    B.sd = 1.0,
-                    U.sd = 1.0,
-                    V.sd = 1.0)
-## run lfmm
-lfmm.res <- lfmm_lasso(Y = dat$Y, X = dat$X, K = 3, nozero.prop= 0.2)
-
-## plot size effect matrix
-id <- seq_along(lfmm.res$B)
-cols <- c('red', 'green')[as.numeric(id \%in\% dat$outlier) + 1]
-plot(id, lfmm.res$B, col = cols)
+## Fit an LFMM with 2 latent factors
+mod.lfmm <- lfmm_lasso(Y = Y,
+                       X = X, 
+                       K = 2,
+                       nozero.prop = 0.01)
+                       
+## Perform association testing using the fitted model:
+pv <- lfmm_test(Y = Y, 
+                X = X,
+                lfmm = mod.lfmm, 
+                calibrate = "gif")
+                
+## Manhattan plot with true associations shown
+pvalues <- pv$calibrated.pvalue
+plot(-log10(pvalues), 
+     pch = 19, 
+     cex = .3,
+     xlab = "Probe",
+     col = "grey")
+     
+causal.set <- seq(11, 1496, by = 80)
+points(causal.set, 
+       -log10(pvalues)[causal.set], 
+       col = "blue")
 }
 \author{
 cayek

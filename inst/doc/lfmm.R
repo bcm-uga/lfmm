@@ -160,7 +160,7 @@ abline(0,1)
 ## ------------------------------------------------------------------------
  pred <- predict_lfmm(Y = y, 
                       X = x,
-                      fdr.level = 0.1, 
+                      fdr.level = 0.25, 
                       mod)
  
  ##Compare simulated and predicted/fitted phenotypes
