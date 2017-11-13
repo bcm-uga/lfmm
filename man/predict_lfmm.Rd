@@ -65,7 +65,7 @@ mod <- lfmm_ridge(Y = y,
               
 x.pred <- predict_lfmm(Y = y, 
                        X = x,
-                       fdr.level = 0.1, 
+                       fdr.level = 0.25, 
                        mod)
                     
 x.pred$candidates
