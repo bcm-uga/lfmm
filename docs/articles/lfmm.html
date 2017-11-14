@@ -31,22 +31,13 @@
 <li>
   <a href="../reference/index.html">Manual</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Vignettes
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../TODO">TODO</a>
-    </li>
-  </ul>
+  <a href="../articles/lfmm">Tutorial</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/bcm-uga/lfmm">
+  <a href="https://github.com/bcm-uga/lfmm.html">
     <span class="fa fa-github"></span>
      
   </a>
@@ -96,16 +87,16 @@
 ## Simulated (and real) methylation levels for sun-exposed tissue sampled
 <span class="kw">data</span>(<span class="st">"skin.exposure"</span>)</code></pre></div>
 <p>For both data set, a principal component analysis (PCA) can reveal some ‘structure’ in the genotypic data. We perfom PCA by using the <strong>prcomp</strong> function as follows.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Y &lt;-<span class="st"> </span>example.data$genotype
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Y &lt;-<span class="st"> </span>example.data<span class="op">$</span>genotype
 pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
-<span class="kw">plot</span>(pc$sdev[<span class="dv">1</span>:<span class="dv">20</span>]^<span class="dv">2</span>, <span class="dt">xlab =</span> <span class="st">'PC'</span>, <span class="dt">ylab =</span> <span class="st">"Variance explained"</span>)
-<span class="kw">points</span>(<span class="dv">6</span>,pc$sdev[<span class="dv">6</span>]^<span class="dv">2</span>, <span class="dt">type =</span> <span class="st">"h"</span>, <span class="dt">lwd =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
+<span class="kw">plot</span>(pc<span class="op">$</span>sdev[<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>]<span class="op">^</span><span class="dv">2</span>, <span class="dt">xlab =</span> <span class="st">'PC'</span>, <span class="dt">ylab =</span> <span class="st">"Variance explained"</span>)
+<span class="kw">points</span>(<span class="dv">6</span>,pc<span class="op">$</span>sdev[<span class="dv">6</span>]<span class="op">^</span><span class="dv">2</span>, <span class="dt">type =</span> <span class="st">"h"</span>, <span class="dt">lwd =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 <p>For the <em>A. thaliana</em> samples, the screeplot indicates that there are around <span class="math inline">\(K = 6\)</span> main components in the data. We will use <span class="math inline">\(K = 6\)</span> latent factors in subsequent analyses of the <em>A. thaliana</em> example.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Y &lt;-<span class="st"> </span>skin.exposure$beta.value
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Y &lt;-<span class="st"> </span>skin.exposure<span class="op">$</span>beta.value
 pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
-<span class="kw">plot</span>(pc$sdev[<span class="dv">1</span>:<span class="dv">20</span>]^<span class="dv">2</span>, <span class="dt">xlab =</span> <span class="st">'PC'</span>, <span class="dt">ylab =</span> <span class="st">"Variance explained"</span>)
-<span class="kw">points</span>(<span class="dv">2</span>,pc$sdev[<span class="dv">2</span>]^<span class="dv">2</span>, <span class="dt">type =</span> <span class="st">"h"</span>, <span class="dt">lwd =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
+<span class="kw">plot</span>(pc<span class="op">$</span>sdev[<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>]<span class="op">^</span><span class="dv">2</span>, <span class="dt">xlab =</span> <span class="st">'PC'</span>, <span class="dt">ylab =</span> <span class="st">"Variance explained"</span>)
+<span class="kw">points</span>(<span class="dv">2</span>,pc<span class="op">$</span>sdev[<span class="dv">2</span>]<span class="op">^</span><span class="dv">2</span>, <span class="dt">type =</span> <span class="st">"h"</span>, <span class="dt">lwd =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
 <p>For the sun-exposed skin tissue samples, the screeplot indicates that there are around <span class="math inline">\(K = 2\)</span> main components in the data. We will use <span class="math inline">\(K = 2\)</span> latent factors in subsequent analyses of the skin tissue example.</p>
 </div>
@@ -117,8 +108,8 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
 <div id="ridge-estimates-and-gwas-tests-for-the-a-thaliana-example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#ridge-estimates-and-gwas-tests-for-the-a-thaliana-example" class="anchor"></a>Ridge estimates and GWAS tests for the A.thaliana example</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span>example.data$genotype
- X &lt;-<span class="st"> </span>example.data$phenotype <span class="co">#scaled phenotype</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span>example.data<span class="op">$</span>genotype
+ X &lt;-<span class="st"> </span>example.data<span class="op">$</span>phenotype <span class="co">#scaled phenotype</span></code></pre></div>
 <p>The <strong>ridge_lfmm</strong> function is applied to <span class="math inline">\(Y\)</span> (genotype) and <span class="math inline">\(X\)</span> (phenotypes, SD = 1).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Fit an LFMM, i.e, compute B, U, V estimates
  mod.lfmm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_ridge.html">lfmm_ridge</a></span>(<span class="dt">Y =</span> Y, 
@@ -131,21 +122,21 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
                  <span class="dt">lfmm =</span> mod.lfmm, 
                  <span class="dt">calibrate =</span> <span class="st">"gif"</span>)</code></pre></div>
 <p>The histogram of test significance values is expected to be flat, with a peak near zero. A QQ-plot is displayed as follows.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvalues &lt;-<span class="st"> </span>pv$calibrated.pvalue 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvalues &lt;-<span class="st"> </span>pv<span class="op">$</span>calibrated.pvalue 
 <span class="kw">qqplot</span>(<span class="kw">rexp</span>(<span class="kw">length</span>(pvalues), <span class="dt">rate =</span> <span class="kw">log</span>(<span class="dv">10</span>)),
-       -<span class="kw">log10</span>(pvalues), <span class="dt">xlab =</span> <span class="st">"Expected quantile"</span>,
+       <span class="op">-</span><span class="kw">log10</span>(pvalues), <span class="dt">xlab =</span> <span class="st">"Expected quantile"</span>,
        <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">cex =</span> .<span class="dv">4</span>)
 <span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
 <p>A Manhattan plot can be shown as follows.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Manhattan plot
- <span class="kw">plot</span>(-<span class="kw">log10</span>(pvalues), 
+ <span class="kw">plot</span>(<span class="op">-</span><span class="kw">log10</span>(pvalues), 
       <span class="dt">pch =</span> <span class="dv">19</span>, 
       <span class="dt">cex =</span> .<span class="dv">2</span>, 
       <span class="dt">xlab =</span> <span class="st">"SNP"</span>, <span class="dt">ylab =</span> <span class="st">"-Log P"</span>,
       <span class="dt">col =</span> <span class="st">"grey"</span>)
- <span class="kw">points</span>(example.data$causal.set, 
-       -<span class="kw">log10</span>(pvalues)[example.data$causal.set], 
+ <span class="kw">points</span>(example.data<span class="op">$</span>causal.set, 
+       <span class="op">-</span><span class="kw">log10</span>(pvalues)[example.data<span class="op">$</span>causal.set], 
         <span class="dt">type =</span> <span class="st">"h"</span>, 
         <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
@@ -155,8 +146,8 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
 <h2 class="hasAnchor">
 <a href="#ridge-estimates-and-ewas-tests-for-the-skin-exposure-example" class="anchor"></a>Ridge estimates and EWAS tests for the skin exposure example</h2>
 <p>The skin exposure data set contains (partially simulated) DNA methylation data. The data are loaded as follows.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span><span class="kw">scale</span>(skin.exposure$beta.value)
- X &lt;-<span class="st"> </span><span class="kw">scale</span>(<span class="kw">as.numeric</span>(skin.exposure$exposure))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span><span class="kw">scale</span>(skin.exposure<span class="op">$</span>beta.value)
+ X &lt;-<span class="st"> </span><span class="kw">scale</span>(<span class="kw">as.numeric</span>(skin.exposure<span class="op">$</span>exposure))</code></pre></div>
 <p>An LFMM model is fitted to the epigenomic data with <span class="math inline">\(K=2\)</span> latent factors, and an EWAS is performed for the sun exposure variable.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Fit and LFMM, i.e, compute B, U, V estimates
  mod.lfmm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_ridge.html">lfmm_ridge</a></span>(<span class="dt">Y =</span> Y, 
@@ -169,14 +160,14 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
                  <span class="dt">lfmm =</span> mod.lfmm, 
                  <span class="dt">calibrate =</span> <span class="st">"gif"</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Manhattan plot
- <span class="kw">plot</span>(-<span class="kw">log10</span>(pv$calibrated.pvalue), 
+ <span class="kw">plot</span>(<span class="op">-</span><span class="kw">log10</span>(pv<span class="op">$</span>calibrated.pvalue), 
       <span class="dt">pch =</span> <span class="dv">19</span>, 
       <span class="dt">cex =</span> .<span class="dv">3</span>,
       <span class="dt">xlab =</span> <span class="st">"Probe"</span>, <span class="dt">ylab =</span> <span class="st">"-Log P"</span>,
       <span class="dt">col =</span> <span class="st">"grey"</span>)
  causal.set &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">11</span>, <span class="dv">1496</span>, <span class="dt">by =</span> <span class="dv">80</span>)
  <span class="kw">points</span>(causal.set, 
-       -<span class="kw">log10</span>(pv$calibrated.pvalue)[causal.set], 
+       <span class="op">-</span><span class="kw">log10</span>(pv<span class="op">$</span>calibrated.pvalue)[causal.set], 
         <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-13-1.png" width="672"></p>
 <p>The blue circles represent the CpG sites which were causally associated with the variable of interest.</p>
@@ -189,8 +180,8 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
 <div id="lasso-estimates-et-gwas-tests-for-the-a-thaliana-example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#lasso-estimates-et-gwas-tests-for-the-a-thaliana-example" class="anchor"></a>Lasso estimates et GWAS tests for the A.thaliana example</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span>example.data$genotype
- X &lt;-<span class="st"> </span>example.data$phenotype <span class="co">#scaled phenotype</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> Y &lt;-<span class="st"> </span>example.data<span class="op">$</span>genotype
+ X &lt;-<span class="st"> </span>example.data<span class="op">$</span>phenotype <span class="co">#scaled phenotype</span></code></pre></div>
 <p>The <strong>lasso_lfmm</strong> function is applied to <span class="math inline">\(Y\)</span> (genotype) and <span class="math inline">\(X\)</span> (phenotypes, SD = 1).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Fit an LFMM, i.e, compute B, U, V estimates
  mod.lfmm &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_lasso.html">lfmm_lasso</a></span>(<span class="dt">Y =</span> Y, 
@@ -204,21 +195,21 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
                  <span class="dt">lfmm =</span> mod.lfmm, 
                  <span class="dt">calibrate =</span> <span class="st">"gif"</span>)</code></pre></div>
 <p>The histogram of test significance values is expected to be flat, with a peak near zero. A QQ-plot is displayed as follows.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvalues &lt;-<span class="st"> </span>pv$calibrated.pvalue 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvalues &lt;-<span class="st"> </span>pv<span class="op">$</span>calibrated.pvalue 
 <span class="kw">qqplot</span>(<span class="kw">rexp</span>(<span class="kw">length</span>(pvalues), <span class="dt">rate =</span> <span class="kw">log</span>(<span class="dv">10</span>)),
-       -<span class="kw">log10</span>(pvalues), <span class="dt">xlab =</span> <span class="st">"Expected quantile"</span>,
+       <span class="op">-</span><span class="kw">log10</span>(pvalues), <span class="dt">xlab =</span> <span class="st">"Expected quantile"</span>,
        <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">cex =</span> .<span class="dv">4</span>)
 <span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-17-1.png" width="672"></p>
 <p>The Lasso estimates lead to more liberal tests than with the ridge estimates. Here are the results in a Manhattan plot showing the causal set of loci.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ## Manhattan plot
- <span class="kw">plot</span>(-<span class="kw">log10</span>(pvalues), 
+ <span class="kw">plot</span>(<span class="op">-</span><span class="kw">log10</span>(pvalues), 
       <span class="dt">pch =</span> <span class="dv">19</span>, 
       <span class="dt">cex =</span> .<span class="dv">2</span>, 
       <span class="dt">xlab =</span> <span class="st">"SNP"</span>, <span class="dt">ylab =</span> <span class="st">"-Log P"</span>,
       <span class="dt">col =</span> <span class="st">"grey"</span>)
- <span class="kw">points</span>(example.data$causal.set, 
-       -<span class="kw">log10</span>(pvalues)[example.data$causal.set], 
+ <span class="kw">points</span>(example.data<span class="op">$</span>causal.set, 
+       <span class="op">-</span><span class="kw">log10</span>(pvalues)[example.data<span class="op">$</span>causal.set], 
         <span class="dt">type =</span> <span class="st">"h"</span>, 
         <span class="dt">col =</span> <span class="st">"blue"</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-18-1.png" width="672"></p>
@@ -232,31 +223,31 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
  u &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(<span class="dv">300</span>, <span class="dt">sd =</span> <span class="dv">1</span>), <span class="dt">nrow =</span> <span class="dv">100</span>, <span class="dt">ncol =</span> <span class="dv">2</span>) 
  v &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(<span class="dv">3000</span>, <span class="dt">sd =</span> <span class="dv">2</span>), <span class="dt">nrow =</span> <span class="dv">2</span>, <span class="dt">ncol =</span> <span class="dv">1000</span>)
  y &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rbinom</span>(<span class="dv">100000</span>, <span class="dt">size =</span> <span class="dv">2</span>, 
-                   <span class="dt">prob =</span> <span class="dv">1</span>/(<span class="dv">1</span> +<span class="st"> </span><span class="kw">exp</span>(-<span class="fl">0.3</span>*(u%*%v 
-                   +<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100000</span>, <span class="dt">sd =</span> <span class="dv">2</span>))))),
+                   <span class="dt">prob =</span> <span class="dv">1</span><span class="op">/</span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span><span class="fl">0.3</span><span class="op">*</span>(u<span class="op">%*%</span>v 
+                   <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100000</span>, <span class="dt">sd =</span> <span class="dv">2</span>))))),
                    <span class="dt">nrow =</span> <span class="dv">100</span>,
                    <span class="dt">ncol =</span> <span class="dv">1000</span>)
 
  ## Simulation of 1000 phenotypes (x)
  ## Only the last 10 genotypes have significant effect sizes (b)
  b &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="kw">rep</span>(<span class="dv">0</span>, <span class="dv">990</span>), <span class="kw">rep</span>(<span class="dv">6000</span>, <span class="dv">10</span>)))
- x &lt;-<span class="st"> </span>y%*%b +<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100</span>, <span class="dt">sd =</span> <span class="dv">100</span>)</code></pre></div>
+ x &lt;-<span class="st"> </span>y<span class="op">%*%</span>b <span class="op">+</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100</span>, <span class="dt">sd =</span> <span class="dv">100</span>)</code></pre></div>
 <p>Now, compute direct effect sizes using the <strong>lfmm_ridge</strong> function</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> mod &lt;-<span class="st"> </span><span class="kw"><a href="../reference/lfmm_ridge.html">lfmm_ridge</a></span>(<span class="dt">Y =</span> y, 
                    <span class="dt">X =</span> x,
                    <span class="dt">K =</span> <span class="dv">2</span>)</code></pre></div>
 <p>When the candidate list is known, indirect effect sized and PRS can be predicted using the <strong>effect_size</strong> function. For example,</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  candidates &lt;-<span class="st"> </span><span class="dv">991</span>:<span class="dv">1000</span> <span class="co">#causal loci</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  candidates &lt;-<span class="st"> </span><span class="dv">991</span><span class="op">:</span><span class="dv">1000</span> <span class="co">#causal loci</span>
   b.values &lt;-<span class="st"> </span><span class="kw"><a href="../reference/effect_size.html">effect_size</a></span>(<span class="dt">Y =</span> y, <span class="dt">X =</span> x, <span class="dt">lfmm.object =</span> mod) 
-  x.pred &lt;-<span class="st"> </span><span class="kw">scale</span>(y[,candidates], <span class="dt">scale =</span> F)%*%<span class="st"> </span><span class="kw">matrix</span>(b.values[candidates])</code></pre></div>
+  x.pred &lt;-<span class="st"> </span><span class="kw">scale</span>(y[,candidates], <span class="dt">scale =</span> F)<span class="op">%*%</span><span class="st"> </span><span class="kw">matrix</span>(b.values[candidates])</code></pre></div>
 <p>Compare the results with the observed values.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> ##Compare simulated and predicted/fitted phenotypes
- <span class="kw">plot</span>(x -<span class="st"> </span><span class="kw">mean</span>(x), x.pred, 
+ <span class="kw">plot</span>(x <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x), x.pred, 
       <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">col =</span> <span class="st">"grey"</span>, 
       <span class="dt">xlab =</span> <span class="st">"Observed phenotypes (centered)"</span>, 
       <span class="dt">ylab =</span> <span class="st">"Predicted from PRS"</span>)
  <span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)
- <span class="kw">abline</span>(<span class="kw">lm</span>(x.pred ~<span class="st"> </span><span class="kw">scale</span>(x, <span class="dt">scale =</span> <span class="ot">FALSE</span>)), <span class="dt">col =</span> <span class="dv">2</span>)</code></pre></div>
+ <span class="kw">abline</span>(<span class="kw">lm</span>(x.pred <span class="op">~</span><span class="st"> </span><span class="kw">scale</span>(x, <span class="dt">scale =</span> <span class="ot">FALSE</span>)), <span class="dt">col =</span> <span class="dv">2</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-22-1.png" width="672"></p>
 <p>Note that the function <strong>predict_lfmm</strong> takes an lfmm object and an expect level of false discovery rate (FDR)in arguments. The FDR level is used to define candidates on which the PRS are computed.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> pred &lt;-<span class="st"> </span><span class="kw"><a href="../reference/predict_lfmm.html">predict_lfmm</a></span>(<span class="dt">Y =</span> y, 
@@ -265,12 +256,12 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
                       mod)
  
  ##Compare simulated and predicted/fitted phenotypes
- <span class="kw">plot</span>(x -<span class="st"> </span><span class="kw">mean</span>(x), pred$pred, 
+ <span class="kw">plot</span>(x <span class="op">-</span><span class="st"> </span><span class="kw">mean</span>(x), pred<span class="op">$</span>pred, 
       <span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">col =</span> <span class="st">"grey"</span>, 
       <span class="dt">xlab =</span> <span class="st">"Observed phenotypes (centered)"</span>, 
       <span class="dt">ylab =</span> <span class="st">"Predicted from PRS"</span>)
  <span class="kw">abline</span>(<span class="dv">0</span>,<span class="dv">1</span>)
- <span class="kw">abline</span>(<span class="kw">lm</span>(pred$pred ~<span class="st"> </span><span class="kw">scale</span>(x, <span class="dt">scale =</span> <span class="ot">FALSE</span>)), <span class="dt">col =</span> <span class="dv">2</span>)</code></pre></div>
+ <span class="kw">abline</span>(<span class="kw">lm</span>(pred<span class="op">$</span>pred <span class="op">~</span><span class="st"> </span><span class="kw">scale</span>(x, <span class="dt">scale =</span> <span class="ot">FALSE</span>)), <span class="dt">col =</span> <span class="dv">2</span>)</code></pre></div>
 <p><img src="lfmm_files/figure-html/unnamed-chunk-23-1.png" width="672"></p>
 </div>
 <div id="references" class="section level2">

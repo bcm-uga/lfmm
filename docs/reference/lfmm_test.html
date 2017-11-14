@@ -54,23 +54,14 @@
         <li>
   <a href="../reference/index.html">Manual</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Vignettes
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../TODO">TODO</a>
-    </li>
-  </ul>
+<li>
+  <a href="../articles/lfmm">Tutorial</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/bcm-uga/lfmm">
+  <a href="https://github.com/bcm-uga/lfmm.html">
     <span class="fa fa-github"></span>
      
   </a>
@@ -154,6 +145,7 @@ pvalues are not calibrated.</p></td>
 <span class='no'>mod.lfmm</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_ridge.html'>lfmm_ridge</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>,
                        <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>,
                        <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>6</span>)
+<<<<<<< HEAD
 
 <span class='co'>## Perform association testing using the fitted model:</span>
 <span class='no'>pv</span> <span class='kw'>&lt;-</span> <span class='fu'>lfmm_test</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>,
@@ -163,6 +155,17 @@ pvalues are not calibrated.</p></td>
 
 <span class='co'>## Manhattan plot with causal loci shown</span>
 
+=======
+
+<span class='co'>## Perform association testing using the fitted model:</span>
+<span class='no'>pv</span> <span class='kw'>&lt;-</span> <span class='fu'>lfmm_test</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>Y</span>,
+                <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>X</span>,
+                <span class='kw'>lfmm</span> <span class='kw'>=</span> <span class='no'>mod.lfmm</span>,
+                <span class='kw'>calibrate</span> <span class='kw'>=</span> <span class='st'>"gif"</span>)
+
+<span class='co'>## Manhattan plot with causal loci shown</span>
+
+>>>>>>> 334de6581f8a3ceeef30ca9a8404c65823dad06c
 <span class='no'>pvalues</span> <span class='kw'>&lt;-</span> <span class='no'>pv</span>$<span class='no'>calibrated.pvalue</span>
 <span class='fu'>plot</span>(-<span class='fu'>log10</span>(<span class='no'>pvalues</span>), <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>19</span>,
      <span class='kw'>cex</span> <span class='kw'>=</span> <span class='fl'>.2</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"grey"</span>, <span class='kw'>xlab</span> <span class='kw'>=</span> <span class='st'>"SNP"</span>)</div><div class='input'><span class='fu'>points</span>(<span class='no'>example.data</span>$<span class='no'>causal.set</span>,
