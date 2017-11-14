@@ -261,7 +261,7 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
 <p>Note that the function <strong>predict_lfmm</strong> takes an lfmm object and an expect level of false discovery rate (FDR)in arguments. The FDR level is used to define candidates on which the PRS are computed.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> pred &lt;-<span class="st"> </span><span class="kw"><a href="../reference/predict_lfmm.html">predict_lfmm</a></span>(<span class="dt">Y =</span> y, 
                       <span class="dt">X =</span> x,
-                      <span class="dt">fdr.level =</span> <span class="fl">0.1</span>, 
+                      <span class="dt">fdr.level =</span> <span class="fl">0.25</span>, 
                       mod)
  
  ##Compare simulated and predicted/fitted phenotypes
@@ -308,7 +308,7 @@ pc &lt;-<span class="st"> </span><span class="kw">prcomp</span>(Y)
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Caye.</p>
+  <p>Developed by Kevin Caye, Olivier François.</p>
 </div>
 
 <div class="pkgdown">
