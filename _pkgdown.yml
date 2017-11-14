@@ -7,13 +7,11 @@ navbar:
   left:
     - text: "Manual"
       href: reference/index.html
-    - text: "Vignettes"
-      menu:
-      - text: "TODO"
-        href: TODO
+    - text: "Tutorial"
+      href: articles/lfmm
   right:
     - icon: fa-github
-      href: https://github.com/bcm-uga/lfmm
+      href: https://github.com/bcm-uga/lfmm.html
 
 reference:
   - title: Main functions

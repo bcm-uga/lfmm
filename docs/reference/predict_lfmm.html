@@ -54,23 +54,14 @@
         <li>
   <a href="../reference/index.html">Manual</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Vignettes
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-    <li>
-      <a href="../TODO">TODO</a>
-    </li>
-  </ul>
+<li>
+  <a href="../articles/lfmm">Tutorial</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/bcm-uga/lfmm">
+  <a href="https://github.com/bcm-uga/lfmm.html">
     <span class="fa fa-github"></span>
      
   </a>
@@ -160,17 +151,17 @@ predictions of X will be based. If NULL, Y is used as new data.</p></td>
 <span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='fu'>matrix</span>(<span class='fu'>c</span>(<span class='fu'>rep</span>(<span class='fl'>0</span>, <span class='fl'>990</span>), <span class='fu'>rep</span>(<span class='fl'>6000</span>, <span class='fl'>10</span>)))
 <span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='no'>y</span><span class='kw'>%*%</span><span class='no'>b</span> + <span class='fu'>rnorm</span>(<span class='fl'>100</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>100</span>)
 
-<span class='co'>## Compute direct effect sizes using lfmm_ridge</span>
+<span class='co'>## Compute effect sizes using lfmm_ridge</span>
 <span class='no'>mod</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='lfmm_ridge.html'>lfmm_ridge</a></span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>y</span>,
                   <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>x</span>,
                   <span class='kw'>K</span> <span class='kw'>=</span> <span class='fl'>2</span>)
 
 <span class='no'>x.pred</span> <span class='kw'>&lt;-</span> <span class='fu'>predict_lfmm</span>(<span class='kw'>Y</span> <span class='kw'>=</span> <span class='no'>y</span>,
                        <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>x</span>,
-                       <span class='kw'>fdr.level</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+                       <span class='kw'>fdr.level</span> <span class='kw'>=</span> <span class='fl'>0.25</span>,
                        <span class='no'>mod</span>)
 
-<span class='no'>x.pred</span>$<span class='no'>candidates</span></div><div class='output co'>#&gt; [1] 993 991</div><div class='input'>
+<span class='no'>x.pred</span>$<span class='no'>candidates</span></div><div class='output co'>#&gt; [1] 999 996 994 998 820 127 444 421 997</div><div class='input'>
 <span class='co'>##Compare simulated and predicted/fitted phenotypes</span>
 <span class='fu'>plot</span>(<span class='no'>x</span> - <span class='fu'>mean</span>(<span class='no'>x</span>), <span class='no'>x.pred</span>$<span class='no'>pred</span>,
      <span class='kw'>pch</span> <span class='kw'>=</span> <span class='fl'>19</span>, <span class='kw'>col</span> <span class='kw'>=</span> <span class='st'>"grey"</span>,
@@ -198,7 +189,7 @@ cayek, francoio
 
       <footer>
       <div class="copyright">
-  <p>Developed by Kevin Caye.</p>
+  <p>Developed by Kevin Caye, Olivier François.</p>
 </div>
 
 <div class="pkgdown">

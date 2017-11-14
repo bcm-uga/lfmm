@@ -31,22 +31,13 @@
 <li>
   <a href="reference/index.html">Manual</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Vignettes
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="TODO">TODO</a>
-    </li>
-  </ul>
+  <a href="articles/lfmm">Tutorial</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/bcm-uga/lfmm">
+  <a href="https://github.com/bcm-uga/lfmm.html">
     <span class="fa fa-github"></span>
      
   </a>
@@ -66,15 +57,14 @@
 <div id="latent-factor-mixed-models-lfmm" class="section level2">
 <h2 class="hasAnchor">
 <a href="#latent-factor-mixed-models-lfmm" class="anchor"></a>latent factor mixed models: lfmm</h2>
-<p>The R package <strong>lfmm</strong> implements latent factor mixed models providing confounder adjusment for large-scale association studies. The model considers n samples of p response variables, stored in an n x p matrix, and one or several variables of interest (e.g., phenotypes, ecological variables). The package enables testing which response variables are associated with the variables of interest while removing confounding variation due to sample stratification or batch effects. The lfmm algorithms are fast and efficient and are supported by statistical theory (oracle efficiency, identifiability, optimality of solutions).</p>
-<p>The R package <strong>lfmm</strong> provides two functions to estimate K latent confounders (or factors): <code>lfmm_ridge</code> and <code>lfmm_lasso</code>. Those functions are based on algorithms solving regularized least squares problems. After estimation of the confounding factors, association testing is performed by using the function <code>lfmm_test</code> and chi-square tests.</p>
+<p>Genome and epigenome-wide association studies are plagued with the problems of confounding and causality. The R package <strong>lfmm</strong> implements new algorithms for parameter estimation in latent factor mixed models (LFMM). The algorithms are designed for the correction of unobserved confounders. The new methods are computationally efficient, and provide statistically optimal corrections resulting in improved power and control for false discoveries. The package <strong>lfmm</strong> provides two main functions for estimating latent confounders (or factors): <code>lfmm_ridge</code> and <code>lfmm_lasso</code>. Those functions are based on optimal solutions of regularized least-squares problems. A short tutorial provides brief examples on how the R packages <strong>lfmm</strong> can be used for fitting latent factor mixed models and evaluating association between a response matrix (SNP genotype or methylation levels) and a variable of interest (phenotype or exposure levels) in genome-wide (GW), genome-environment (GE), epigenome-wide (EW) association studies. Corresponding software is available at the following url <a href="https://bcm-uga.github.io/lfmm/" class="uri">https://bcm-uga.github.io/lfmm/</a>.</p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>Installing the latest version from github requires <a href="https://github.com/hadley/devtools">devtools</a>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages("devtools")</span>
-devtools::<span class="kw">install_github</span>(<span class="st">"bcm-uga/lfmm"</span>)</code></pre></div>
+devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"bcm-uga/lfmm"</span>)</code></pre></div>
 </div>
 
   </div>
@@ -90,14 +80,14 @@ devtools::<span class="kw">install_github</span>(<span class="st">"bcm-uga/lfmm"
 <h2>Developers</h2>
 <ul class="list-unstyled">
 <li>Kevin Caye <br><small class="roles"> Author, maintainer </small> </li>
-<li><a href="authors.html">All authors...</a></li>
+<li>Olivier François <br><small class="roles"> Author </small> </li>
 </ul>
 </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Kevin Caye.</p>
+  <p>Developed by Kevin Caye, Olivier François.</p>
 </div>
 
 <div class="pkgdown">
