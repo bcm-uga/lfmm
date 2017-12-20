@@ -588,7 +588,7 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' @param scale a boolean value, \code{TRUE} if the explanatory variable, X, is scaled 
 ##' (recommended option). 
 ##' @param rev.confounder a boolean value. If \code{TRUE} confounders are revaluated in each 
-##' conditional test. May take some time (default = \code{TRUE}. 
+##' conditional test. May take some time (default = \code{TRUE}). 
 ##' @param candidate.list a vector of integers corresponding to response variables (columns in Y), 
 ##' which are known candidates for association. If \code{NULL}, a list of candidates 
 ##' is built in during the algorithm run.
@@ -683,7 +683,7 @@ forward_test <- function(Y,
                          niter = 5, 
                          scale = FALSE,
                          candidate.list = NULL,
-                         rev.confounder = FALSE,
+                         rev.confounder = TRUE,
                          lambda = 1e-5){
   
   if (ncol(X) > 1) stop("The function works with 

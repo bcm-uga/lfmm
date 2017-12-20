@@ -5,7 +5,7 @@
 \title{Forward inclusion tests with latent factor mixed models}
 \usage{
 forward_test(Y, X, K, niter = 5, scale = FALSE, candidate.list = NULL,
-  rev.confounder = FALSE, lambda = 1e-05)
+  rev.confounder = TRUE, lambda = 1e-05)
 }
 \arguments{
 \item{Y}{a response variable matrix with n rows and p columns.
@@ -25,7 +25,7 @@ which are known candidates for association. If \code{NULL}, a list of candidates
 is built in during the algorithm run.}
 
 \item{rev.confounder}{a boolean value. If \code{TRUE} confounders are revaluated in each
-conditional test. May take some time (default = \code{TRUE}.}
+conditional test. May take some time (default = \code{TRUE}).}
 
 \item{lambda}{a numeric value for the regularization parameter.}
 }
