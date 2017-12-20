@@ -4,12 +4,12 @@
 \alias{hypothesis_testing_lm}
 \title{Hypothesis testing with lm}
 \usage{
-hypothesis_testing_lm(dat, X)
+hypothesis_testing_lm(dat, X, lambda)
 }
 \description{
 linear model:
 Y = X B^T + E
 }
 \author{
-cayek
+cayek, francoio
 }

@@ -4,8 +4,8 @@
 \alias{forward_test}
 \title{Forward inclusion tests with latent factor mixed models}
 \usage{
-forward_test(Y, X, K, niter = 20, scale = FALSE, candidate.list = NULL,
-  lambda = 1e-04)
+forward_test(Y, X, K, niter = 5, scale = FALSE, candidate.list = NULL,
+  rev.confounder = FALSE, lambda = 1e-05)
 }
 \arguments{
 \item{Y}{a response variable matrix with n rows and p columns.
@@ -17,27 +17,30 @@ Each column is a response variable (numeric).}
 
 \item{niter}{an integer value for the number of forward inclusion tests.}
 
-\item{scale}{a local value, \code{TRUE} if the explanatory variable, X, is scaled
+\item{scale}{a boolean value, \code{TRUE} if the explanatory variable, X, is scaled
 (recommended option).}
 
-\item{candidate.list}{a vector of integers corresponding to columns in Y, and evaluated
-as top hits in previous association analysis. If \code{NULL}, a list of candidates
-is built from the first LFMM top hit.}
+\item{candidate.list}{a vector of integers corresponding to response variables (columns in Y),
+which are known candidates for association. If \code{NULL}, a list of candidates
+is built in during the algorithm run.}
+
+\item{rev.confounder}{a boolean value. If \code{TRUE} confounders are revaluated in each
+conditional test. May take some time (default = \code{TRUE}.}
 
 \item{lambda}{a numeric value for the regularization parameter.}
 }
 \value{
 a list with the following attributes:
 \itemize{
-\item candidates a vector of niter candidate variables (columns of Y),
-\item log.p a vector of uncorrected log p-values for checking (not trustable for testing).
+\item candidates a vector of niter response variables (column labels in Y) detected as top hits in
+each conditional association analysis.
+\item log.p a vector of uncorrected log p-values for checking that the algorithm behaves well (but not trustable for testing).
 }
 }
 \description{
 This function tests for association between each column of the response matrix, Y,
-and the explanatory variables, X, by recursively including the top hits in the set
-of explanatory variables. The recursive tests are based on LFMMs with ridge
-penalty.
+and the explanatory variables, X, by recursively conditioning on the top hits in the set
+of explanatory variables. The conditional tests are based on LFMMs with ridge penalty.
 }
 \details{
 The response variable matrix Y and the explanatory variable are centered.
@@ -105,8 +108,8 @@ log.p
 ## Check perfect hits for each causal SNPs (labelled from 1 to 20)
 obj$candidate \%in\% example.data$causal.set
 
-## Check for candidates at distance 20 SNPs (about 10kb)
-theta <- 20
+## Check for candidates at distance 5 SNPs (about 2.5kb)
+theta <- 5
 ## Number of hits for each causal SNPs (1-20)
  hit.5 <- as.numeric(
           apply(sapply(obj$candidate, 
@@ -117,7 +120,7 @@ theta <- 20
 table(hit.5)
 
 ## Plot log P
-plot(obj$log.p, xlab = "Iteration")
+plot(log.p, xlab = "Conditional test iteration", ylab="Top hit log(p)")
 }
 \author{
 cayek, francoio

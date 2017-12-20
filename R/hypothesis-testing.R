@@ -3,9 +3,9 @@
 ##' linear model: 
 ##' Y = X B^T + E
 ##' 
-##' @author cayek
+##' @author cayek, francoio
 ##' @export
-hypothesis_testing_lm <- function(dat, X) {
+hypothesis_testing_lm <- function(dat, X, lambda) {
 
   d <- ncol(X)
   p <- ncol(dat$Y)
@@ -16,13 +16,13 @@ hypothesis_testing_lm <- function(dat, X) {
   Af <- function(x) {
     t(dat$productYt(x))
   }
-  res$B <- compute_B_ridge(Af, X, 0.0)
+  res$B <- compute_B_ridge(Af, X, lambda)
 
   ## compute Var(E)
   res$epsilon.sigma2 <- dat$sigma2_lm(X, res$B, effective.degree.freedom)
 
   ## compute Var(B)
-  aux <- solve(crossprod(X))
+  aux <- solve(crossprod(X) + diag(lambda, ncol(X), ncol(X)))
   res$B.sigma2 <- t(matrix(diag(aux), d, 1) %*% matrix(res$epsilon.sigma2, 1, p))
 
   ## compute zscore

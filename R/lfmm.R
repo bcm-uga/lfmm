@@ -36,7 +36,7 @@
 ##'  - B the effect size matrix with dimensions p x d.
 ##' @details The response variable matrix Y and the explanatory variable are centered.
 ##' @export
-##' @author cayek
+##' @author cayek, francoio
 ##' @examples
 ##' 
 ##' library(lfmm)
@@ -131,7 +131,7 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5, algorithm = c("analytical", "alte
 ##' @details The response variable matrix Y and the explanatory variable are centered.
 ##'
 ##' @export
-##' @author cayek
+##' @author cayek, francoio
 ##' @examples
 ##' library(ggplot2)
 ##' library(lfmm)
@@ -214,7 +214,7 @@ lfmm_ridge_CV <- function(Y, X, n.fold.row, n.fold.col, lambdas, Ks) {
 ##' @details The response variable matrix Y and the explanatory variable are centered.
 ##'
 ##' @export
-##' @author cayek
+##' @author cayek, francoio
 ##' @examples
 ##' 
 ##' library(lfmm)
@@ -324,7 +324,7 @@ lfmm_lasso <- function(Y, X, K,
 ##'  - gif a numeric value for the genomic inflation factor.
 ##' @details The response variable matrix Y and the explanatory variable are centered.
 ##' @export
-##' @author cayek
+##' @author cayek, francoio
 ##' @examples
 ##' 
 ##' library(lfmm)
@@ -390,7 +390,11 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
   ## hp
   X <- cbind(dat$X, lfmm$U)
   d <- ncol(dat$X)
-  hp <- hypothesis_testing_lm(dat, X)
+  if (class(lfmm) == "ridgeLFMM") {
+    lfmm.la <- lfmm$lambda } else {
+    lfmm.la <- 0.0   
+    }
+  hp <- hypothesis_testing_lm(dat, X, lfmm.la)
   hp$score <- hp$score[,1:d, drop = FALSE]
   hp$pvalue <- hp$pvalue[,1:d, drop = FALSE]
   hp$B <- hp$B[ ,1:d, drop = FALSE]
@@ -571,9 +575,8 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' 
 ##' 
 ##' This function tests for association between each column of the response matrix, Y, 
-##' and the explanatory variables, X, by recursively including the top hits in the set 
-##' of explanatory variables. The recursive tests are based on LFMMs with ridge 
-##' penalty.
+##' and the explanatory variables, X, by recursively conditioning on the top hits in the set 
+##' of explanatory variables. The conditional tests are based on LFMMs with ridge penalty.
 ##'
 ##'
 ##' @param Y a response variable matrix with n rows and p columns. 
@@ -582,15 +585,18 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' @param K an integer for the number of latent factors in the regression model.
 ##' @param lambda a numeric value for the regularization parameter.
 ##' @param niter an integer value for the number of forward inclusion tests.
-##' @param scale a local value, \code{TRUE} if the explanatory variable, X, is scaled 
+##' @param scale a boolean value, \code{TRUE} if the explanatory variable, X, is scaled 
 ##' (recommended option). 
-##' @param candidate.list a vector of integers corresponding to columns in Y, and evaluated
-##' as top hits in previous association analysis. If \code{NULL}, a list of candidates 
-##' is built from the first LFMM top hit.
+##' @param rev.confounder a boolean value. If \code{TRUE} confounders are revaluated in each 
+##' conditional test. May take some time (default = \code{TRUE}. 
+##' @param candidate.list a vector of integers corresponding to response variables (columns in Y), 
+##' which are known candidates for association. If \code{NULL}, a list of candidates 
+##' is built in during the algorithm run.
 ##' 
 ##' @return a list with the following attributes: 
-##'  - candidates a vector of niter candidate variables (columns of Y),
-##'  - log.p a vector of uncorrected log p-values for checking (not trustable for testing). 
+##'  - candidates a vector of niter response variables (column labels in Y) detected as top hits in 
+##'  each conditional association analysis. 
+##'  - log.p a vector of uncorrected log p-values for checking that the algorithm behaves well (but not trustable for testing). 
 ##' @details The response variable matrix Y and the explanatory variable are centered.
 ##' 
 ##' @export
@@ -658,8 +664,8 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' ## Check perfect hits for each causal SNPs (labelled from 1 to 20)
 ##' obj$candidate %in% example.data$causal.set
 ##' 
-##' ## Check for candidates at distance 20 SNPs (about 10kb)
-##' theta <- 20
+##' ## Check for candidates at distance 5 SNPs (about 2.5kb)
+##' theta <- 5
 ##' ## Number of hits for each causal SNPs (1-20)
 ##'  hit.5 <- as.numeric(
 ##'           apply(sapply(obj$candidate, 
@@ -670,18 +676,19 @@ predict_lfmm <- function(Y, X, lfmm.object, fdr.level = 0.1, newdata = NULL){
 ##' table(hit.5)
 ##' 
 ##' ## Plot log P
-##' plot(obj$log.p, xlab = "Iteration")
+##' plot(log.p, xlab = "Conditional test iteration", ylab="Top hit log(p)")
 forward_test <- function(Y, 
                          X, 
                          K, 
-                         niter = 20, 
+                         niter = 5, 
                          scale = FALSE,
                          candidate.list = NULL,
-                         lambda = 1e-4){
+                         rev.confounder = FALSE,
+                         lambda = 1e-5){
   
   if (ncol(X) > 1) stop("The function works with 
                           a single explanatory variable 
-                          (d=1).")
+                          (d = 1).")
   
   if (!is.null(candidate.list)){
       if (!is.integer(candidate.list)) 
@@ -704,10 +711,12 @@ forward_test <- function(Y,
         X.m <- cbind(X, Y[,candidates])  
       }
     
-    mod.lfmm <- lfmm_ridge(Y = Y, 
+    if (i == 1 | rev.confounder == TRUE){ 
+      mod.lfmm <- lfmm_ridge(Y = Y, 
                            X = X.m, 
                            K = K, 
                            lambda = lambda) 
+      }
     pv <- lfmm_test(Y = Y, 
                     X = X.m, 
                     lfmm = mod.lfmm, 

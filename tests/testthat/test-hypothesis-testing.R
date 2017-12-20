@@ -13,7 +13,7 @@ test_that("hypothesis_testing_lm", {
                       V.sd = 1.0)
 
   X <- cbind(dat$X, dat$U, rnorm(100))
-  hp <- hypothesis_testing_lm(dat, X = X)
+  hp <- hypothesis_testing_lm(dat, X = X, lambda = 0.0)
 
   lm.res <- lm(dat$Y ~ X - 1)
   B.lm <- lm.res$coefficients

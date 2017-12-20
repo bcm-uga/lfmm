@@ -71,5 +71,5 @@ library(lfmm)
 \code{\link{lfmm_ridge}}
 }
 \author{
-cayek
+cayek, francoio
 }
