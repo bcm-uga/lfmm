@@ -10,47 +10,51 @@ lfmm_sampler(n, p, K, outlier.prop, cs, sigma = 0.2, B.sd = 1, B.mean = 0,
 \arguments{
 \item{n}{number of observations.}
 
-\item{p}{number of output variables.}
+\item{p}{number of response variables.}
 
-\item{K}{number of latent variables.}
+\item{K}{number of latent variables (factors).}
 
 \item{outlier.prop}{proportion of outlier.}
 
 \item{cs}{correlation with between X and U.}
 
-\item{sigma}{standard deviation of the error.}
+\item{sigma}{standard deviation of residual errors.}
 
-\item{B.sd}{standard deviation of B.}
+\item{B.sd}{standard deviation for the effect size (B).}
 
 \item{B.mean}{mean of B.}
 
-\item{U.sd}{standard deviation of U.}
+\item{U.sd}{standard deviations for K factors.}
 
-\item{V.sd}{standard deviation of V.}
+\item{V.sd}{standard deviations for loadings.}
 }
 \value{
-A list with sampled data.
+A list with simulated data.
 }
 \description{
-Sample data with the latent factor model.
+Simulate data from the latent factor model.
 }
 \details{
-\code{lfmm_sample()} sample an output matrix Y and primary matrix X such that
+\code{lfmm_sample()} sample a response matrix Y and a primary variable X such that
 
 Y = U t(V) + X t(B) + Epsilon.
 
-U,V, B and Epsilon are sampled with normal multivariate distribution.
+U,V, B and Epsilon are simulated according to normal multivariate distributions.
 Moreover U and X are such that \code{cor(U[,i], X) = cs[i]}.
 }
 \examples{
 
-dat <- lfmm_sampler(n = 100, p = 1000, K = 3,
+dat <- lfmm_sampler(n = 100, 
+                    p = 1000, 
+                    K = 3,
                     outlier.prop = 0.1,
                     cs = c(0.8),
                     sigma = 0.2,
-                    B.sd = 1.0, B.mean = 0.0,
-                    U.sd = 1.0, V.sd = 1.0)
+                    B.sd = 1.0, 
+                    B.mean = 0.0,
+                    U.sd = 1.0, 
+                    V.sd = 1.0)
 }
 \author{
-kevin caye
+kevin caye, olivier francois
 }
