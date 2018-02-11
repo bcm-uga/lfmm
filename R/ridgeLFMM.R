@@ -144,26 +144,30 @@ ridgeLFMM_withNA <- function(m, dat, relative.err.min = 1e-6, it.max = 100) {
 }
 
 ##' @export
-lfmm_fit.ridgeLFMM <- function(m, dat, it.max = 100, relative.err.min = 1e-6) {
+lfmm_fit.ridgeLFMM <- function(m, dat, it.max = 100, relative.err.min = 1e-6){
+  
+  if (!(m$algorithm %in% c("analytical", "alternated"))){
+    stop("algorithm must be analytical or alternated")}
+  
   ## test if there missing value in Y
   if (anyNA(dat$Y)) {
-    if (m$algorithm %in% c("analytical", "alternated")) {
+    if (m$algorithm == "analytical"){
+      stop("Exact method doesn't allow missing data. 
+           Use an imputation method before running lfmm.")
+      } else {
       res <- ridgeLFMM_withNA(m, dat,
                               relative.err.min = relative.err.min,
                               it.max = it.max)
-    } else {
-      stop("algorithm must be analytical or alternated")
-    }
-  } else {
+      }
+    } 
+  if (!anyNA(dat$Y)) { 
     if (m$algorithm == "analytical") {
       res <- ridgeLFMM_noNA(m, dat)
-    } else if (m$algorithm == "alternated") {
+      } else {
       res <- ridgeLFMM_noNA_alternated(m, dat,
                                        relative.err.min = relative.err.min,
-                                       it.max = it.max)
-    } else {
-      stop("algorithm must be analytical or alternated.")
-    }
+                                       it.max = it.max) 
+      }
   }
 }
 
