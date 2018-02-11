@@ -19,17 +19,15 @@
 ##' Explanatory variables must be encoded as numeric variables.
 ##' @param K an integer for the number of latent factors in the regression model.
 ##' @param lambda a numeric value for the regularization parameter.
-##' @param algorithm analytical solution algorithm or numerical alternated algorithm.
-##' The analytical solution algorithm is based on global minimum of the loss function and
-##' the computation is very quick. The numerical alternated algorithm converges toward a local
-##' minimum of the loss function. The interest of the alternated algorithm is that it does not
-##' imply the computation of a \eqn{n \times n} matrix. Whereas the analytical algorithm requires
-##' the computation of a \eqn{n \times n} matrix, which can be a problem when n is very large.
-##' @param it.max an integer value for the number of iterations of the algorithm. Only for the
-##' alternated numerical algorithm
-##' @param relative.err.epsilon a numeric value for a relative convergence error. Determine
-##' whether the algorithm converges or not. Only for the
-##' alternated numerical algorithm.
+##' @param algorithm exact (analytical) algorithm or numerical algorithm.
+##' The exact algorithm is based on the global minimum of the loss function and
+##' computation is very fast. The numerical algorithm converges toward a local
+##' minimum of the loss function. The exact method should preferred. The numerical method is 
+##' for very large n.
+##' @param it.max an integer value for the number of iterations for the
+##' numerical algorithm.
+##' @param relative.err.epsilon a numeric value for a relative convergence error. Test
+##' whether the numerical algorithm converges or not (numerical algorithm only).
 ##' @return an object of class \code{lfmm} with the following attributes:
 ##'  - U the latent variable score matrix with dimensions n x K,
 ##'  - V the latent variable axis matrix with dimensions p x K,
@@ -94,7 +92,7 @@
 ##' points(causal.set, 
 ##'       -log10(pvalues)[causal.set], 
 ##'        col = "blue")
-lfmm_ridge <- function(Y, X, K, lambda = 1e-5, algorithm = c("analytical", "alternated"),
+lfmm_ridge <- function(Y, X, K, lambda = 1e-5, algorithm = "analytical",
                        it.max = 100, relative.err.min = 1e-6) {
 
   ## init
