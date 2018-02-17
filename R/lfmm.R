@@ -295,12 +295,12 @@ lfmm_lasso <- function(Y, X, K,
   m
 }
 
-##' Statistical tests with latent factor mixed models
+##' Statistical tests with latent factor mixed models (linear models)
 ##' 
 ##' 
 ##' This function returns significance values for the association between each column of the 
 ##' response matrix, Y, and the explanatory variables, X, including correction for unobserved confounders 
-##' (latent factors). The test is based on an LFMM fitted with a ridge or lasso penalty.
+##' (latent factors). The test is based on an LFMM fitted with a ridge or lasso penalty (linear model).
 ##'
 ##'
 ##' @param Y a response variable matrix with n rows and p columns. 
@@ -321,6 +321,7 @@ lfmm_lasso <- function(Y, X, K,
 ##'  - calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable,
 ##'  - gif a numeric value for the genomic inflation factor.
 ##' @details The response variable matrix Y and the explanatory variable are centered.
+##' @seealso \link{glm_test}
 ##' @export
 ##' @author cayek, francoio
 ##' @examples
@@ -354,6 +355,7 @@ lfmm_lasso <- function(Y, X, K,
 ##'
 ##' 
 ##' ## An EWAS example with Y = methylation data and X = exposure
+##' data("skin.exposure")
 ##' Y <- scale(skin.exposure$beta.value)
 ##' X <- scale(as.numeric(skin.exposure$exposure))
 ##' 
@@ -414,6 +416,114 @@ lfmm_test <- function(Y, X, lfmm, calibrate = "gif") {
 
   hp
 }
+
+
+
+##' GLM tests with latent factor mixed models
+##' 
+##' 
+##' This function returns significance values for the association between each column of the 
+##' response matrix, Y, and the explanatory variables, X, including correction for unobserved confounders 
+##' (latent factors). The test is based on an LFMM fitted with a ridge or lasso penalty and a generalized linear 
+##' model.
+##'
+##'
+##' @param Y a response variable matrix with n rows and p columns. 
+##' Each column is a response variable (numeric).
+##' @param X an explanatory variable matrix with n rows and d columns. 
+##' Each column corresponds to an explanatory variable (numeric).
+##' @param lfmm.obj an object of class \code{lfmm} returned by the \link{lfmm_lasso} 
+##' or \link{lfmm_ridge} function
+##' @param calibrate a character string, "gif". If the "gif" option is set (default), 
+##' significance values are calibrated by using the genomic control method. Genomic control 
+##' uses a robust estimate of the variance of z-scores called "genomic inflation factor". 
+##' @return a list with the following attributes:
+##'  - B the effect size matrix with dimensions p x d.
+##'  - score a p x d matrix which contains z-scores for each explanatory variable (columns of X),
+##'  - pvalue a p x d matrix which contains p-values for each explanatory variable,
+##'  - calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable,
+##'  - gif a numeric value for the genomic inflation factor.
+##' @details The response variable matrix Y and the explanatory variable are centered.
+##' @seealso \link{lfmm_test}
+##' @export
+##' @author cayek, francoio
+##' @examples
+##' 
+##' library(lfmm)
+##' 
+##' 
+##' ## An EWAS example with Y = methylation data 
+##' ## and X = "exposure" (categorical variable)
+##' data("skin.exposure")
+##' Y <- skin.exposure$beta.value
+##' Y[Y == 0] <- 0.0001 #avoid NA
+##' Y[Y == 1] <- 0.9999
+##' Y <- qnorm(as.matrix(Y))
+##' X <- skin.exposure$exposure == "exposure: sun exposed"
+##' 
+##' ## Fit an LFMM with 2 latent factors
+##' mod.lfmm <- lfmm_ridge(Y = Y,
+##'                        X = X, 
+##'                        K = 2)
+##'                        
+##' ## Perform association testing using the fitted model:
+##' pv <- glm_test(Y = pnorm(Y), 
+##'                 X = X,
+##'                 lfmm.obj = mod.lfmm, 
+##'                 family = binomial(link = "probit"),
+##'                 calibrate = "gif")
+##'                 
+##' ## Manhattan plot with true associations shown
+##' pvalues <- pv$calibrated.pvalue
+##' plot(-log10(pvalues), 
+##'      pch = 19, 
+##'      cex = .3,
+##'      xlab = "Probe",
+##'      col = "grey")
+##'      
+##' causal.set <- seq(11, 1496, by = 80)
+##' points(causal.set, 
+##'       -log10(pvalues)[causal.set], 
+##'        col = "blue")
+glm_test <- function(Y, X, lfmm.obj, calibrate = "gif",family = binomial(link = "logit")) {
+  
+  ## init
+  dat <- LfmmDat(Y = Y, X = scale(X, scale = FALSE)) ## WARNING : scale here !!
+  d <- ncol(dat$X)
+  p <- ncol(dat$Y)
+  
+  ## tests based on GLMs
+  p.value <- NULL
+  z.score <- NULL
+  effect.size <- NULL
+  for (j in 1:p){
+    mod.glm <- glm(dat$Y[,j] ~ ., 
+                   data = data.frame(dat$X, lfmm.obj$U),
+                   family = family)
+    p.value <- rbind(p.value, summary(mod.glm)$coeff[2:(d+1),4])
+    z.score <- rbind(z.score, summary(mod.glm)$coeff[2:(d+1),3]) 
+    effect.size <-  rbind(effect.size, summary(mod.glm)$coeff[2:(d+1),1]) 
+  }
+  
+  hp <- NULL
+  hp$score <- z.score
+  hp$pvalue <- p.value
+  hp$B <- effect.size
+  
+  ## calibrate
+  if (is.null(calibrate)) {
+    NULL ## nothing
+  } else {
+    hp$gif <- compute_gif(hp$score)
+    hp$calibrated.score2 <- sweep(hp$score ^ 2, 2, hp$gif, FUN = "/")
+    hp$calibrated.pvalue <- compute_pvalue_from_zscore2(hp$calibrated.score2, df = 1)
+  }
+  
+  hp
+}
+
+
+
 
 
 ##' Direct effect sizes estimated from latent factor models
