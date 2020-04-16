@@ -328,7 +328,7 @@ lfmm_lasso <- function(Y, X, K,
 ##'  - pvalue a p x d matrix which contains uncalibrated p-values for each explanatory variable before calibration. 
 ##'  This may be useful to users preferring alternative methods to the GIF, like the local FDR method. 
 ##'  - calibrated.score2  a p x d matrix which contains squared Z-score after calibration. 
-##'  This may be useful to expert users who maywant to perform test recalibration with a different numeric value 
+##'  This may be useful to expert users who may want to perform test recalibration with a different numeric value 
 ##'  for the GIF.
 ##'  
 ##' @details The response variable matrix Y and the explanatory variables X are centered. Note that 
