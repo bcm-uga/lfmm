@@ -126,7 +126,7 @@ lfmm_ridge <- function(Y, X, K, lambda = 1e-5, algorithm = "analytical",
 ##' @param n.fold.row number of cross-validation folds along rows.
 ##' @param p.fold.col number of cross-validation folds along columns.
 ##' @return a dataframe containing prediction errors for all values of lambda and K
-##' @details The response variable matrix Y and the explanatory variable are centered.
+##' @details The response variable matrix Y and the explanatory variables X are centered.
 ##'
 ##' @export
 ##' @author cayek, francoio
@@ -315,12 +315,27 @@ lfmm_lasso <- function(Y, X, K,
 ##' If the "median+MAD" option is set, the pvalues are calibrated by computing the median and MAD of the zscores. If \code{NULL}, the 
 ##' pvalues are not calibrated.
 ##' @return a list with the following attributes:
-##'  - B the effect size matrix with dimensions p x d.
-##'  - score a p x d matrix which contains z-scores for each explanatory variable (columns of X),
-##'  - pvalue a p x d matrix which contains p-values for each explanatory variable,
+##'  - B a p x d matrix of effect sizes for each locus and each explanatory variable. Note that the direction 
+##'  of association is "Y explained by X",
 ##'  - calibrated.pvalue a p x d matrix which contains calibrated p-values for each explanatory variable,
-##'  - gif a numeric value for the genomic inflation factor.
-##' @details The response variable matrix Y and the explanatory variable are centered.
+##'  - gif a numeric value for the genomic inflation factor,
+##'  - epsilon.sigma2 a vector of length p containing the residual variances for each locus,
+##'  - B.sigma2 a matrix of size n x (d+K) that contains the variance of effect sizes for the d explanatory variables
+##'  and the K latent factors. It could be used to evaluate the proportion of the response variance (genetic variation) 
+##'  explained by the exposure (X) and latent factors (U) at each locus,
+##'  - score a p x d matrix which contains z-scores for each explanatory variable (columns of X), before calibration. 
+##'  This is equal to B[,j]/sqrt(B.sigma2[,j]) for variable j.
+##'  - pvalue a p x d matrix which contains uncalibrated p-values for each explanatory variable before calibration. 
+##'  This may be useful to users preferring alternative methods to the GIF, like the local FDR method. 
+##'  - calibrated.score2  a p x d matrix which contains squared Z-score after calibration. 
+##'  This may be useful to expert users who maywant to perform test recalibration with a different numeric value 
+##'  for the GIF.
+##'  
+##' @details The response variable matrix Y and the explanatory variables X are centered. Note that 
+##' scaling the Y and X matrices would convert the effect sizes into correlation coefficients. Calibrating 
+##' p-values means that their distribution is uniform under the null-hypothesis. Additional corrections are 
+##' required for multiple testing. For this, Benjamini-Hochberg or Bonferroni adjusted p-values could be obtained from 
+##' the calibrated values by using one of several the packages that implements multiple testing corrections. 
 ##' @seealso \link{glm_test}
 ##' @export
 ##' @author cayek, francoio
