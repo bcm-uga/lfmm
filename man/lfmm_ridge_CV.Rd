@@ -33,7 +33,7 @@ a prediction error. The function \code{\link{lfmm_ridge}} is run with the
 train set and the prediction error is evaluated from the test set.
 }
 \details{
-The response variable matrix Y and the explanatory variable are centered.
+The response variable matrix Y and the explanatory variables X are centered.
 }
 \examples{
 library(ggplot2)
