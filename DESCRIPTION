@@ -1,7 +1,7 @@
 Package: lfmm
 Type: Package
 Title: Latent Factor Mixed Models
-Version: 0.0
+Version: 1.0
 Date: 2017-06-14
 Authors@R: c(
   person("Kevin", "Caye", 
